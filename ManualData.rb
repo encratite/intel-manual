@@ -13,20 +13,42 @@ class ManualData
 	
 	def parseInstruction(title, content)
 		puts title
-		#pattern = /<Table>.*?<TR>.*?<T.>Opcode <\/T.>.*?<T.>Instruction <\/T.>.*?<T.>Op\/ <\/T.>.*?<T.>64-bit <\/T.>.*?<T.>Compat\/ <\/T.>.*?<T.>Description <\/T.><\/TR>(.*)<\/Table>/m
-		pattern = /<Table>.*?<TR>.*?<T.>Opcode <\/T.>.*?<T.>Instruction <\/T.>.*?<T.>Op\/ <\/T.>/m
-		match = pattern.match(content)
+		
+		instructionPattern = /<Table>(.*?<T[HD]>Instruction.?<\/T[HD]>.*?)<\/Table>/m
+		rowPattern = /<TR>(.*?)<\/TR>/m
+		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)\/T[HD]>/
+		
+		match = instructionPattern.match(content)
 		if match == nil
 			puts "This is not an instruction section"
 			return
 		end 
-		rows = match[1]
-		pattern = /<TR>.*?(<TD>(.*?)<\/TD>.*?|<TD\/>.*?)+<\/TR>/m
-		match = pattern.match(rows)
-		if match == nil
-			puts "Unable to match rows"
-			return
-		end 
-		puts match.inspect
+		
+		rows = []
+		rowsData = match[1]
+		rowsData.scan(rowPattern) do |match|
+			columns = []
+			columnData = match.first
+			append = false
+			columnData.scan(columnPattern) do |match|
+				column = match.first
+				if column == '<'
+					column = nil
+					append = true
+				end
+				columns << column
+			end
+			if append
+				lastRow = rows[-1]
+				columns.size.times do |i|
+					toAppend = columns[i]
+					next if toAppend == nil
+					lastRow[i] += toAppend
+				end
+			else
+				rows << columns
+			end
+		end
+		puts rows.first.inspect
 	end
 end
