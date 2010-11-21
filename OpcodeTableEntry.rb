@@ -1,4 +1,7 @@
+require 'nil/symbol'
+
 class OpcodeTableEntry
+	include SymbolicAssignment
 	attr_reader(
 		:opcode,
 		:instruction,

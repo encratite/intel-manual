@@ -1,6 +1,11 @@
 require 'nil/file'
+require_relative 'Instruction'
 
 class ManualData
+	def initialize
+		@instructions = []
+	end
+
 	def processPath(path)
 		data = Nil.readFile(path)
 		raise "Unable to read manual file \"#{path}\"" if data == nil
@@ -15,11 +20,13 @@ class ManualData
 		puts title
 		
 		instructionPattern = /<Table>(.*?<T[HD]>Instruction.?<\/T[HD]>.*?)<\/Table>/m
+		descriptionPattern = /<P>Description <\/P>/
 		rowPattern = /<TR>(.*?)<\/TR>/m
 		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)\/T[HD]>/
 		
-		match = instructionPattern.match(content)
-		if match == nil
+		match1 = instructionPattern.match(content)
+		match2 = descriptionPattern.match(content)
+		if match1 == nil || match2 == nil
 			puts "This is not an instruction section"
 			return
 		end 
@@ -49,6 +56,9 @@ class ManualData
 				rows << columns
 			end
 		end
-		puts rows.first.inspect
+
+		instruction = Instruction.new(rows)
+		
+		@instructions << instruction
 	end
 end
