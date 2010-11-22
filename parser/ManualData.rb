@@ -26,12 +26,13 @@ class ManualData
 				#we have discovered a case of column merges in the XML output
 				mergeOffset = 1
 				mergedColumn = row[mergeOffset]
-				if mergedColumn == nil
+				case mergedColumn
+				when nil
 					#the merged column is part of a split row - just replicate the nil
 					row.insert(mergeOffset, nil)
 					next					
 				end
-				targets = ['A', 'B']
+				targets = ['A', 'B', 'Valid']
 				hit = false
 				targets.each do |target|
 					string = target + ' '
@@ -56,28 +57,43 @@ class ManualData
 	def parseInstruction(title, content)
 		puts title
 		
-		instructionPattern = /<Table>(.*?<T[HD]>Instruction.?<\/T[HD]>.*?)<\/Table>/m
+		tablePattern = /<Table>(.*?)<\/Table>/m
+		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>/
 		descriptionPattern = /<P>Description <\/P>/
+		jumpString = 'Transfers program control'
 		rowPattern = /<TR>(.*?)<\/TR>/m
 		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)T[HD]\/>/
-		
-		match1 = instructionPattern.match(content)
-		match2 = descriptionPattern.match(content)
-		if match1 == nil || match2 == nil
-			puts "This is not an instruction section"
+
+		error = proc do |reason|
+			puts "This is not an instruction section (#{reason})"
 			return
-		end 
+		end
+		
+		tableMatch = tablePattern.match(content)
+		descriptionMatch = descriptionPattern.match(content)
+		if tableMatch == nil
+			error.call('table match failed')
+		end
+		
+		#the JMP instruction has an irregular description tag within a table
+		if descriptionMatch == nil && content.index(jumpString) == nil
+			error.call('description match failed')
+		end
+
+		tableContent = tableMatch[1]
+		instructionMatch = instructionPattern.match(tableContent)
+		if instructionMatch == nil
+			error.call('instruction match failed')
+		end
 		
 		rows = []
-		rowsData = match1[1]
-		rowsData.scan(rowPattern) do |match|
+		tableContent.scan(rowPattern) do |match|
 			columns = []
 			columnData = match.first
 			append = false
 			columnData.scan(columnPattern) do |match|
 				column = match.first
-				if column == '<'
-					column = nil
+				if column == nil
 					append = true
 				end
 				columns << column
@@ -94,7 +110,12 @@ class ManualData
 			end
 		end
 
-		postProcessRows(rows)
+		begin
+			postProcessRows(rows)
+		rescue => exception
+			#puts instructionMatch[1].inspect
+			raise exception
+		end
 
 		instruction = Instruction.new(rows)
 		
