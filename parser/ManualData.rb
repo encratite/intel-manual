@@ -54,43 +54,122 @@ class ManualData
 		end
 	end
 
-	def extractRows(tableContent)
+	def parseTable(input)	
 		rowPattern = /<TR>(.*?)<\/TR>/m
+		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)T[HD]\/>/
 		rows = []
-		tableContent.scan(rowPattern) do |match|
+		input.scan(rowPattern) do |match|
 			columns = []
-			columnData = match.first
+			match.first.scan(columnPattern) do |match|
+				columns << match.first
+			end
+			rows << columns
+		end
+		return rows
+	end
+
+	def extractRows(tableContent)
+		rows = parseTable(tableContent)
+		lastCompleteRow = nil
+		output = []
+		rows.each do |row|
 			append = false
-			columnData.scan(columnPattern) do |match|
-				column = match.first
+			row.each do |column|
 				if column == nil
 					append = true
 				end
-				columns << column
 			end
 			if append
-				lastRow = rows[-1]
-				columns.size.times do |i|
-					toAppend = columns[i]
+				if output.empty?
+					raise 'Encountered an empty column in the first row'
+				end
+				lastRow = output[-1]
+				row.size.times do |i|
+					toAppend = row[i]
 					next if toAppend == nil
 					lastRow[i] += toAppend
 				end
 			else
-				rows << columns
+				output << row
 			end
 		end
 
 		begin
-			postProcessRows(rows)
+			postProcessRows(output)
 		rescue => exception
 			raise exception
 		end
 
-		return rows
+		return output
 	end
 
-	def extractEncoding(content)
-		
+	def extractEncodingParagraph(input)
+		encodingParagraphPattern = /<P>Op\/En Operand 1 Operand 2 Operand 3 Operand 4.*\n(.+?)\n<\/P>/
+		match = encodingParagraphPattern.match(input)
+		return nil if match == nil
+		content = match[1]
+
+		targets =
+		[
+			'imm8/16/32/64',
+			'Displacement',
+			'AL/AX/EAX/RAX',
+			'implicit XMM0',
+			'reg (r)',
+			'reg (w)',
+			'reg (r, w)',
+			'Offset',
+			'ModRM:reg (r)',
+			'ModRM:reg (w)',
+			'ModRM:reg (r, w)',
+			'ModRM:r/m (r)',
+			'ModRM:r/m (w)',
+			'ModRM:r/m (r, w)',
+			'imm8',
+			'iw',
+			'NA',
+			'A',
+			'B',
+			'C',
+		]
+		i = 0
+		output = []
+		while i < content.size
+			if content[i] == ' '
+				i += 1
+				next
+			end
+			foundTarget == false
+			targets.each do |target|
+				remaining = content.size - i
+				if target.size > remaining
+					next
+				end
+				substring = content[i..i + target.size]
+				if substring == target
+					foundTarget = true
+					output << target
+				end
+			end
+			if !foundTarget
+				raise "Unable to process encoding string #{content.inspect}, previous matches were #{output.inspect}"
+			end
+		end
+		return [output]
+	end
+
+	def extractEncodingTable(content)
+		tablePattern = /<Table>(.*<TR>.*<TD>Operand 1 <\/TD>.+?)<\/Table>/
+		match = tablePattern.match(content)
+		return nil if match == nil
+
+		rows = parseTable(match[1])
+		if rows.size < 2
+			raise "Invalid instruction encoding table: #{rows.inspect}"
+		end
+
+		#Ignore the header
+		return rows[1..-1]
 	end
 	
 	def parseInstruction(title, content)
@@ -100,9 +179,7 @@ class ManualData
 		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>/
 		descriptionPattern = /<P>Description <\/P>/
 		jumpString = 'Transfers program control'
-		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)T[HD]\/>/
-		encodingParagraphPattern = /<P>Op\/En Operand 1 Operand 2 Operand 3 Operand 4.*\n(.+?)\n<\/P>/
-
+		
 		error = proc do |reason|
 			puts "This is not an instruction section (#{reason} match failed)"
 			return
@@ -127,12 +204,12 @@ class ManualData
 	
 		rows = extractRows(tableContent)
 
-		encodingParagraphMatch = encodingParagraphPattern.match(content)
-		if encodingParagraphMatch == nil
-			error.call('encoding paragraph')
+		encodingParagraph = extractEncodingParagraph(content)
+		if encodingParagraph == nil
+			encodingTable = extractEncodingTable(content)
 		end
 		
-		instruction = Instruction.new(rows)
+		instruction = Instruction.new(rows, encodingTable)
 		
 		@instructions << instruction
 	end
