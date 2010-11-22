@@ -1,0 +1,104 @@
+CMPXCHG8B/CMPXCHG16B - Compare and Exchange Bytes
+has a terribly broken instruction table... so do several other instructions.
+At least the pattern for them is the same
+
+
+
+<H4 id="LinkTarget_36693">CMPXCHG8B/CMPXCHG16B—Compare and Exchange Bytes </H4>
+
+<P>Opcode Instruction 	Op/ 64-Bit Compat/ Description En Mode Leg Mode </P>
+
+<P>0F C7 /1 m64 CMPXCHG8B m64 A Valid Valid* 	Compare EDX:EAX with m64. If equal, set ZF and load ECX:EBX into m64. Else, clear ZF and load m64 into EDX:EAX. </P>
+
+<P>REX.W + 0F C7 CMPXCHG16B 	A Valid N.E. Compare RDX:RAX with </P>
+
+<P>/1 m128 m128 	m128. If equal, set ZF and load RCX:RBX into m128. Else, clear ZF and load m128 into RDX:RAX. </P>
+
+<P>NOTES: </P>
+
+<P>*See IA-32 Architecture Compatibility section below. </P>
+
+<P>Instruction Operand Encoding </P>
+
+<P>Op/En Operand 1 Operand 2 Operand 3 Operand 4 
+A ModRM:r/m (r, w) NA NA NA 
+</P>
+
+
+
+
+
+<H4 id="LinkTarget_36703">CVTPI2PD—Convert Packed Dword Integers to Packed Double-Precision FP Values </H4>
+
+<P>Opcode Instruction 	Op/ 64-Bit Compat/ Description En Mode Leg Mode </P>
+
+<P>66 0F 2A /r CVTPI2PD xmm, A Valid Valid Convert two packed signed mm/m64* doubleword integers from mm/mem64 to two packed double-precision floating-point values in xmm. </P>
+
+<P>NOTES: </P>
+
+<P>*Operation is different for different operand sets; see the Description section. </P>
+
+<P>Instruction Operand Encoding </P>
+
+<P>Op/En Operand 1 Operand 2 Operand 3 Operand 4 
+A ModRM:reg (w) ModRM:r/m (r) NA NA 
+</P>
+
+
+
+
+
+
+<H4 id="LinkTarget_36792">IMUL—Signed Multiply </H4>
+
+<P>Opcode Instruction 	Op/ 64-Bit Compat/ Description En Mode Leg Mode </P>
+
+<P>F6 /5 IMUL r/m8* 	A Valid Valid AX AL  r/m byte. </P>
+
+<P>F7 /5 IMUL r/m16 	A Valid Valid DX:AX  AX  r/m word. </P>
+
+<P>F7 /5 IMUL r/m32 	A Valid Valid EDX:EAX  EAX  r/m32. </P>
+
+<P>REX.W + F7 /5 IMUL r/m64 	A Valid N.E. RDX:RAX  RAX  r/m64. </P>
+
+<P>0F AF /r IMUL r16, r/m16 B Valid Valid 	word register  word register  r/m16. </P>
+
+<P>0F AF /r IMUL r32, r/m32 B Valid Valid 	doubleword register  doubleword register  </P>
+
+<P>r/m32. </P>
+
+<P>REX.W + 0F AF IMUL r64, r/m64 B Valid N.E. Quadword register  /r Quadword register  r/m64. </P>
+
+<P>6B /r ib IMUL r16, r/m16, C Valid Valid word register  r/m16  imm8 sign-extended immediate byte. </P>
+
+<P>6B /r ib IMUL r32, r/m32, C Valid Valid doubleword register  imm8 r/m32  sign-extended immediate byte. </P>
+
+<P>REX.W + 6B /r ib IMUL r64, r/m64, C Valid N.E. Quadword register  r/m64 imm8  sign-extended immediate byte. </P>
+
+<P>69 /r iw 	IMUL r16, r/m16, C Valid Valid word register  r/m16  imm16 immediate word. </P>
+
+<P>69 /r id IMUL r32, r/m32, C Valid Valid doubleword register  imm32 r/m32  immediate doubleword. </P>
+
+<P>REX.W + 69 /r id 	IMUL r64, r/m64, C Valid N.E. Quadword register  r/m64 imm32  immediate doubleword. </P>
+
+<P>NOTES: </P>
+
+<P>* 	In 64-bit mode, r/m8 can not be encoded to access the following byte registers if a REX prefix is used: AH, BH, CH, DH. </P>
+
+
+
+
+
+
+
+
+<H4 id="LinkTarget_36803">LAHF—Load Status Flags into AH Register </H4>
+
+<P>Opcode Instruction 	Op/ 64-Bit Compat/ Description En Mode Leg Mode </P>
+
+<P>9F LAHF A Invalid* Valid 	Load: AH  EFLAGS(SF:ZF:0:AF:0:PF:1:CF). </P>
+
+<P>NOTES: </P>
+
+<P>*Valid in specific steppings. See Description section. </P>
+

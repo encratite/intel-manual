@@ -1,0 +1,57 @@
+The encoding formats greatly vary, too, unluckily:
+
+<P>Instruction Operand Encoding </P>
+
+<P>Op/En Operand 1 Operand 2 Operand 3 Operand 4 
+A ModRM:reg (w) ModRM:reg (r) NA NA 
+</P>
+
+
+<P>Instruction Operand Encoding </P>
+
+<P>Op/En Operand 1 Operand 2 Operand 3 Operand 4 
+ANA NA NA NA 
+</P>
+
+
+
+<P>Instruction Operand Encoding </P>
+
+<Table>
+<TR>
+<TD>Op/En </TD>
+
+<TD>Operand 1 </TD>
+
+<TD>Operand 2 </TD>
+
+<TD>Operand 3 </TD>
+
+<TD>Operand 4 </TD>
+</TR>
+
+<TR>
+<TD>A </TD>
+
+<TD>ModRM:reg (w) </TD>
+
+<TD>ModRM:r/m (r) </TD>
+
+<TD>NA </TD>
+
+<TD>NA </TD>
+</TR>
+
+<TR>
+<TD>B </TD>
+
+<TD>ModRM:r/m (w) </TD>
+
+<TD>ModRM:reg (r) </TD>
+
+<TD>NA </TD>
+
+<TD>NA </TD>
+</TR>
+</Table>
+
