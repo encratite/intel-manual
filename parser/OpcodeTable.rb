@@ -43,9 +43,9 @@ class OpcodeTable
 
 	def setEncoding(encodingTable)
 		if encodingTable != nil
-		@encoding = encodingTable.map do |row|
-			InstructionOperandEncoding.new(row[0], row[1..-1])
-		end
+			@encoding = encodingTable.map do |row|
+				InstructionOperandEncoding.new(row[0], row[1..-1])
+			end
 		end
 	end
 end

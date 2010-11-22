@@ -10,6 +10,7 @@ class ManualData
 		data = Nil.readFile(path)
 		raise "Unable to read manual file \"#{path}\"" if data == nil
 		instructionPattern = /<Sect>.*?<H4 id="LinkTarget_\d+">(.+?) <\/H4>(.*?)<\/Sect>/m
+		data = data.gsub("\r", '')
 		data.scan(instructionPattern) do |match|
 			title, content = match
 			parseInstruction(title, content)
@@ -139,16 +140,18 @@ class ManualData
 				i += 1
 				next
 			end
-			foundTarget == false
+			foundTarget = false
 			targets.each do |target|
 				remaining = content.size - i
 				if target.size > remaining
 					next
 				end
-				substring = content[i..i + target.size]
+				substring = content[i..i + target.size - 1]
 				if substring == target
 					foundTarget = true
 					output << target
+					i += target.size
+					break
 				end
 			end
 			if !foundTarget

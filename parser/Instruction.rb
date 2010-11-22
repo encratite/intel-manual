@@ -1,5 +1,5 @@
 require_relative 'OpcodeTable'
-require_relative 'InstructionOperandEncoding'
+require_relative 'InstructionOperantEncoding'
 
 class Instruction
 	def initialize(opcodeTableRows, encodingTable)
