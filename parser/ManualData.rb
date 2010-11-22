@@ -53,39 +53,9 @@ class ManualData
 			end
 		end
 	end
-	
-	def parseInstruction(title, content)
-		puts title
-		
-		tablePattern = /<Table>(.*?)<\/Table>/m
-		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>/
-		descriptionPattern = /<P>Description <\/P>/
-		jumpString = 'Transfers program control'
+
+	def extractRows(tableContent)
 		rowPattern = /<TR>(.*?)<\/TR>/m
-		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)T[HD]\/>/
-
-		error = proc do |reason|
-			puts "This is not an instruction section (#{reason})"
-			return
-		end
-		
-		tableMatch = tablePattern.match(content)
-		descriptionMatch = descriptionPattern.match(content)
-		if tableMatch == nil
-			error.call('table match failed')
-		end
-		
-		#the JMP instruction has an irregular description tag within a table
-		if descriptionMatch == nil && content.index(jumpString) == nil
-			error.call('description match failed')
-		end
-
-		tableContent = tableMatch[1]
-		instructionMatch = instructionPattern.match(tableContent)
-		if instructionMatch == nil
-			error.call('instruction match failed')
-		end
-		
 		rows = []
 		tableContent.scan(rowPattern) do |match|
 			columns = []
@@ -113,10 +83,55 @@ class ManualData
 		begin
 			postProcessRows(rows)
 		rescue => exception
-			#puts instructionMatch[1].inspect
 			raise exception
 		end
 
+		return rows
+	end
+
+	def extractEncoding(content)
+		
+	end
+	
+	def parseInstruction(title, content)
+		puts title
+		
+		tablePattern = /<Table>(.*?)<\/Table>/m
+		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>/
+		descriptionPattern = /<P>Description <\/P>/
+		jumpString = 'Transfers program control'
+		columnPattern = /<T[HD]>(.*?)<\/T[HD]>|(<)T[HD]\/>/
+		encodingParagraphPattern = /<P>Op\/En Operand 1 Operand 2 Operand 3 Operand 4.*\n(.+?)\n<\/P>/
+
+		error = proc do |reason|
+			puts "This is not an instruction section (#{reason} match failed)"
+			return
+		end
+		
+		tableMatch = tablePattern.match(content)
+		descriptionMatch = descriptionPattern.match(content)
+		if tableMatch == nil
+			error.call('table')
+		end
+		
+		#the JMP instruction has an irregular description tag within a table
+		if descriptionMatch == nil && content.index(jumpString) == nil
+			error.call('description')
+		end
+
+		tableContent = tableMatch[1]
+		instructionMatch = instructionPattern.match(tableContent)
+		if instructionMatch == nil
+			error.call('instruction')
+		end
+	
+		rows = extractRows(tableContent)
+
+		encodingParagraphMatch = encodingParagraphPattern.match(content)
+		if encodingParagraphMatch == nil
+			error.call('encoding paragraph')
+		end
+		
 		instruction = Instruction.new(rows)
 		
 		@instructions << instruction
