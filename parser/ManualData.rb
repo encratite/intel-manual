@@ -53,7 +53,7 @@ class ManualData
 					raise "Unable to split up erroneously merged columns: #{row.inspect}"
 				end
 			when 0
-				#everything is in order				
+				#everything is in order
 			else
 				raise "Invalid row length discrepancy of #{difference}: #{rows.inspect}"
 			end
@@ -109,6 +109,20 @@ class ManualData
 		end
 
 		return output
+	end
+
+	def extractParagraphOpcodes(content)
+		paragraphPattern = /<P>Opcode Instruction.*?<\/P>(.*?)<P>NOTES/m
+		linePattern = /<P>(.*?)<\/P>/
+
+		paragraphMatch = paragraphPattern.match(content)
+		return nil if paragraphMatch == nil
+
+		paragraphContent = match[1]
+		paragraphContent.scan(linePattern) do |match|
+			line = match.first
+
+		end
 	end
 
 	def extractEncodingParagraph(input)
