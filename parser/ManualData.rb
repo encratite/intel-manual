@@ -1,4 +1,8 @@
+#coding: utf-8
+
 require 'nil/file'
+require 'nil/string'
+
 require_relative 'Instruction'
 
 class ManualData
@@ -11,6 +15,7 @@ class ManualData
 		raise "Unable to read manual file \"#{path}\"" if data == nil
 		instructionPattern = /<Sect>.*?<H4 id="LinkTarget_\d+">(.+?) <\/H4>(.*?)<\/Sect>/m
 		data = data.gsub("\r", '')
+		data.force_encoding('utf-8')
 		data.scan(instructionPattern) do |match|
 			title, content = match
 			parseInstruction(title, content)
@@ -69,8 +74,10 @@ class ManualData
 		return rows
 	end
 
-	def extractRows(tableContent)
+	def extractTableOpcodes(tableContent)
 		rows = parseTable(tableContent)
+		return nil if rows.empty?
+
 		lastCompleteRow = nil
 		output = []
 		rows.each do |row|
@@ -176,16 +183,26 @@ class ManualData
 	end
 	
 	def parseInstruction(title, content)
-		puts title
+		tokens = title.split('—')
+		if tokens.size != 2
+			if !tokens.empty? && !tokens.first.empty? && tokens.first[0].isNumber
+				 #filter out section identifiers right away without a warning
+				return
+			end
+			raise "Invalid token count in title \"#{title}\": #{tokens.inspect}"
+		end
+		instruction, summary = tokens
+
+		puts "Processing instruction #{instruction}"
 		
 		tablePattern = /<Table>(.*?)<\/Table>/m
-		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>/
+		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode Instruction/
 		descriptionPattern = /<P>Description <\/P>/
+
 		jumpString = 'Transfers program control'
 		
 		error = proc do |reason|
-			puts "This is not an instruction section (#{reason} match failed)"
-			return
+			raise "This is not an instruction section (#{reason} match failed)"
 		end
 		
 		tableMatch = tablePattern.match(content)
@@ -205,7 +222,7 @@ class ManualData
 			error.call('instruction')
 		end
 	
-		rows = extractRows(tableContent)
+		rows = extractTableOpcodes(tableContent)
 
 		encodingParagraph = extractEncodingParagraph(content)
 		if encodingParagraph == nil
