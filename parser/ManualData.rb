@@ -36,7 +36,7 @@ class ManualData
 				when nil
 					#the merged column is part of a split row - just replicate the nil
 					row.insert(mergeOffset, nil)
-					next					
+					next
 				end
 				targets = ['A', 'B', 'Valid']
 				hit = false
@@ -111,6 +111,64 @@ class ManualData
 		return output
 	end
 
+	def getLineInstruction(line)
+		pattern = / ([A-Z]{3,}+) /
+		match = pattern.match(line)
+		return if match == nil
+		instruction = match[1]
+		return instruction
+	end
+
+	def performEncodingIdentifierSplit(line)
+		targets =
+		[
+			'A',
+			'B',
+			'C',
+		]
+
+		targets.each do |target|
+			offset = line.index(" #{target} ")
+			next if offset = nil
+			offset += 1
+			mnemonicData = line[0..offset - 1]
+			line = line[offset + 2 + target.size..-1]
+			return mnemonicData, target, line
+		end
+
+		return
+	end
+
+	def processParagraphOpcodeLine(line, rows)
+		line = line.gsub("\t", '')
+		instruction = getLineInstruction(line)
+		if instruction == nil
+			performExceptionalParagraphOpcodeProcessing(line, rows)
+			return
+		end
+
+		offset = line.index(line)
+		hexData = line[0..offset - 1]
+		line = [offset..-1]
+		tokens = performEncodingIdentifierSplit(line)
+		if tokens == nil
+			raise "Unable to extract the encoding identifier from line #{line.inspect}"
+		end
+		mnemonicData, encodingIdentifier, line = tokens
+		pattern = /(.+?) (.+?) (.+)/
+		match = pattern.match(line)
+		if match == nil
+			raise "Unable to extract the validity and description columns from line #{line.inspect}"
+		end
+
+		longMode = match[1]
+		legacyMode = match[2]
+		description = match[3]
+
+		row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
+		rows << row
+	end
+
 	def extractParagraphOpcodes(content)
 		paragraphPattern = /<P>Opcode Instruction.*?<\/P>(.*?)<P>NOTES/m
 		linePattern = /<P>(.*?)<\/P>/
@@ -118,10 +176,12 @@ class ManualData
 		paragraphMatch = paragraphPattern.match(content)
 		return nil if paragraphMatch == nil
 
+		rows = []
+
 		paragraphContent = match[1]
 		paragraphContent.scan(linePattern) do |match|
 			line = match.first
-
+			processParagraphOpcodeLine(line, rows)
 		end
 	end
 
