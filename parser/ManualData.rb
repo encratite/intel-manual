@@ -139,10 +139,15 @@ class ManualData
 		return
 	end
 
+	def performExceptionalParagraphOpcodeProcessing(line, rows)
+		if line.fits('/1 m128 m128')
+		end
+	end
+
 	def processParagraphOpcodeLine(line, rows)
 		line = line.gsub("\t", '')
 		instruction = getLineInstruction(line)
-		if instruction == nil
+		if [nil, 'ZF'].include?(instruction)
 			performExceptionalParagraphOpcodeProcessing(line, rows)
 			return
 		end
