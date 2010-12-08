@@ -129,7 +129,7 @@ class ManualData
 
 		targets.each do |target|
 			offset = line.index(" #{target} ")
-			next if offset = nil
+			next if offset == nil
 			offset += 1
 			mnemonicData = line[0..offset - 1]
 			line = line[offset + 2 + target.size..-1]
@@ -273,6 +273,7 @@ class ManualData
 		instruction, summary = tokens
 
 		puts "Processing instruction #{instruction}"
+		STDOUT.flush
 		
 		tablePattern = /<Table>(.*?)<\/Table>/m
 		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode Instruction/
