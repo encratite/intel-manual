@@ -28,7 +28,7 @@ class OpcodeTable
 		when 5
 			#this is used by the FPU instructions which have no encoding identifiers specified
 		else
-			raise "Invalid header size detected in a table: #{header.size}"
+			raise "Invalid header size detected in a table: #{header.size} (#{header.inspect})"
 		end
 		interpretation += [:longMode, :legacyMode, :description]
 		rows.each do |columns|

@@ -140,7 +140,8 @@ class ManualData
 	end
 
 	def performExceptionalParagraphOpcodeProcessing(line, rows)
-		if line.fits('/1 m128 m128')
+		if line.matchLeft('/1 m128 m128')
+			#continue here
 		end
 	end
 
@@ -183,7 +184,7 @@ class ManualData
 
 		rows = []
 
-		paragraphContent = match[1]
+		paragraphContent = paragraphMatch[1]
 		paragraphContent.scan(linePattern) do |match|
 			line = match.first
 			processParagraphOpcodeLine(line, rows)
@@ -296,13 +297,16 @@ class ManualData
 			error.call('description')
 		end
 
-		tableContent = tableMatch[1]
-		instructionMatch = instructionPattern.match(tableContent)
+		instructionMatch = instructionPattern.match(content)
 		if instructionMatch == nil
 			error.call('instruction')
 		end
 	
-		rows = extractTableOpcodes(tableContent)
+		rows = extractParagraphOpcodes(content)
+		if rows == nil
+			tableContent = tableMatch[1]
+			rows = extractTableOpcodes(tableContent)
+		end
 
 		encodingParagraph = extractEncodingParagraph(content)
 		if encodingParagraph == nil
