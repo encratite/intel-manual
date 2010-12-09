@@ -71,16 +71,56 @@ class ManualData
 			end
 			rows << columns
 		end
+		#puts rows.inspect
 		return rows
 	end
 
-	def extractTableOpcodes(tableContent)
+	def processIrregularOpcodeRow(row, output)
+		targets = ['A']
+		if row.size == 5
+			#for cases where the second and the third column were merged
+			targets.each do |target|
+				target = ' ' + target + ' '
+				mergedColumn = row[1]
+				if mergedColumn != nil && mergedColumn.matchRight(target)
+					fixedColumn = mergedColumn[0..mergedColumn.size - target.size - 1]
+					mergedColumn.replace(fixedColumn)
+					row.insert(2, target)
+					return
+				end
+			end
+
+			#for cases where a nil column is missing and the last column is part of the description
+			if !output.empty?
+				lastDescription = output[-1][-1].strip
+				if !lastDescription.empty? && lastDescription[-1] != '.'
+					match = true
+					(row.size - 1).times do |i|
+						if row[i] != nil
+							match = false
+							break
+						end
+					end
+					if match && row[-1] != nil
+						row.insert(0, nil)
+						return
+					end
+				end
+			end
+		end
+		raise "Invalid number of columns: #{row.inspect}"
+	end
+
+	def extractTableOpcodes(instruction, tableContent)
 		rows = parseTable(tableContent)
 		return nil if rows.empty?
 
 		lastCompleteRow = nil
 		output = []
 		rows.each do |row|
+			if row.size != 6
+				processIrregularOpcodeRow(row, output)
+			end
 			append = false
 			row.each do |column|
 				if column == nil
@@ -112,7 +152,7 @@ class ManualData
 	end
 
 	def getLineInstruction(line)
-		pattern = / ([A-Z]{3,}+) /
+		pattern = / ([A-Z]{3,}|[A-Z][A-Z0-9]{2,}) /
 		match = pattern.match(line)
 		return if match == nil
 		instruction = match[1]
@@ -132,7 +172,7 @@ class ManualData
 			next if offset == nil
 			offset += 1
 			mnemonicData = line[0..offset - 1]
-			line = line[offset + 2 + target.size..-1]
+			line = line[offset + 1 + target.size..-1]
 			return mnemonicData, target, line
 		end
 
@@ -140,6 +180,7 @@ class ManualData
 	end
 
 	def performExceptionalParagraphOpcodeProcessing(line, rows)
+		raise 'Not implemented'
 		if line.matchLeft('/1 m128 m128')
 			#continue here
 		end
@@ -148,15 +189,18 @@ class ManualData
 	def processParagraphOpcodeLine(line, rows)
 		line = line.gsub("\t", '')
 		instruction = getLineInstruction(line)
+		puts line.inspect
+		#puts instruction.inspect
 		if [nil, 'ZF'].include?(instruction)
 			performExceptionalParagraphOpcodeProcessing(line, rows)
 			return
 		end
 
-		offset = line.index(line)
+		offset = line.index(instruction)
 		hexData = line[0..offset - 1]
-		line = [offset..-1]
+		line = line[offset..-1]
 		tokens = performEncodingIdentifierSplit(line)
+		#puts tokens.inspect
 		if tokens == nil
 			raise "Unable to extract the encoding identifier from line #{line.inspect}"
 		end
@@ -172,6 +216,7 @@ class ManualData
 		description = match[3]
 
 		row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
+		puts row.inspect
 		rows << row
 	end
 
@@ -189,6 +234,8 @@ class ManualData
 			line = match.first
 			processParagraphOpcodeLine(line, rows)
 		end
+
+		return rows
 	end
 
 	def extractEncodingParagraph(input)
@@ -305,14 +352,14 @@ class ManualData
 		rows = extractParagraphOpcodes(content)
 		if rows == nil
 			tableContent = tableMatch[1]
-			rows = extractTableOpcodes(tableContent)
+			rows = extractTableOpcodes(instruction, tableContent)
 		end
 
 		encodingParagraph = extractEncodingParagraph(content)
 		if encodingParagraph == nil
 			encodingTable = extractEncodingTable(content)
 		end
-		
+
 		instruction = Instruction.new(rows, encodingTable)
 		
 		@instructions << instruction

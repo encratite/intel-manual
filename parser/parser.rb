@@ -10,7 +10,13 @@ end
 outputPath = ARGV[0]
 inputPaths = ARGV[1..-1]
 
-manualData = ManualData.new
-inputPaths.each do |path|
-	manualData.processPath(path)
+begin
+	manualData = ManualData.new
+	inputPaths.each do |path|
+		puts "Processing #{path}"
+		manualData.processPath(path)
+	end
+rescue => exception
+	puts exception.inspect
+	puts exception.backtrace.map { |x| "\t#{x}\n" }
 end
