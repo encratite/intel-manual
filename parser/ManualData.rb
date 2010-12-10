@@ -251,7 +251,15 @@ class ManualData
 		rows << row
 	end
 
-	def processParagraphOpcodeLine(line, rows)
+	def getFirstUpperCaseOffsetAfterInstructionMnemonic(input)
+		match = / .+?([A-Z])/.match(input)
+		if match == nil
+			raise "Unable to locate a post mnemonic upper case character in a reduced paragraph opcode line: #{line.inspect}"
+		end
+		return match.offset(1)[0]
+	end
+
+	def processParagraphOpcodeLine(instruction, line, rows)
 		line = line.gsub("\t", '')
 		instruction = getLineInstruction(line)
 		#puts line.inspect
@@ -264,29 +272,43 @@ class ManualData
 		offset = line.index(instruction)
 		hexData = line[0..offset - 1]
 		line = line[offset..-1]
-		tokens = performEncodingIdentifierSplit(line)
-		#puts tokens.inspect
-		if tokens == nil
-			raise "Unable to extract the encoding identifier from line #{line.inspect}"
-		end
-		mnemonicData, encodingIdentifier, line = tokens
-		pattern = /(.+?) (.+?) (.+)/
-		match = pattern.match(line)
-		if match == nil
-			raise "Unable to extract the validity and description columns from line #{line.inspect}"
-		end
 
-		longMode = match[1]
-		legacyMode = match[2]
-		description = match[3]
+		if instruction.size > 2 && instruction[0..1] == 'VM'
+			offset = getFirstUpperCaseOffsetAfterInstructionMnemonic(line)
+			
+			mnemonicData = instruction
+			encodingIdentifier = nil
+			longMode = nil
+			legacyMode = nil
+			description = line[offset..-1]
+		else
+			#puts line.inspect
+			tokens = performEncodingIdentifierSplit(line)
+			#puts tokens.inspect
+			if tokens == nil
+				raise "Unable to extract the encoding identifier from line #{line.inspect}"
+			end
+			mnemonicData, encodingIdentifier, line = tokens
+			pattern = /(.+?) (.+?) (.+)/
+			match = pattern.match(line)
+			if match == nil
+				raise "Unable to extract the validity and description columns from line #{line.inspect}"
+			end
+
+			longMode = match[1]
+			legacyMode = match[2]
+			description = match[3]
+		end
 
 		row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
 		#puts row.inspect
 		rows << row
 	end
 
-	def extractParagraphOpcodes(content)
-		paragraphPattern = /<P>Opcode\*? Instruction.*?<\/P>(.*?)<P>NOTES/m
+	def extractParagraphOpcodes(instruction, content)
+		return nil if instruction == 'PSLLW/PSLLD/PSLLQ'
+
+		paragraphPattern = /<P>Opcode\*? Instruction.*?<\/P>(.*?)<P>(NOTES|Description)/m
 		linePattern = /<P>(.*?)<\/P>/
 
 		paragraphMatch = paragraphPattern.match(content)
@@ -297,7 +319,7 @@ class ManualData
 		paragraphContent = paragraphMatch[1]
 		paragraphContent.scan(linePattern) do |match|
 			line = match.first
-			processParagraphOpcodeLine(line, rows)
+			processParagraphOpcodeLine(instruction, line, rows)
 		end
 
 		return rows
@@ -381,9 +403,15 @@ class ManualData
 		titlePattern = /(.+?)(—|-)(.+?)/
 		titleMatch = titlePattern.match(title)
 		return if titleMatch == nil
-		instruction = titleMatch[1]
-		summary = titleMatch[2]
+		instruction = titleMatch[1].strip
+		summary = titleMatch[2].strip
 		return if instruction[0].isNumber
+
+		#at the end of the second PDF
+		return if instruction.index('.') != nil
+
+		#this is just a pseudo entry which actually refers to a previous section, hence no match
+		return if instruction == 'VMRESUME'
 
 		puts "Processing instruction #{instruction}"
 		STDOUT.flush
@@ -410,7 +438,7 @@ class ManualData
 			error.call('instruction')
 		end
 	
-		rows = extractParagraphOpcodes(content)
+		rows = extractParagraphOpcodes(instruction, content)
 		if rows == nil
 			tableMatch = tablePattern.match(content)
 			if tableMatch == nil

@@ -21,16 +21,18 @@ class OpcodeTable
 	
 	def parseRows(rows)
 		header = rows.first
-		interpretation = [:opcode, :instruction]
 		case header.size
 		when 6
-			interpretation << :encodingIdentifier
+			interpretation = [:opcode, :instruction, :encodingIdentifier, :longMode, :legacyMode, :description]
 		when 5
 			#this is used by the FPU instructions which have no encoding identifiers specified
+			interpretation = [:opcode, :instruction, :longMode, :legacyMode, :description]
+		when 3
+			#this is the format used by the VM instructions in the second manual
+			interpretation = [:opcode, :instruction, :description]
 		else
 			raise "Invalid header size detected in a table: #{header.size} (#{header.inspect})"
 		end
-		interpretation += [:longMode, :legacyMode, :description]
 		rows.each do |columns|
 			entry = OpcodeTableEntry.new
 			interpretation.each do |symbol|
