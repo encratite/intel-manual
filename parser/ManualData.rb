@@ -75,21 +75,31 @@ class ManualData
 		return rows
 	end
 
-	def processIrregularOpcodeRow(row, output)
-		targets = ['A']
-		if row.size == 5
-			#for cases where the second and the third column were merged
-			targets.each do |target|
-				target = ' ' + target + ' '
-				mergedColumn = row[1]
-				if mergedColumn != nil && mergedColumn.matchRight(target)
-					fixedColumn = mergedColumn[0..mergedColumn.size - target.size - 1]
-					mergedColumn.replace(fixedColumn)
-					row.insert(2, target)
-					return
-				end
-			end
+	def splitMergedColumns(row)
+		targets =
+		[
+			'A',
+			'Valid',
+		]
 
+		#for cases where the second and the third column were merged
+		targets.each do |target|
+			target = ' ' + target + ' '
+			mergedColumn = row[1]
+			if mergedColumn != nil && mergedColumn.matchRight(target)
+				fixedColumn = mergedColumn[0..mergedColumn.size - target.size - 1]
+				mergedColumn.replace(fixedColumn)
+				row.insert(2, target)
+				return true
+			end
+		end
+		return false
+	end
+
+	def processIrregularOpcodeRow(instruction, row, output)
+		if row.size == 5
+			return if splitMergedColumns(row)
+			
 			#for cases where a nil column is missing and the last column is part of the description
 			if !output.empty?
 				lastDescription = output[-1][-1].strip
@@ -107,8 +117,21 @@ class ManualData
 					end
 				end
 			end
+
+			if instruction == 'LSL'
+				row.insert(1, nil)
+				return
+			end
+		elsif row.size == 4
+			#for merged FPU rows
+			return if splitMergedColumns(row)
+
+			if instruction == 'FSTENV/FNSTENV'
+				row.insert(0, nil)
+				return
+			end
 		end
-		raise "Invalid number of columns: #{row.inspect}"
+		raise "Unable to process irregular opcode row: #{row.inspect}"
 	end
 
 	def extractTableOpcodes(instruction, tableContent)
@@ -118,8 +141,9 @@ class ManualData
 		lastCompleteRow = nil
 		output = []
 		rows.each do |row|
-			if row.size != 6
-				processIrregularOpcodeRow(row, output)
+			#6 for the normal ones, 5 for FPU stuff, they use another table format
+			if !(5..6).include?(row.size) || (lastCompleteRow != nil && lastCompleteRow.size != row.size)
+				processIrregularOpcodeRow(instruction, row, output)
 			end
 			append = false
 			row.each do |column|
@@ -139,6 +163,7 @@ class ManualData
 				end
 			else
 				output << row
+				lastCompleteRow = row
 			end
 		end
 
@@ -180,17 +205,22 @@ class ManualData
 	end
 
 	def performExceptionalParagraphOpcodeProcessing(line, rows)
+		row = nil
 		if line.matchLeft('/1 m128 m128')
 			#"/1 m128 m128 m128. If equal, set ZF and load RCX:RBX into m128. Else, clear ZF and load m128 into RDX:RAX. "
 			pattern = /(.+?) (m128) (m128\..+)/
 			match = pattern.match(line)
 			raise "Unable to process CMPXCHG8B exceptional case" if match == nil
 			row = [match[1], match[2], nil, nil, nil, match[3]]
-			rows << row
-			return
+		elsif line.matchLeft('r/m32.')
+			row = []
+			5.times { row << nil }
+			row << line
 		end
 
-		raise "Unknown special case: #{line}"
+		raise "Unknown special case: #{line.inspect}" if row == nil
+
+		rows << row
 	end
 
 	def processParagraphOpcodeLine(line, rows)
@@ -253,6 +283,7 @@ class ManualData
 
 		targets =
 		[
+			'imm8/16/32',
 			'imm8/16/32/64',
 			'Displacement',
 			'AL/AX/EAX/RAX',
@@ -340,11 +371,7 @@ class ManualData
 			raise "This is not an instruction section (#{reason} match failed)"
 		end
 		
-		tableMatch = tablePattern.match(content)
 		descriptionMatch = descriptionPattern.match(content)
-		if tableMatch == nil
-			error.call('table')
-		end
 		
 		#the JMP instruction has an irregular description tag within a table
 		if descriptionMatch == nil && content.index(jumpString) == nil
@@ -358,6 +385,10 @@ class ManualData
 	
 		rows = extractParagraphOpcodes(content)
 		if rows == nil
+			tableMatch = tablePattern.match(content)
+			if tableMatch == nil
+				error.call('table')
+			end
 			tableContent = tableMatch[1]
 			rows = extractTableOpcodes(instruction, tableContent)
 		end
