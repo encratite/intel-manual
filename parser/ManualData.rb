@@ -180,16 +180,23 @@ class ManualData
 	end
 
 	def performExceptionalParagraphOpcodeProcessing(line, rows)
-		raise 'Not implemented'
 		if line.matchLeft('/1 m128 m128')
-			#continue here
+			#"/1 m128 m128 m128. If equal, set ZF and load RCX:RBX into m128. Else, clear ZF and load m128 into RDX:RAX. "
+			pattern = /(.+?) (m128) (m128\..+)/
+			match = pattern.match(line)
+			raise "Unable to process CMPXCHG8B exceptional case" if match == nil
+			row = [match[1], match[2], nil, nil, nil, match[3]]
+			rows << row
+			return
 		end
+
+		raise "Unknown special case: #{line}"
 	end
 
 	def processParagraphOpcodeLine(line, rows)
 		line = line.gsub("\t", '')
 		instruction = getLineInstruction(line)
-		puts line.inspect
+		#puts line.inspect
 		#puts instruction.inspect
 		if [nil, 'ZF'].include?(instruction)
 			performExceptionalParagraphOpcodeProcessing(line, rows)
@@ -216,7 +223,7 @@ class ManualData
 		description = match[3]
 
 		row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
-		puts row.inspect
+		#puts row.inspect
 		rows << row
 	end
 
