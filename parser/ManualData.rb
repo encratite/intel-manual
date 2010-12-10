@@ -1,5 +1,7 @@
 #coding: utf-8
 
+require 'htmlentities'
+
 require 'nil/file'
 require 'nil/string'
 
@@ -8,6 +10,7 @@ require_relative 'Instruction'
 class ManualData
 	def initialize
 		@instructions = []
+		@html = HTMLEntities.new
 	end
 
 	def processPath(path)
@@ -67,7 +70,9 @@ class ManualData
 		input.scan(rowPattern) do |match|
 			columns = []
 			match.first.scan(columnPattern) do |match|
-				columns << match.first
+				entry = match.first
+				entry = @html.decode(entry) if entry != nil
+				columns << entry
 			end
 			rows << columns
 		end
@@ -163,8 +168,9 @@ class ManualData
 		lastCompleteRow = nil
 		output = []
 		rows.each do |row|
-			#6 for the normal ones, 5 for FPU stuff, they use another table format
-			if !(5..6).include?(row.size) || (lastCompleteRow != nil && lastCompleteRow.size != row.size)
+			#6 for the normal ones, 5 for FPU stuff, they use another table format, 3 for the VM stuff in manual 2
+			validColumnCounts = [3, 5, 6]
+			if !validColumnCounts.include?(row.size) || (lastCompleteRow != nil && lastCompleteRow.size != row.size)
 				processIrregularOpcodeRow(instruction, row, output)
 			end
 			append = false
@@ -280,7 +286,7 @@ class ManualData
 	end
 
 	def extractParagraphOpcodes(content)
-		paragraphPattern = /<P>Opcode Instruction.*?<\/P>(.*?)<P>NOTES/m
+		paragraphPattern = /<P>Opcode\*? Instruction.*?<\/P>(.*?)<P>NOTES/m
 		linePattern = /<P>(.*?)<\/P>/
 
 		paragraphMatch = paragraphPattern.match(content)
@@ -298,6 +304,7 @@ class ManualData
 	end
 
 	def extractEncodingParagraph(input)
+		input = @html.decode(input)
 		encodingParagraphPattern = /<P>Op\/En Operand 1 Operand 2 Operand 3 Operand 4.*\n(.+?)\n<\/P>/
 		match = encodingParagraphPattern.match(input)
 		return nil if match == nil
@@ -305,6 +312,7 @@ class ManualData
 
 		targets =
 		[
+			'<XMM0>',
 			'imm8/16/32',
 			'imm8/16/32/64',
 			'Displacement',
@@ -370,21 +378,18 @@ class ManualData
 	end
 	
 	def parseInstruction(title, content)
-		tokens = title.split('—')
-		if tokens.size != 2
-			if !tokens.empty? && !tokens.first.empty? && tokens.first[0].isNumber
-				 #filter out section identifiers right away without a warning
-				return
-			end
-			raise "Invalid token count in title \"#{title}\": #{tokens.inspect}"
-		end
-		instruction, summary = tokens
+		titlePattern = /(.+?)(—|-)(.+?)/
+		titleMatch = titlePattern.match(title)
+		return if titleMatch == nil
+		instruction = titleMatch[1]
+		summary = titleMatch[2]
+		return if instruction[0].isNumber
 
 		puts "Processing instruction #{instruction}"
 		STDOUT.flush
 		
 		tablePattern = /<Table>(.*?)<\/Table>/m
-		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode Instruction/
+		instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode\*? Instruction/
 		descriptionPattern = /<P>Description <\/P>/
 
 		jumpString = 'Transfers program control'
