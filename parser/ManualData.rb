@@ -161,18 +161,11 @@ class ManualData
 		raise "Unable to process irregular opcode row: #{row.inspect}"
 	end
 
-	def extractTableOpcodes(instruction, tableContent)
-		rows = parseTable(tableContent)
-		return nil if rows.empty?
-
+	def mergeRows(rows, &block)
 		lastCompleteRow = nil
 		output = []
 		rows.each do |row|
-			#6 for the normal ones, 5 for FPU stuff, they use another table format, 3 for the VM stuff in manual 2
-			validColumnCounts = [3, 5, 6]
-			if !validColumnCounts.include?(row.size) || (lastCompleteRow != nil && lastCompleteRow.size != row.size)
-				processIrregularOpcodeRow(instruction, row, output)
-			end
+			block.call(row, output, lastCompleteRow)
 			append = false
 			row.each do |column|
 				if column == nil
@@ -181,7 +174,7 @@ class ManualData
 			end
 			if append
 				if output.empty?
-					raise 'Encountered an empty column in the first row'
+					raise "Encountered an empty column in the first row: #{rows.inspect}"
 				end
 				lastRow = output[-1]
 				row.size.times do |i|
@@ -194,7 +187,21 @@ class ManualData
 				lastCompleteRow = row
 			end
 		end
+		return output
+	end
 
+	def extractTableOpcodes(instruction, tableContent)
+		rows = parseTable(tableContent)
+		return nil if rows.empty?
+
+		output = mergeRows(rows) do |row, output, lastCompleteRow|
+			#6 for the normal ones, 5 for FPU stuff, they use another table format, 3 for the VM stuff in manual 2
+			validColumnCounts = [3, 5, 6]
+			if !validColumnCounts.include?(row.size) || (lastCompleteRow != nil && lastCompleteRow.size != row.size)
+				processIrregularOpcodeRow(instruction, row, output)
+			end
+		end
+		
 		begin
 			postProcessRows(output)
 		rescue => exception
@@ -277,10 +284,8 @@ class ManualData
 			offset = getFirstUpperCaseOffsetAfterInstructionMnemonic(line)
 			
 			mnemonicData = instruction
-			encodingIdentifier = nil
-			longMode = nil
-			legacyMode = nil
 			description = line[offset..-1]
+			row = [hexData, mnemonicData, description]
 		else
 			#puts line.inspect
 			tokens = performEncodingIdentifierSplit(line)
@@ -298,10 +303,9 @@ class ManualData
 			longMode = match[1]
 			legacyMode = match[2]
 			description = match[3]
+			row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
 		end
 
-		row = [hexData, mnemonicData, encodingIdentifier, longMode, legacyMode, description]
-		#puts row.inspect
 		rows << row
 	end
 
@@ -321,6 +325,8 @@ class ManualData
 			line = match.first
 			processParagraphOpcodeLine(instruction, line, rows)
 		end
+
+		rows = mergeRows(rows) {}
 
 		return rows
 	end
@@ -452,6 +458,17 @@ class ManualData
 		if encodingParagraph == nil
 			encodingTable = extractEncodingTable(content)
 		end
+
+		rows.each do |row|
+			row.map! do |column|
+				if column == nil
+					raise "Encountered a nil column: #{rows.inspect}"
+				end
+				column.strip
+			end
+		end
+
+		#puts rows.inspect
 
 		instruction = Instruction.new(rows, encodingTable)
 		
