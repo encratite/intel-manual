@@ -79,6 +79,7 @@ class ManualData
 		targets =
 		[
 			'A',
+			'B',
 			'Valid',
 		]
 
@@ -118,10 +119,31 @@ class ManualData
 				end
 			end
 
-			if instruction == 'LSL'
+			case instruction
+			when 'LSL'
 				row.insert(1, nil)
 				return
+
+			when 'MOV'
+				targets =
+				[
+					'r8***,r/m8***',
+					'moffs32*,EAX',
+				]
+				targets.each do |target|
+					if row[1].matchLeft(target)
+						row.insert(2, nil)
+						return
+					end
+				end
+
+			when 'MOVZX'
+				if row[0].matchLeft('/r')
+					row.insert(1, nil)
+					return
+				end
 			end
+
 		elsif row.size == 4
 			#for merged FPU rows
 			return if splitMergedColumns(row)
