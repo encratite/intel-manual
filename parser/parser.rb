@@ -16,6 +16,7 @@ begin
 		puts "Processing #{path}"
 		manualData.processPath(path)
 	end
+	manualData.writeOutput(outputPath)
 rescue => exception
 	puts exception.inspect
 	puts exception.backtrace.map { |x| "\t#{x}\n" }

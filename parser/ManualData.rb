@@ -11,6 +11,7 @@ class ManualData
 	def initialize
 		@instructions = []
 		@html = HTMLEntities.new
+		@output = ''
 	end
 
 	def processPath(path)
@@ -333,7 +334,7 @@ class ManualData
 
 	def extractEncodingParagraph(input)
 		input = @html.decode(input)
-		encodingParagraphPattern = /<P>Op\/En Operand 1 Operand 2 Operand 3 Operand 4.*\n(.+?)\n<\/P>/
+		encodingParagraphPattern = /<P>Op\/En Operand ?1 Operand ?2 Operand ?3 Operand ?4.*\n(.+?)\n<\/P>/
 		match = encodingParagraphPattern.match(input)
 		return nil if match == nil
 		content = match[1]
@@ -392,17 +393,20 @@ class ManualData
 	end
 
 	def extractEncodingTable(content)
-		tablePattern = /<Table>(.*<TR>.*<TD>Operand 1 <\/TD>.+?)<\/Table>/
-		match = tablePattern.match(content)
-		return nil if match == nil
+		tablePattern = /<Table>(.+?)<\/Table>/m
+		target = '<TD>Operand 1 </TD>'
+		content.scan(tablePattern) do |match|
+			tableContent = match[0]
+			next if tableContent.index(target) == nil
+			rows = parseTable(tableContent)
+			if rows.size < 2
+				raise "Invalid instruction encoding table: #{rows.inspect}"
+			end
 
-		rows = parseTable(match[1])
-		if rows.size < 2
-			raise "Invalid instruction encoding table: #{rows.inspect}"
+			#Ignore the header
+			return rows[1..-1]
 		end
-
-		#Ignore the header
-		return rows[1..-1]
+		return nil
 	end
 	
 	def parseInstruction(title, content)
@@ -419,7 +423,9 @@ class ManualData
 		#this is just a pseudo entry which actually refers to a previous section, hence no match
 		return if instruction == 'VMRESUME'
 
-		puts "Processing instruction #{instruction}"
+		#return if instruction != 'BT'
+
+		#puts "Processing instruction #{instruction}"
 		STDOUT.flush
 		
 		tablePattern = /<Table>(.*?)<\/Table>/m
@@ -454,10 +460,11 @@ class ManualData
 			rows = extractTableOpcodes(instruction, tableContent)
 		end
 
-		encodingParagraph = extractEncodingParagraph(content)
-		if encodingParagraph == nil
+		encodingTable = extractEncodingParagraph(content)
+		if encodingTable == nil
 			encodingTable = extractEncodingTable(content)
 		end
+		#puts encodingTable.inspect
 
 		rows.each do |row|
 			row.map! do |column|
@@ -468,10 +475,23 @@ class ManualData
 			end
 		end
 
+		writeLine(instruction.inspect)
+		writeLine(rows.inspect)
+		writeLine(encodingTable.inspect)
+		writeLine('')
+
 		#puts rows.inspect
 
 		instruction = Instruction.new(rows, encodingTable)
 		
 		@instructions << instruction
+	end
+
+	def writeLine(line)
+		@output += "#{line}\n"
+	end
+
+	def writeOutput(path)
+		Nil.writeFile(path, @output)
 	end
 end
