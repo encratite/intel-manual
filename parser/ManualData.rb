@@ -408,6 +408,41 @@ class ManualData
 		end
 		return nil
 	end
+
+	def extractDescription(instruction, content)
+		if instruction == 'JMP'
+			descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
+		else
+			descriptionPattern = /<P>Description <\/P>(.+?)<P>(Operation|FPU Flags Affected) <\/P>/m
+		end
+		descriptionMatch = content.match(descriptionPattern)
+		return nil if descriptionMatch == nil
+		descriptionContent = descriptionMatch[1]
+		paragraphPattern = /<P>(.+?) <\/P>/
+		output = []
+		descriptionContent.scan(paragraphPattern) do |match|
+			paragraph = match[0]
+			output << paragraph
+		end
+		return output
+	end
+
+	def getEncodingTable(instruction, content)
+		if instruction == 'JMP'
+			#too much of a pain, honestly
+			encodingTable =
+			[
+				['A', 'Offset', 'NA', 'NA', 'NA'],
+				['B', 'ModRM:r/m', 'NA', 'NA', 'NA'],
+			]
+		else
+			encodingTable = extractEncodingParagraph(content)
+			if encodingTable == nil
+				encodingTable = extractEncodingTable(content)
+			end
+		end
+		return encodingTable
+	end
 	
 	def parseInstruction(title, content)
 		titlePattern = /(.+?)(—|-)(.+?)/
@@ -424,6 +459,11 @@ class ManualData
 		return if instruction == 'VMRESUME'
 
 		#return if instruction != 'BT'
+
+		#if content.index('<P>Description </P>') == nil
+		#	puts "Instruction #{instruction} is lacking a description paragraph"
+		#	STDOUT.flush
+		#end
 
 		#puts "Processing instruction #{instruction}"
 		STDOUT.flush
@@ -450,39 +490,38 @@ class ManualData
 			error.call('instruction')
 		end
 	
-		rows = extractParagraphOpcodes(instruction, content)
-		if rows == nil
+		opcodeTable = extractParagraphOpcodes(instruction, content)
+		if opcodeTable == nil
 			tableMatch = tablePattern.match(content)
 			if tableMatch == nil
 				error.call('table')
 			end
 			tableContent = tableMatch[1]
-			rows = extractTableOpcodes(instruction, tableContent)
+			opcodeTable = extractTableOpcodes(instruction, tableContent)
 		end
 
-		encodingTable = extractEncodingParagraph(content)
-		if encodingTable == nil
-			encodingTable = extractEncodingTable(content)
-		end
-		#puts encodingTable.inspect
-
-		rows.each do |row|
+		opcodeTable.each do |row|
 			row.map! do |column|
 				if column == nil
-					raise "Encountered a nil column: #{rows.inspect}"
+					raise "Encountered a nil column: #{opcodeTable.inspect}"
 				end
 				column.strip
 			end
 		end
 
+		description = extractDescription(instruction, content)
+		if description == nil
+			raise "Unable to extract the description of instruction #{instruction.inspect}"
+		end
+
+		encodingTable = getEncodingTable(instruction, content)
+
 		writeLine(instruction.inspect)
-		writeLine(rows.inspect)
+		writeLine(opcodeTable.inspect)
 		writeLine(encodingTable.inspect)
 		writeLine('')
 
-		#puts rows.inspect
-
-		instruction = Instruction.new(rows, encodingTable)
+		instruction = Instruction.new(opcodeTable, encodingTable)
 		
 		@instructions << instruction
 	end
