@@ -414,7 +414,8 @@ class ManualData
 		if instruction == 'JMP'
 			descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
 		else
-			descriptionPattern = /<P>Description <\/P>(.+?)<P>(?:Operation|FPU Flags Affected) <\/P>/m
+			#the second one is for MAXPD, the third one for GETSEC[SEXIT]
+			descriptionPattern = /<P>Description <\/P>(.+?)(?:<P>(?:Operation|FPU Flags Affected) <\/P>|<Table>|<P>Operation in a Uni-Processor Platform <\/P>)/m
 		end
 		descriptionMatch = content.match(descriptionPattern)
 		return nil if descriptionMatch == nil
