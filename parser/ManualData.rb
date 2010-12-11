@@ -6,6 +6,7 @@ require 'nil/file'
 require 'nil/string'
 
 require_relative 'Instruction'
+require_relative 'XMLParser'
 
 class ManualData
 	def initialize
@@ -413,12 +414,13 @@ class ManualData
 		if instruction == 'JMP'
 			descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
 		else
-			descriptionPattern = /<P>Description <\/P>(.+?)<P>(Operation|FPU Flags Affected) <\/P>/m
+			descriptionPattern = /<P>Description <\/P>(.+?)<P>(?:Operation|FPU Flags Affected) <\/P>/m
 		end
 		descriptionMatch = content.match(descriptionPattern)
 		return nil if descriptionMatch == nil
-		#parse the markup here
-		return output
+		markup = descriptionMatch[1]
+		root = XMLParser.parse(markup)
+		return root
 	end
 
 	def getEncodingTable(instruction, content)
