@@ -417,13 +417,7 @@ class ManualData
 		end
 		descriptionMatch = content.match(descriptionPattern)
 		return nil if descriptionMatch == nil
-		descriptionContent = descriptionMatch[1]
-		paragraphPattern = /<P>(.+?) <\/P>/
-		output = []
-		descriptionContent.scan(paragraphPattern) do |match|
-			paragraph = match[0]
-			output << paragraph
-		end
+		#parse the markup here
 		return output
 	end
 
@@ -455,15 +449,10 @@ class ManualData
 		#at the end of the second PDF
 		return if instruction.index('.') != nil
 
-		#this is just a pseudo entry which actually refers to a previous section, hence no match
+		#VMRESUME is just a pseudo entry which actually refers to a previous section, hence no match
 		return if instruction == 'VMRESUME'
 
 		#return if instruction != 'BT'
-
-		#if content.index('<P>Description </P>') == nil
-		#	puts "Instruction #{instruction} is lacking a description paragraph"
-		#	STDOUT.flush
-		#end
 
 		#puts "Processing instruction #{instruction}"
 		STDOUT.flush
