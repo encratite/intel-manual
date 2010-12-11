@@ -44,15 +44,15 @@ class XMLParser
 
 	def self.parse(input)
 		content, offset = self.parseMarkup(input)
-		output = XMLNode.new(nil, content)
+		output = XMLNode.root(content)
 		return output
 	end
 
 	def self.parseTag(content)
 		attributes = {}
 		mode = :open
-		pattern = /^\s*(\/)?\s*([A-Za-z]+)\s*(.+?)(\/)?\s*$/
-		innerPattern = /([A-Za-z]+)\s*=\s*"(.+?)"\s*/
+		pattern = /^\s*(\/)?\s*([A-Za-z]+)\s*(.*?)(\/)?\s*$/
+		innerPattern = /([A-Za-z]+)\s*=\s*"(.*?)"\s*/
 		match = content.match(pattern)
 		if match == nil
 			raise "Unable to parse tag: #{content}"

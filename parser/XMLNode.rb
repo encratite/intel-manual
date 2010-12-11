@@ -5,10 +5,14 @@ class XMLNode
 	attr_accessor :content
 
 	def initialize(tag, content, attributes = {})
-		tag = tag.downcase if tag != nil
+		#tag = tag.downcase if tag != nil
 		@tag = tag
 		@content = content
 		@attributes = attributes
+	end
+
+	def self.root(content)
+		return XMLNode.new(nil, content)
 	end
 
 	def visualiseContent
@@ -28,6 +32,7 @@ class XMLNode
 		@attributes.each do |key, value|
 			output += " #{key}=\"#{value}\""
 		end
+		return output
 	end
 
 	def visualise
