@@ -6,13 +6,13 @@ class XMLParser
 	HTMLEntitiesDecoder = HTMLEntities.new
 
 	def self.parseMarkup(markup, offset = 0)
-		content = []
+		output = XMLNode.new 
 		while offset < markup.size
 			tagOffset = markup.index('<', offset)
 			break if tagOffset == nil
 			if offset != tagOffset
 				string = markup[offset..tagOffset - 1]
-				content << string
+				output.add(string)
 			end
 			tagOffset += 1
 			endOfTag = markup.index('>', tagOffset)
@@ -21,30 +21,31 @@ class XMLParser
 			offset = endOfTag + 1
 			case mode
 			when :open
-				tagContent, offset = self.parseMarkup(markup, offset)
-				node = XMLNode.new(tag, tagContent, attributes)
-				content << node
+				node, offset = self.parseMarkup(markup, offset)
+				node.set(output, tag, attributes)
+				output.add(node)
 			when :close
 				#regular closing tag
 				#can't be bothered to check the tag and such really, that would require a stack check
 				#I am basically presuming that the XML input is not totally malformed, which should be the case here
-				return content, offset
+				return output, offset
 			when :selfContained
 				#tag without content
-				node = XMLNode.new(tag, nil, attributes)
-				content << node
+				node = XMLNode.new
+				node.set(output, tag, attributes)
+				node.content = nil
+				output.add(node)
 			end
 		end
 		if offset != markup.size
 			string = markup[offset..-1]
-			content << string
+			output.add(string)
 		end
-		return content, offset
+		return output, offset
 	end
 
 	def self.parse(input)
-		content, offset = self.parseMarkup(input)
-		output = XMLNode.root(content)
+		output, offset = self.parseMarkup(input)
 		return output
 	end
 

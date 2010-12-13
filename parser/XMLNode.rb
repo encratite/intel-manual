@@ -1,18 +1,20 @@
 class XMLNode
 	#if it's the root node, then the tag is nil
-	attr_reader :tag
 	#if it's a <tag /> without any content, then this member will be nil
-	attr_accessor :content
+	attr_accessor :tag, :attributes, :content, :parent
 
-	def initialize(tag, content, attributes = {})
-		#tag = tag.downcase if tag != nil
+	def initialize
+		@content = []
+	end
+
+	def set(parent, tag, attributes)
+		@parent = parent
 		@tag = tag
-		@content = content
 		@attributes = attributes
 	end
 
-	def self.root(content)
-		return XMLNode.new(nil, content)
+	def add(element)
+		@content << element
 	end
 
 	def visualiseContent
