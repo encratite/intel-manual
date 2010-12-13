@@ -410,6 +410,25 @@ class ManualData
 		return nil
 	end
 
+	def descriptionPostProcessing(node)
+		if node.tag == 'Link'
+			if node.content == nil
+				raise "Encountered a <Link> tag without any content"
+			end
+			parentContent = node.parent.content
+			offset = parentContent.index(node)
+			if offset == nil
+				raise "Unable to find a node in its parent's children"
+			end
+			replacement = parentContent[0..offset - 1] + node.content + parentContent[offset + 1..-1]
+			parentContent.replace(replacement)
+			return
+		end
+		return if node.content == nil
+		nodes = node.content.reject { |x| x.class == String }
+		nodes.each { |x| descriptionPostProcessing(x) }
+	end
+
 	def extractDescription(instruction, content)
 		if instruction == 'JMP'
 			descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
@@ -421,6 +440,9 @@ class ManualData
 		return nil if descriptionMatch == nil
 		markup = descriptionMatch[1]
 		root = XMLParser.parse(markup)
+
+		descriptionPostProcessing(root)
+
 		return root
 	end
 
