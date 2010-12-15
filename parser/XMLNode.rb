@@ -49,4 +49,21 @@ class XMLNode
 		end
 		return output
 	end
+
+	def each(&block)
+		if @content == nil
+			return
+		end
+		@content.each do |element|
+			block.call(element)
+		end
+	end
+
+	def eachNode(&block)
+		each do |element|
+			if element.class == XMLNode
+				block.call(element)
+			end
+		end
+	end
 end

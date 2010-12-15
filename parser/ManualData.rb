@@ -467,8 +467,7 @@ class ManualData
 	end
 
 	def removeTrailingSpaces(node)
-		return if node.content == nil
-		node.content.each do |element|
+		node.each do |element|
 			if element.class == String
 				if element.matchRight('. ')
 					element.replace(element[0..-2])
@@ -476,6 +475,15 @@ class ManualData
 			else
 				removeTrailingSpaces(element)
 			end
+		end
+	end
+
+	def lowerCaseTags(node)
+		if node.tag != nil
+			node.tag.downcase!
+		end
+		node.eachNode do |element|
+			lowerCaseTags(element)
 		end
 	end
 
@@ -493,6 +501,7 @@ class ManualData
 		descriptionPostProcessing(root)
 		fixRootNewlines(root)
 		removeTrailingSpaces(root)
+		lowerCaseTags(root)
 		return root
 	end
 
