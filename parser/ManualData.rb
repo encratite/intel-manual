@@ -458,18 +458,25 @@ class ManualData
 		nodes.each { |x| descriptionPostProcessing(x) }
 	end
 
-	def isUndesiredRootLevelElement(input)
-		if input.class != String
-			return false
-		end
-		isAllNewlines = true
-		input.each_char do |x|
-			if x != "\n"
-				isAllNewlines = false
-				break
+	def fixRootNewlines(root)
+		root.content.each do |x|
+			if x == "\n\n"
+				x.replace("\n")
 			end
 		end
-		return isAllNewlines
+	end
+
+	def removeTrailingSpaces(node)
+		return if node.content == nil
+		node.content.each do |element|
+			if element.class == String
+				if element.matchRight('. ')
+					element.replace(element[0..-2])
+				end
+			else
+				removeTrailingSpaces(element)
+			end
+		end
 	end
 
 	def extractDescription(instruction, content)
@@ -484,7 +491,8 @@ class ManualData
 		markup = descriptionMatch[1]
 		root = XMLParser.parse(markup)
 		descriptionPostProcessing(root)
-		root.content.reject! { |x| isUndesiredRootLevelElement(x) }
+		fixRootNewlines(root)
+		removeTrailingSpaces(root)
 		return root
 	end
 
