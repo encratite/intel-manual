@@ -410,6 +410,27 @@ class ManualData
 		return nil
 	end
 
+	def removeNewlinesAroundLink(element, isLeftSideOfLink)
+		if element.class != String
+			raise "Encountered an unexpected class: #{element.class}"
+		end
+		return if element.empty?
+		target = "\n"
+		offset = isLeftSideOfLink ? element.size - 1 : 0
+		if isLeftSideOfLink
+			offset = -1
+			left = 0
+			right = -2
+		else
+			offset = 0
+			left = 1
+			right = -1
+		end
+		if element[offset] == target
+			element.replace(element[left..right])
+		end
+	end
+
 	def descriptionPostProcessing(node)
 		if node.tag == 'Link'
 			if node.content == nil
@@ -420,13 +441,35 @@ class ManualData
 			if offset == nil
 				raise "Unable to find a node in its parent's children"
 			end
-			replacement = parentContent[0..offset - 1] + node.content + parentContent[offset + 1..-1]
+			left = offset - 1
+			right = offset + 1
+			replacement = parentContent[0..left] + node.content + parentContent[right..-1]
+			if offset > 0
+				removeNewlinesAroundLink(replacement[left], true)
+			end
+			if offset < replacement.size - 1
+				removeNewlinesAroundLink(replacement[right], false)
+			end
 			parentContent.replace(replacement)
 			return
 		end
 		return if node.content == nil
 		nodes = node.content.reject { |x| x.class == String }
 		nodes.each { |x| descriptionPostProcessing(x) }
+	end
+
+	def isUndesiredRootLevelElement(input)
+		if input.class != String
+			return false
+		end
+		isAllNewlines = true
+		input.each_char do |x|
+			if x != "\n"
+				isAllNewlines = false
+				break
+			end
+		end
+		return isAllNewlines
 	end
 
 	def extractDescription(instruction, content)
@@ -440,9 +483,8 @@ class ManualData
 		return nil if descriptionMatch == nil
 		markup = descriptionMatch[1]
 		root = XMLParser.parse(markup)
-
 		descriptionPostProcessing(root)
-
+		root.content.reject! { |x| isUndesiredRootLevelElement(x) }
 		return root
 	end
 
