@@ -458,9 +458,26 @@ class ManualData
     nodes.each { |x| descriptionPostProcessing(x) }
   end
 
+  def mergeAdjacentStrings(node)
+    i = 0
+    content = node.content
+    return if content == nil
+    while i < node.content.size - 1
+      currentElement = content[i]
+      nextIndex = i + 1
+      nextElement = content[nextIndex]
+      if currentElement.class == String && nextElement.class == String
+        content.delete_at(nextIndex)
+        currentElement.replace(currentElement + nextElement)
+      else
+        i += 1
+      end
+    end
+  end
+
   def fixRootNewlines(root)
     root.content.each do |x|
-      if x == "\n\n"
+      if x.class == String && x == "\n" * x.size
         x.replace("\n")
       end
     end
@@ -478,6 +495,25 @@ class ManualData
     end
   end
 
+  #returns if the tree contained a figure
+  def removeImageData(node)
+    output = false
+    i = 0
+    while i < node.content.size
+      element = node.content[i]
+      if element.class != String
+        if element.tag == 'Figure'
+          node.content.delete_at(i)
+          output = true
+          next
+        end
+        output |= removeImageData(element)
+      end
+      i += 1
+    end
+    return output
+  end
+
   def lowerCaseTags(node)
     if node.tag != nil
       node.tag.downcase!
@@ -485,6 +521,10 @@ class ManualData
     node.eachNode do |element|
       lowerCaseTags(element)
     end
+  end
+
+  def warning(instruction, message)
+    puts "Warning for instruction #{instruction.inspect}: #{message}"
   end
 
   def extractDescription(instruction, content)
@@ -499,15 +539,20 @@ class ManualData
     markup = descriptionMatch[1]
     root = XMLParser.parse(markup)
     descriptionPostProcessing(root)
-    fixRootNewlines(root)
     removeTrailingSpaces(root)
+    containedAFigure = removeImageData(root)
+    mergeAdjacentStrings(root)
+    fixRootNewlines(root)
     lowerCaseTags(root)
+    if containedAFigure
+      warning(instruction, 'Detected a figure')
+    end
     return root
   end
 
   def getEncodingTable(instruction, content)
     if instruction == 'JMP'
-      #too much of a pain, honestly
+      #too much of a pain to parse, honestly, so just hard-code this for now
       encodingTable =
         [
          ['A', 'Offset', 'NA', 'NA', 'NA'],
@@ -536,7 +581,7 @@ class ManualData
     #VMRESUME is just a pseudo entry which actually refers to a previous section, hence no match
     return if instruction == 'VMRESUME'
 
-    #return if instruction != 'BT'
+    return if instruction != 'ADDSUBPD'
 
     #puts "Processing instruction #{instruction}"
     STDOUT.flush
