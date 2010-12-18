@@ -495,6 +495,51 @@ class ManualData
     end
   end
 
+  def isLeakedImageDataString(input)
+    targets = "\u0014\u0018\u001C\u001C\u0014"
+    input.each_char do |char|
+      if targets.index(char) != nil
+        return true
+      end
+    end
+    return false
+  end
+
+  def nodeContainsLeakedImageData(node)
+    if node.class == String
+      return isLeakedImageDataString(node)
+    end
+    content = node.content
+    return false if content == nil
+    content.each do |element|
+      next if element.class != String
+      return true if isLeakedImageDataString(element)
+    end
+    return false
+  end
+
+  #returns if leaked image data was discovered
+  def removeLeakedImageData(node)
+    content = node.content
+    return if content == nil
+    i = 0
+    output = false
+    while i < content.size
+      element = content[i]
+      if nodeContainsLeakedImageData(element)
+        #puts "Deleted node at index #{i}: #{element.inspect}"
+        content.delete_at(i)
+        output = true
+      else
+        if element.class != String
+          output |= removeLeakedImageData(element)
+        end
+        i += 1
+      end
+    end
+    return output
+  end
+
   #returns if the tree contained a figure
   def removeImageData(node)
     output = false
@@ -541,11 +586,15 @@ class ManualData
     descriptionPostProcessing(root)
     removeTrailingSpaces(root)
     containedAFigure = removeImageData(root)
+    containedLeakedImageData = removeLeakedImageData(root)
     mergeAdjacentStrings(root)
     fixRootNewlines(root)
     lowerCaseTags(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')
+    end
+    if containedLeakedImageData
+      warning(instruction, 'Detected leaked image data')
     end
     return root
   end
