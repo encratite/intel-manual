@@ -10,6 +10,7 @@ require_relative 'XMLParser'
 
 require_relative 'ManualData/description'
 require_relative 'ManualData/encoding'
+require_relative 'ManualData/opcodes'
 
 class ManualData
   def initialize
