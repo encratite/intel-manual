@@ -255,13 +255,16 @@ class ManualData
     end
   end
 
-  def descriptionMarkupReplacements(markup)
+  def descriptionMarkupReplacements(instruction, markup)
     replacements =
       [
        [/<p>.*1.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
        [' </p>', '</p>'],
+       [/<sect>.*<\/sect>/m, '', 'CPUID'],
       ]
-    replacements.each do |target, replacement|
+    replacements.each do |replacementData|
+      target, replacement = replacementData
+      next if replacementData.size >= 3 && replacementData[2] != instruction
       if replacement.class == String
         markup.gsub!(target, replacement)
       else
@@ -299,7 +302,8 @@ class ManualData
       warning(instruction, 'Detected leaked image data')
     end
     markup = root.visualise
-    descriptionMarkupReplacements(markup)
+    descriptionMarkupReplacements(instruction, markup)
+    markup = markup.strip
     return markup
   end
 end
