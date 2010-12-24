@@ -197,7 +197,6 @@ class ManualData
        ["&quot;", '"'],
        ["\uF02B", '+'],
        ["\uF02A", '*'],
-       [/\)[A-Za-z]/, lambda { |x| x[0] + ' ' + x[1] }],
       ]
 
     node.content.each do |element|
