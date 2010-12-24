@@ -72,14 +72,14 @@ class ManualData
     end
   end
 
-  def removeTrailingSpaces(node)
+  def fixWhitespace(node)
     node.each do |element|
       if element.class == String
-        if element.matchRight('. ')
-          element.replace(element[0..-2])
+        element.gsub!(/[\.:\)] $/) do |match|
+          match[0]
         end
       else
-        removeTrailingSpaces(element)
+        fixWhitespace(element)
       end
     end
   end
@@ -188,6 +188,27 @@ class ManualData
     end
   end
 
+  def replaceUnicodeSymbols(node)
+    node.content.each do |element|
+      if element.class == String
+        replacements =
+        [
+         ["\u201C", '"'],
+         ["\u201D", '"'],
+        ]
+        replacements.each do |target, replacement|
+          element.gsub!(target, replacement)
+        end
+        #if element.index('Checking Caller Access Privileges') != nil
+        #  puts element.inspect
+        #  exit
+        #end
+      else
+        replaceUnicodeSymbols(element)
+      end
+    end
+  end
+
   def extractDescription(instruction, content)
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
@@ -200,12 +221,13 @@ class ManualData
     markup = descriptionMatch[1]
     root = XMLParser.parse(markup)
     descriptionPostProcessing(root)
-    removeTrailingSpaces(root)
+    fixWhitespace(root)
     containedAFigure = removeImageData(root)
     containedLeakedImageData = removeLeakedImageData(root)
     mergeAdjacentStrings(root)
     fixRootNewlines(root)
     convertLists(root)
+    replaceUnicodeSymbols(root)
     lowerCaseTags(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')
