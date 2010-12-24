@@ -63,6 +63,7 @@ class ManualData
         i += 1
       end
     end
+    node.eachNode { |x| mergeAdjacentStrings(x) }
   end
 
   def fixRootNewlines(root)
@@ -189,6 +190,22 @@ class ManualData
     end
   end
 
+  def performAdjacentStringCheck(node)
+    wasString = false
+    node.each do |element|
+      if element.class == String
+        if wasString
+          classes = node.content.map { |x| x.class }
+          raise "Discovered adjacent strings: #{classes.inspect}"
+        end
+        wasString = true
+      else
+        performAdjacentStringCheck(element)
+        wasString = false
+      end
+    end
+  end
+
   def performStringReplacements(node)
     replacements =
       [
@@ -197,6 +214,7 @@ class ManualData
        ["&quot;", '"'],
        ["\uF02B", '+'],
        ["\uF02A", '*'],
+       ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
       ]
 
     node.content.each do |element|
@@ -206,15 +224,10 @@ class ManualData
             element.gsub!(target, replacement)
           else
             element.gsub!(target) do |match|
-              puts element.inspect
               replacement.call(match)
             end
           end
         end
-        #if element.index('BitOffset DIV') != nil
-        #  puts element.inspect
-        #  exit
-        #end
       else
         performStringReplacements(element)
       end
