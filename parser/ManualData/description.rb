@@ -157,6 +157,37 @@ class ManualData
     end
   end
 
+  def convertLists(node)
+    if node.tag == 'L'
+      listTag = 'LI'
+      newline = "\n"
+      replacements = [newline]
+      node.eachNode do |list|
+        if list.tag != listTag
+          raise "Discovered an invalid list pattern for tag #{list.tag.inspect}"
+        end
+        listElements = list.content.reject { |x| !(x.class == XMLNode && x.tag == listTag) }
+        if listElements.size != 2
+          raise "Encountered an unexpected number of <LI> tags in a list (#{listElements.size})"
+        end
+        replacements += [listElements[1], newline]
+      end
+
+      parent = node.parent
+      replacementNode = XMLNode.new
+      replacementNode.set(parent, 'ul', [])
+      replacementNode.content = replacements
+
+      parentContent = parent.content
+      index = parentContent.index(node)
+      parent.content = parentContent[0, index] + [replacementNode] + parentContent[index + 1..-1]
+    else
+      node.eachNode do |element|
+        convertLists(element)
+      end
+    end
+  end
+
   def extractDescription(instruction, content)
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
@@ -174,6 +205,7 @@ class ManualData
     containedLeakedImageData = removeLeakedImageData(root)
     mergeAdjacentStrings(root)
     fixRootNewlines(root)
+    convertLists(root)
     lowerCaseTags(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')

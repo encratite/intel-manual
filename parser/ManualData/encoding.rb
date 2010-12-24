@@ -76,6 +76,15 @@ class ManualData
     return nil
   end
 
+  def trimEncodingTable(table)
+    return nil if table == nil
+    table.each do |row|
+      row.each do |column|
+        column.replace(column.strip)
+      end
+    end
+  end
+
   def getEncodingTable(instruction, content)
     if instruction == 'JMP'
       #too much of a pain to parse, honestly, so just hard-code this for now
@@ -90,6 +99,7 @@ class ManualData
         encodingTable = extractEncodingTable(content)
       end
     end
+    encodingTable = trimEncodingTable(encodingTable)
     return encodingTable
   end
 end
