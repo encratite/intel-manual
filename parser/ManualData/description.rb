@@ -188,13 +188,14 @@ class ManualData
     end
   end
 
-  def replaceUnicodeSymbols(node)
+  def performStringReplacements(node)
     node.content.each do |element|
       if element.class == String
         replacements =
         [
          ["\u201C", '"'],
          ["\u201D", '"'],
+         ["&quot;", '"'],
         ]
         replacements.each do |target, replacement|
           element.gsub!(target, replacement)
@@ -204,7 +205,7 @@ class ManualData
         #  exit
         #end
       else
-        replaceUnicodeSymbols(element)
+        performStringReplacements(element)
       end
     end
   end
@@ -227,7 +228,7 @@ class ManualData
     mergeAdjacentStrings(root)
     fixRootNewlines(root)
     convertLists(root)
-    replaceUnicodeSymbols(root)
+    performStringReplacements(root)
     lowerCaseTags(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')
