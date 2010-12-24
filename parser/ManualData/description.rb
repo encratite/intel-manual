@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class ManualData
   def removeNewlinesAroundLink(element, isLeftSideOfLink)
     if element.class != String
@@ -189,18 +190,29 @@ class ManualData
   end
 
   def performStringReplacements(node)
+    replacements =
+      [
+       ["\u201C", '"'],
+       ["\u201D", '"'],
+       ["&quot;", '"'],
+       ["\uF02B", '+'],
+       ["\uF02A", '*'],
+       [/\)[A-Za-z]/, lambda { |x| x[0] + ' ' + x[1] }],
+      ]
+
     node.content.each do |element|
       if element.class == String
-        replacements =
-        [
-         ["\u201C", '"'],
-         ["\u201D", '"'],
-         ["&quot;", '"'],
-        ]
         replacements.each do |target, replacement|
-          element.gsub!(target, replacement)
+          if replacement.class == String
+            element.gsub!(target, replacement)
+          else
+            element.gsub!(target) do |match|
+              puts element.inspect
+              replacement.call(match)
+            end
+          end
         end
-        #if element.index('Checking Caller Access Privileges') != nil
+        #if element.index('BitOffset DIV') != nil
         #  puts element.inspect
         #  exit
         #end
