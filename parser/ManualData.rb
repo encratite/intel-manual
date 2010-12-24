@@ -134,7 +134,7 @@ class ManualData
     writeLine(instruction.inspect)
     writeLine(opcodeTable.inspect)
     writeLine(encodingTable.inspect)
-    writeLine(description.visualise)
+    writeLine(description)
     writeLine('')
 
     instruction = Instruction.new(opcodeTable, encodingTable)

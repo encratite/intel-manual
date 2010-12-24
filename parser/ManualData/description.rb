@@ -214,7 +214,9 @@ class ManualData
        ["&quot;", '"'],
        ["\uF02B", '+'],
        ["\uF02A", '*'],
+       ["\u2019", "'"],
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
+       ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
       ]
 
     node.content.each do |element|
@@ -232,6 +234,40 @@ class ManualData
         performStringReplacements(element)
       end
     end
+  end
+
+  def printMarkedStrings(node)
+    targets =
+      [
+       #'On Intel 64 processors, CPUID clears'
+      ]
+    node.content.each do |element|
+      if element.class == String
+        targets.each do |target|
+          if element.match(target)
+            puts element.inspect
+          end
+        end
+      else
+        printMarkedStrings(element)
+      end
+    end
+  end
+
+  def descriptionMarkupReplacements(markup)
+    replacements =
+      [
+       [/<p>.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
+       [' </p>', '</p>'],
+      ]
+    replacements.each do |target, replacement|
+      if replacement.class == String
+        markup.gsub!(target, replacement)
+      else
+        markup.gsub!(target) { |x| replacement.call(x) }
+      end
+    end
+    return markup
   end
 
   def extractDescription(instruction, content)
@@ -254,12 +290,15 @@ class ManualData
     convertLists(root)
     performStringReplacements(root)
     lowerCaseTags(root)
+    printMarkedStrings(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')
     end
     if containedLeakedImageData
       warning(instruction, 'Detected leaked image data')
     end
-    return root
+    markup = root.visualise
+    descriptionMarkupReplacements(markup)
+    return markup
   end
 end
