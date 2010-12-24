@@ -13,6 +13,16 @@ require_relative 'ManualData/encoding'
 require_relative 'ManualData/opcodes'
 
 class ManualData
+  class Error < Exception
+    def initialize(message)
+      super(message)
+    end
+
+    def instruction=(instruction)
+      message = "In instruction #{instruction}: #{message}"
+    end
+  end
+
   def initialize
     @instructions = []
     @html = HTMLEntities.new
@@ -71,33 +81,35 @@ class ManualData
     #puts "Processing instruction #{instruction}"
     STDOUT.flush
 
+    begin
+
     tablePattern = /<Table>(.*?)<\/Table>/m
     instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode\*? Instruction/
     descriptionPattern = /<P>Description <\/P>/
 
     jumpString = 'Transfers program control'
 
-    error = proc do |reason|
-      raise "This is not an instruction section (#{reason} match failed)"
+    errorProc = proc do |reason|
+      error "This is not an instruction section (#{reason} match failed)"
     end
 
     descriptionMatch = descriptionPattern.match(content)
 
     #the JMP instruction has an irregular description tag within a table
     if descriptionMatch == nil && content.index(jumpString) == nil
-      error.call('description')
+      errorProc.call('description')
     end
 
     instructionMatch = instructionPattern.match(content)
     if instructionMatch == nil
-      error.call('instruction')
+      errorProc.call('instruction')
     end
 
     opcodeTable = extractParagraphOpcodes(instruction, content)
     if opcodeTable == nil
       tableMatch = tablePattern.match(content)
       if tableMatch == nil
-        error.call('table')
+        errorProc.call('table')
       end
       tableContent = tableMatch[1]
       opcodeTable = extractTableOpcodes(instruction, tableContent)
@@ -106,7 +118,7 @@ class ManualData
     opcodeTable.each do |row|
       row.map! do |column|
         if column == nil
-          raise "Encountered a nil column: #{opcodeTable.inspect}"
+          error "Encountered a nil column: #{opcodeTable.inspect}"
         end
         column.strip
       end
@@ -114,7 +126,7 @@ class ManualData
 
     description = extractDescription(instruction, content)
     if description == nil
-      raise "Unable to extract the description of instruction #{instruction.inspect}"
+      error "Unable to extract the description"
     end
 
     encodingTable = getEncodingTable(instruction, content)
@@ -128,6 +140,11 @@ class ManualData
     instruction = Instruction.new(opcodeTable, encodingTable)
 
     @instructions << instruction
+
+    rescue Error => error
+      error.instruction = instruction
+      raise error
+    end
   end
 
   def writeLine(line)
@@ -136,5 +153,9 @@ class ManualData
 
   def writeOutput(path)
     Nil.writeFile(path, @output)
+  end
+
+  def error(message)
+    raise Error.new(message)
   end
 end

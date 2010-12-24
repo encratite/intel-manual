@@ -53,7 +53,7 @@ class ManualData
         end
       end
       if !foundTarget
-        raise "Unable to process encoding string #{content.inspect}, previous matches were #{output.inspect}"
+        error "Unable to process encoding string #{content.inspect}, previous matches were #{output.inspect}"
       end
     end
     return [output]
@@ -67,7 +67,7 @@ class ManualData
       next if tableContent.index(target) == nil
       rows = parseTable(tableContent)
       if rows.size < 2
-        raise "Invalid instruction encoding table: #{rows.inspect}"
+        error "Invalid instruction encoding table: #{rows.inspect}"
       end
 
       #Ignore the header

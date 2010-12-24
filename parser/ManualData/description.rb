@@ -164,11 +164,11 @@ class ManualData
       replacements = [newline]
       node.eachNode do |list|
         if list.tag != listTag
-          raise "Discovered an invalid list pattern for tag #{list.tag.inspect}"
+          error "Discovered an invalid list pattern for tag #{list.tag.inspect}"
         end
         listElements = list.content.reject { |x| !(x.class == XMLNode && x.tag == listTag) }
         if listElements.size != 2
-          raise "Encountered an unexpected number of <LI> tags in a list (#{listElements.size})"
+          error "Encountered an unexpected number of <LI> tags in a list (#{listElements.size})"
         end
         replacements += [listElements[1], newline]
       end
