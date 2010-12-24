@@ -217,6 +217,7 @@ class ManualData
        ["\u2019", "'"],
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
+       ['  ', ' '],
       ]
 
     node.content.each do |element|
@@ -257,7 +258,7 @@ class ManualData
   def descriptionMarkupReplacements(markup)
     replacements =
       [
-       [/<p>.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
+       [/<p>.*1.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
        [' </p>', '</p>'],
       ]
     replacements.each do |target, replacement|
