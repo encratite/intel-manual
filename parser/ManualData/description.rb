@@ -226,6 +226,7 @@ class ManualData
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
        ['  ', ' '],
+       [" \n", "\n"],
       ]
 
     node.content.each do |element|
@@ -251,7 +252,7 @@ class ManualData
        #'On Intel 64 processors, CPUID clears',
        #'Computes the arctangent of the source operand',
        #'the values being multiplied i',
-       'Remainder',
+       #'Remainder',
       ]
     node.content.each do |element|
       if element.class == String
@@ -273,7 +274,10 @@ class ManualData
        [' </p>', '</p>'],
        [/<sect>.*<\/sect>/m, '', 'CPUID'],
        [/<p>NOTES:<\/p>.+/m, '', ["FADD/FADDP/FIADD", "FMUL/FMULP/FIMUL", "FPATAN"]],
-       [/<p>NOTES:<\/p>.+\n<\/p>\n/m, '', ["FDIV/FDIVP/FIDIV", "FDIVR/FDIVRP/FIDIVR"]],
+       [/<p>NOTES:<\/p>.+?\n<\/p>\n/m, '', ["FDIV/FDIVP/FIDIV", "FDIVR/FDIVRP/FIDIVR", "FPREM", "FPREM1"]],
+       [/<p>NOTES:<\/p>.+?<p>This instruction/m, '<p>This instruction', ["FSUBR/FSUBRP/FISUBR"]],
+       [/<p>IA-32 Architecture Compatibility<\/p>.+/m, ''],
+       [/<p>FXCH.+?<\/p>/m, lambda { |x| x.gsub('p>', 'pre>').gsub("\n<", '<') }],
       ]
     replacements.each do |replacementData|
       target, replacement = replacementData
