@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+require_relative 'ManualData/string'
+
 class ManualData
   def removeNewlinesAroundLink(element, isLeftSideOfLink)
     if element.class != String
@@ -209,37 +210,15 @@ class ManualData
   def performStringReplacements(node)
     replacements =
       [
-       ["\u201C", '"'],
-       ["\u201D", '"'],
-       ["&quot;", '"'],
-       ["\uF02B", '+'],
-       ["\uF02A", '*'],
-       ["\u2019", "'"],
-       ["\uF070", 'π'],
-       ["\uF0A5", '∞'],
-       ["\uF0AC", '='],
-       ["\uF02D", '-'],
-       ['log210', 'log<sub>2</sub>(10)'],
-       ['log102', 'log<sub>10</sub>(2)'],
-       ['log2e', 'log<sub>2</sub>(e)'],
-       ['loge2', 'log<sub>e</sub>(2)'],
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
-       ['  ', ' '],
-       [" \n", "\n"],
       ]
 
     node.content.each do |element|
       if element.class == String
-        replacements.each do |target, replacement|
-          if replacement.class == String
-            element.gsub!(target, replacement)
-          else
-            element.gsub!(target) do |match|
-              replacement.call(match)
-            end
-          end
-        end
+        newElement = replaceCommonStrings(element)
+        newElement = replaceStrings(newElement, replacements)
+        element.replace(newElement)
       else
         performStringReplacements(element)
       end

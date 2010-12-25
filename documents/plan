@@ -1,8 +1,13 @@
-1. opcode table
-2. endcoding table
-3. description, approximation
-4. 64-bit compatibility section
-5. algorithm/operations section
-6. exceptions section
-7. tables
-8. pictures
+Order:
+
+-opcode table
+-endcoding table
+-description (approximation)
+-64-bit compatibility section?
+-algorithm/operations section
+-exceptions section
+
+Then go through all instructions and fix the details one by one:
+
+-tables
+-pictures
