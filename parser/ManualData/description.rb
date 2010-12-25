@@ -215,6 +215,8 @@ class ManualData
        ["\uF02B", '+'],
        ["\uF02A", '*'],
        ["\u2019", "'"],
+       ["\uF070", 'π'],
+       ["\uF0A5", '∞'],
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
        ['  ', ' '],
@@ -240,7 +242,9 @@ class ManualData
   def printMarkedStrings(node)
     targets =
       [
-       #'On Intel 64 processors, CPUID clears'
+       #'On Intel 64 processors, CPUID clears',
+       #'Computes the arctangent of the source operand',
+       #'the values being multiplied i',
       ]
     node.content.each do |element|
       if element.class == String
@@ -261,10 +265,20 @@ class ManualData
        [/<p>.*1.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
        [' </p>', '</p>'],
        [/<sect>.*<\/sect>/m, '', 'CPUID'],
+       [/<p>NOTES:<\/p>.+/m, '', ["FADD/FADDP/FIADD", "FMUL/FMULP/FIMUL", "FPATAN"]],
+       [/<p>NOTES:<\/p>.+\n<\/p>\n/m, '', "FDIV/FDIVP/FIDIV"],
       ]
     replacements.each do |replacementData|
       target, replacement = replacementData
-      next if replacementData.size >= 3 && replacementData[2] != instruction
+      if replacementData.size >= 3
+        instructionData = replacementData[2]
+        next if
+          !
+        (
+         (instructionData.class == String && instructionData == instruction) ||
+         instructionData.include?(instruction)
+         )
+      end
       if replacement.class == String
         markup.gsub!(target, replacement)
       else
