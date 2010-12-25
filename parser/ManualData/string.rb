@@ -25,14 +25,17 @@ class ManualData
     return replaceStrings(input, replacements)
   end
 
-  def replaceStrings(input, replacements)
+  def replaceStrings(element, replacements)
+    output = element
     replacements.each do |target, replacement|
       if replacement.class == String
-        element.gsub!(target, replacement)
+        output = element.gsub(target, replacement)
       else
-        element.gsub!(target) do |match|
+        output = element.gsub(target) do |match|
           replacement.call(match)
         end
       end
     end
+    return output
+  end
 end

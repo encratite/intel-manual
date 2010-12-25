@@ -1,4 +1,4 @@
-require_relative 'ManualData/string'
+require_relative 'string'
 
 class ManualData
   def removeNewlinesAroundLink(element, isLeftSideOfLink)

@@ -11,6 +11,7 @@ require_relative 'XMLParser'
 require_relative 'ManualData/description'
 require_relative 'ManualData/encoding'
 require_relative 'ManualData/opcodes'
+require_relative 'ManualData/operation'
 
 class ManualData
   class Error < Exception
@@ -83,68 +84,78 @@ class ManualData
 
     begin
 
-    tablePattern = /<Table>(.*?)<\/Table>/m
-    instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode\*? Instruction/
-    descriptionPattern = /<P>Description <\/P>/
+      tablePattern = /<Table>(.*?)<\/Table>/m
+      instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode\*? Instruction/
+      descriptionPattern = /<P>Description <\/P>/
 
-    jumpString = 'Transfers program control'
+      jumpString = 'Transfers program control'
 
-    errorProc = proc do |reason|
-      error "This is not an instruction section (#{reason} match failed)"
-    end
-
-    descriptionMatch = descriptionPattern.match(content)
-
-    #the JMP instruction has an irregular description tag within a table
-    if descriptionMatch == nil && content.index(jumpString) == nil
-      errorProc.call('description')
-    end
-
-    instructionMatch = instructionPattern.match(content)
-    if instructionMatch == nil
-      errorProc.call('instruction')
-    end
-
-    opcodeTable = extractParagraphOpcodes(instruction, content)
-    if opcodeTable == nil
-      tableMatch = tablePattern.match(content)
-      if tableMatch == nil
-        errorProc.call('table')
+      errorProc = proc do |reason|
+        error "This is not an instruction section (#{reason} match failed)"
       end
-      tableContent = tableMatch[1]
-      opcodeTable = extractTableOpcodes(instruction, tableContent)
-    end
 
-    opcodeTable.each do |row|
-      row.map! do |column|
-        if column == nil
-          error "Encountered a nil column: #{opcodeTable.inspect}"
+      descriptionMatch = descriptionPattern.match(content)
+
+      #the JMP instruction has an irregular description tag within a table
+      if descriptionMatch == nil && content.index(jumpString) == nil
+        errorProc.call('description')
+      end
+
+      instructionMatch = instructionPattern.match(content)
+      if instructionMatch == nil
+        errorProc.call('instruction')
+      end
+
+      opcodeTable = extractParagraphOpcodes(instruction, content)
+      if opcodeTable == nil
+        tableMatch = tablePattern.match(content)
+        if tableMatch == nil
+          errorProc.call('table')
         end
-        column.strip
+        tableContent = tableMatch[1]
+        opcodeTable = extractTableOpcodes(instruction, tableContent)
       end
-    end
 
-    description = extractDescription(instruction, content)
-    if description == nil
-      error "Unable to extract the description"
-    end
+      opcodeTable.each do |row|
+        row.map! do |column|
+          if column == nil
+            error "Encountered a nil column: #{opcodeTable.inspect}"
+          end
+          column.strip
+        end
+      end
 
-    encodingTable = getEncodingTable(instruction, content)
+      description = extractDescription(instruction, content)
+      if description == nil
+        error "Unable to extract the description"
+      end
 
-    writeLine(instruction.inspect)
-    writeLine(opcodeTable.inspect)
-    writeLine(encodingTable.inspect)
-    writeLine(description)
-    writeLine('')
+      encodingTable = getEncodingTable(instruction, content)
 
-    instruction = Instruction.new(opcodeTable, encodingTable)
+      operation = extractOperation(content)
 
-    @instructions << instruction
+      writeTag('Instruction', instruction)
+      writeTag('OpcodeTable', opcodeTable)
+      writeTag('EncodingTable', encodingTable)
+      writeTag('Description', description)
+      writeTag('Operation', operation)
+      writeLine('')
+
+      instruction = Instruction.new(opcodeTable, encodingTable, operation)
+
+      @instructions << instruction
 
     rescue Error => error
       error.instruction = instruction
       raise error
     end
+  end
+
+  def writeTag(tag, data)
+    data = data.inspect if data.class != String
+    writeLine("<#{tag}>")
+    writeLine(data)
+    writeLine("</#{tag}>")
   end
 
   def writeLine(line)
