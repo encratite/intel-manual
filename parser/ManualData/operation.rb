@@ -1,3 +1,5 @@
+require_relative 'string'
+
 class ManualData
   def applyIndentation(count, line)
     return ("\t" * count) + line
@@ -44,17 +46,22 @@ class ManualData
   end
 
   def extractOperation(content)
-    pattern = /<P>Operation <\/P>(.+?)<P>Flags Affected <\/P>/
+    pattern = /<P>Operation <\/P>(.+?)<P>Flags Affected <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
     lines = []
     operationContent.scan(/<P>(.+?)<\/P>/m) do |match|
-      token = performCommonReplacements(match[0])
+      input = match[0].strip
+      #puts input.inspect
+      token = replaceCommonStrings(input)
+      #puts token.inspect
       token.gsub!(/; [^\(]/) do |match|
         match.gsub(' ', "\n")
       end
       lines += token.split("\n")
     end
+    output = lines.join("\n")
+    return output
   end
 end

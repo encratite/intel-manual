@@ -14,6 +14,8 @@ class ManualData
        ["\uF0A5", '∞'],
        ["\uF0AC", '='],
        ["\uF02D", '-'],
+       ["\uF03E", '>'],
+       ["\uF03D", '='],
        ['log210', 'log<sub>2</sub>(10)'],
        ['log102', 'log<sub>10</sub>(2)'],
        ['log2e', 'log<sub>2</sub>(e)'],
@@ -29,9 +31,9 @@ class ManualData
     output = element
     replacements.each do |target, replacement|
       if replacement.class == String
-        output = element.gsub(target, replacement)
+        output = output.gsub(target, replacement)
       else
-        output = element.gsub(target) do |match|
+        output = output.gsub(target) do |match|
           replacement.call(match)
         end
       end

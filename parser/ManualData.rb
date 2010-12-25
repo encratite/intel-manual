@@ -139,6 +139,7 @@ class ManualData
       writeTag('EncodingTable', encodingTable)
       writeTag('Description', description)
       writeTag('Operation', operation)
+      writeTag('OperationSymbols', operation.inspect)
       writeLine('')
 
       instruction = Instruction.new(opcodeTable, encodingTable, operation)
