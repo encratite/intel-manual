@@ -217,6 +217,12 @@ class ManualData
        ["\u2019", "'"],
        ["\uF070", 'π'],
        ["\uF0A5", '∞'],
+       ["\uF0AC", '='],
+       ["\uF02D", '-'],
+       ['log210', 'log<sub>2</sub>(10)'],
+       ['log102', 'log<sub>10</sub>(2)'],
+       ['log2e', 'log<sub>2</sub>(e)'],
+       ['loge2', 'log<sub>e</sub>(2)'],
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
        ['  ', ' '],
@@ -245,6 +251,7 @@ class ManualData
        #'On Intel 64 processors, CPUID clears',
        #'Computes the arctangent of the source operand',
        #'the values being multiplied i',
+       'Remainder',
       ]
     node.content.each do |element|
       if element.class == String
@@ -266,7 +273,7 @@ class ManualData
        [' </p>', '</p>'],
        [/<sect>.*<\/sect>/m, '', 'CPUID'],
        [/<p>NOTES:<\/p>.+/m, '', ["FADD/FADDP/FIADD", "FMUL/FMULP/FIMUL", "FPATAN"]],
-       [/<p>NOTES:<\/p>.+\n<\/p>\n/m, '', "FDIV/FDIVP/FIDIV"],
+       [/<p>NOTES:<\/p>.+\n<\/p>\n/m, '', ["FDIV/FDIVP/FIDIV", "FDIVR/FDIVRP/FIDIVR"]],
       ]
     replacements.each do |replacementData|
       target, replacement = replacementData
