@@ -10,7 +10,6 @@ class ManualData
       [
        'IF',
        'THEN',
-       'ELSE',
       ]
 
     scopeEndKeywords =
@@ -36,10 +35,21 @@ class ManualData
         tabLevel += 1
       elsif scopeEndKeywords.include?(keyword)
         tabLevel -= 1
+        if tabLevel < 0
+          error "Indentation underflow on line #{line.inspect} in the following code:\n#{codeLines.join("\n")}\nPrevious indentation was:\n#{output.join("\n")}"
+        end
         addLine.call
+      elsif keyword == 'ELSE'
+        tabLevel -= 1
+        addLine.call
+        tabLevel += 1
       else
         addLine.call
       end
+    end
+
+    if tabLevel != 0
+      error "Indentation level #{tabLevel} at the end of the following code:\n#{output.join("\n")}"
     end
 
     return output
@@ -61,7 +71,8 @@ class ManualData
       end
       lines += token.split("\n")
     end
-    output = lines.join("\n")
+    output = calculatePseudoCodeIndentation(lines)
+    output = output.join("\n")
     return output
   end
 end
