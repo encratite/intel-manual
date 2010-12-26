@@ -22,7 +22,7 @@ class ManualData
 
       indentationCheck = lambda do
         if tabLevel < 0
-          error "Indentation underflow on line #{line.inspect} in the following code:\n#{codeLines.join("\n")}\nPrevious indentation was:\n#{output.join("\n")}"
+          error "Indentation underflow on line #{line.inspect} in:\n#{output.join("\n")}"
         end
       end
 
@@ -51,8 +51,8 @@ class ManualData
         else
           addLine.call
         end
-      when 'THEN'
-        addLine.call(0, 1)
+      #when 'THEN'
+      #  addLine.call(0, 1)
       when 'FI'
         stackCheck.call
         tabLevel = ifIndentationStack.pop
@@ -62,7 +62,9 @@ class ManualData
         tabLevel = ifIndentationStack[-1]
         output << applyIndentation(tabLevel, line)
         tabLevel += 1
-      when 'END', 'BREAK'
+      when 'CASE'
+        addLine.call(0, 1)
+      when 'END', 'BREAK', 'ESAC'
         addLine.call(-1, 0)
       else
         addLine.call
@@ -89,7 +91,6 @@ class ManualData
        [' THEN', "\nTHEN"],
        ["THEN DEST = temp;\nFI;", 'THEN DEST = temp;'],
        ['IF DF = 0 (', "IF DF = 0\n("],
-       #['; ', ";\n"],
        [/\([A-Za-z][a-z]+ comparison\)/, lambda { |x| "(* #{x[1..-2]} *)" }],
        [' THEN', ''],
        ["\nTHEN\n", "\n"],
@@ -98,10 +99,27 @@ class ManualData
        ["multiplication;\n", 'multiplication; '],
        #for the INT 3 thing
        ["&\n", '& '],
-       #['(* relative/absolute *) FI;', "(* relative/absolute *)\nFI;"
+       [/<Link>.+?<\/Link>/m, lambda { |x| x[6..-8] }],
+       [/\(\*.+?\*\)/m, lambda { |x| x.gsub("\n", '') }],
+       ["=\n", '= '],
+       ["\n\n", "\n"],
+       [/\[\d+\s*:\s*\d+\]/, lambda { |x| x.gsub(' ', '') }],
+       [/^(BIT_REFLECT|MOD2).+/, lambda { |x| "(* #{x} *)" }],
+       #risky?
+       ['H: ', "H:\n"],
+       ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
       ]
 
-    if instruction == 'IMUL'
+    case instruction
+    when 'CRC32'
+      replacements +=
+        [
+         ["Notes:\n", ''],
+         [/^CRC32 instruction.+/, lambda { |x| "(* #{x} *)" }],
+        ]
+    when 'CPUID'
+      replacements << ["BREAK;\nBREAK;", 'BREAK;']
+    when 'IMUL'
       replacements << ["ELSE\nIF (NumberOfOperands = 2)", "FI;\nELSE\nIF (NumberOfOperands = 2)"]
     end
 
