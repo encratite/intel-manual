@@ -11,12 +11,6 @@ class ManualData
 
     ifIndentationStack = []
 
-    indentationCheck = lambda do
-      if tabLevel < 0
-        error "Indentation underflow on line #{line.inspect} in the following code:\n#{codeLines.join("\n")}\nPrevious indentation was:\n#{output.join("\n")}"
-      end
-    end
-
     stackCheck = lambda do
       if ifIndentationStack.empty?
         error "Empty indentation stack:\n#{output.join("\n")}"
@@ -26,12 +20,23 @@ class ManualData
     codeLines.each do |line|
       line = line.strip
 
+      indentationCheck = lambda do
+        if tabLevel < 0
+          error "Indentation underflow on line #{line.inspect} in the following code:\n#{codeLines.join("\n")}\nPrevious indentation was:\n#{output.join("\n")}"
+        end
+      end
+
       addLine = lambda do |preIncrement = 0, postIncrement = 0|
         tabLevel += preIncrement
         indentationCheck.call
         output << applyIndentation(tabLevel, line)
         tabLevel += postIncrement
         indentationCheck.call
+      end
+
+      if !line.empty? && line[-1] == ':'
+        addLine.call(0, 1)
+        next
       end
 
       tokens = line.split(' ')
@@ -57,13 +62,16 @@ class ManualData
         tabLevel = ifIndentationStack[-1]
         output << applyIndentation(tabLevel, line)
         tabLevel += 1
+      when 'END', 'BREAK'
+        addLine.call(-1, 0)
       else
         addLine.call
       end
     end
 
     if tabLevel != 0
-      error "Indentation level #{tabLevel} at the end of the following code:\n#{output.join("\n")}"
+      data = output.join("\n")
+      error "Indentation level #{tabLevel} at the end of the following code:\n#{data}"
     end
 
     return output
@@ -72,34 +80,49 @@ class ManualData
   def operationReplacements(instruction, input)
     replacements =
       [
-       [/; [^\(]/, lambda { |match| match.gsub(' ', "\n") }],
+       ['ELSE If', 'ELSE IF'],
        [' IF ', "\nIF "],
-       ['*) ', "*)\n"],
        ['FI;rel/abs', 'FI; (* relative/absolute *)'],
        ['FI; near', 'FI; (* near *)'],
+       ['*) ', "*)\n"],
+       [/; [^\(]/, lambda { |match| match.gsub(' ', "\n") }],
        [' THEN', "\nTHEN"],
        ["THEN DEST = temp;\nFI;", 'THEN DEST = temp;'],
        ['IF DF = 0 (', "IF DF = 0\n("],
-       #["ELSE\nIF", "ELSE IF\n"],
-       ['; ', ";\n"],
+       #['; ', ";\n"],
        [/\([A-Za-z][a-z]+ comparison\)/, lambda { |x| "(* #{x[1..-2]} *)" }],
        [' THEN', ''],
        ["\nTHEN\n", "\n"],
        ['THEN ', ''],
        ['ELSE (* Non-64-bit Mode *)', "FI;\nFI;\nELSE (* Non-64-bit Mode *)"],
-       #[/ELSE \(* Doubleword comparison *\).+/m, lambda { |x| x + "\nFI;" }],
        ["multiplication;\n", 'multiplication; '],
+       #for the INT 3 thing
+       ["&\n", '& '],
+       #['(* relative/absolute *) FI;', "(* relative/absolute *)\nFI;"
       ]
 
+    if instruction == 'IMUL'
+      replacements << ["ELSE\nIF (NumberOfOperands = 2)", "FI;\nELSE\nIF (NumberOfOperands = 2)"]
+    end
+
     output = replaceStrings(input, replacements)
-    if instruction == 'CMPS/CMPSB/CMPSW/CMPSD/CMPSQ'
+    case instruction
+    when'CMPS/CMPSB/CMPSW/CMPSD/CMPSQ'
       output += "\nFI;"
     end
     return output
   end
 
+  def unicodeCheck(instruction, lines)
+    lines.each do |line|
+      if line.inspect.index("\\u") != nil
+        puts "Discovered unprocessed Unicode content in instruction #{instruction}: #{line.inspect}"
+      end
+    end
+  end
+
   def extractOperation(instruction, content)
-    pattern = /<P>Operation <\/P>(.+?)<P>Flags Affected <\/P>/m
+    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C\/C\+\+ Compiler Intrinsic Equivalent) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
@@ -115,6 +138,7 @@ class ManualData
     lines = input.split("\n")
 
     output = calculatePseudoCodeIndentation(lines)
+    unicodeCheck(instruction, output)
     output = output.join("\n")
     return output
   end
