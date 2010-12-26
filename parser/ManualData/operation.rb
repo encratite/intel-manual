@@ -34,7 +34,7 @@ class ManualData
         indentationCheck.call
       end
 
-      if !line.empty? && line[-1] == ':'
+      if line.match(/:$/) || line.match(/: \(\*.*\*\)$/)
         addLine.call(0, 1)
         next
       end
@@ -79,6 +79,10 @@ class ManualData
     return output
   end
 
+  def createComment(input)
+    return "(* #{input} *)"
+  end
+
   def operationReplacements(instruction, input)
     replacements =
       [
@@ -91,7 +95,7 @@ class ManualData
        [' THEN', "\nTHEN"],
        ["THEN DEST = temp;\nFI;", 'THEN DEST = temp;'],
        ['IF DF = 0 (', "IF DF = 0\n("],
-       [/\([A-Za-z][a-z]+ comparison\)/, lambda { |x| "(* #{x[1..-2]} *)" }],
+       [/\([A-Za-z][a-z]+ comparison\)/, lambda { |x| createComment(x[1..-2]) }],
        [' THEN', ''],
        ["\nTHEN\n", "\n"],
        ['THEN ', ''],
@@ -104,10 +108,11 @@ class ManualData
        ["=\n", '= '],
        ["\n\n", "\n"],
        [/\[\d+\s*:\s*\d+\]/, lambda { |x| x.gsub(' ', '') }],
-       [/^(BIT_REFLECT|MOD2).+/, lambda { |x| "(* #{x} *)" }],
+       [/(^(BIT_REFLECT|MOD2).+)|Non-64-bit Mode:|FI64-bit Mode:/, lambda { |x| createComment(x) }],
        #risky?
        ['H: ', "H:\n"],
        ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
+       ['ELSE ', "ELSE\n"],
       ]
 
     case instruction
@@ -115,12 +120,27 @@ class ManualData
       replacements +=
         [
          ["Notes:\n", ''],
-         [/^CRC32 instruction.+/, lambda { |x| "(* #{x} *)" }],
+         [/^CRC32 instruction.+/, lambda { |x| createComment(x) }],
         ]
     when 'CPUID'
       replacements << ["BREAK;\nBREAK;", 'BREAK;']
     when 'IMUL'
       replacements << ["ELSE\nIF (NumberOfOperands = 2)", "FI;\nELSE\nIF (NumberOfOperands = 2)"]
+    when 'INSERTPS'
+      replacements +=
+        [
+         ['CASE (COUNT_D) OF', "ESAC;\nCASE (COUNT_D) OF"],
+         ['IF (ZMASK[0] = 1)', "ESAC;\nIF (ZMASK[0] = 1)"],
+        ]
+    when 'INT n/INTO/INT 3'
+      separator = "\n"
+      input = input.gsub(' (1)', "\n(1)")
+      lines = input.split(separator)
+      6.times do |i|
+        line = lines[i]
+        line.replace(createComment(line))
+      end
+      input = lines.join(separator)
     end
 
     output = replaceStrings(input, replacements)
