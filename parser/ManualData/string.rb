@@ -15,6 +15,7 @@ class ManualData
        ["\uF02D", '-'],
        ["\uF03E", '>'],
        ["\uF03D", '='],
+       ["\uF020", ' '], #what is this?!
 
        ['log210', 'log<sub>2</sub>(10)'],
        ['log102', 'log<sub>10</sub>(2)'],

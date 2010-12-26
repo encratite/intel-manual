@@ -18,10 +18,6 @@ class ManualData
     def initialize(message)
       super(message)
     end
-
-    def setInstruction(instruction)
-      @message = "In instruction #{instruction}: #{@message}"
-    end
   end
 
   def initialize
@@ -147,7 +143,7 @@ class ManualData
       @instructions << instruction
 
     rescue Error => error
-      error.setInstruction instruction
+      error = Error.new("In instruction #{instruction}: #{error.message}")
       raise error
     end
   end
