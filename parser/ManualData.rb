@@ -128,7 +128,7 @@ class ManualData
 
       encodingTable = getEncodingTable(instruction, content)
 
-      operation = extractOperation(content)
+      operation = extractOperation(instruction, content)
 
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)

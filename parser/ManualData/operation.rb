@@ -6,17 +6,6 @@ class ManualData
   end
 
   def calculatePseudoCodeIndentation(codeLines)
-    scopeStartKeywords =
-      [
-       'IF',
-       'THEN',
-      ]
-
-    scopeEndKeywords =
-      [
-       'FI',
-      ]
-
     output = []
     tabLevel = 0
 
@@ -80,7 +69,7 @@ class ManualData
     return output
   end
 
-  def operationReplacements(input)
+  def operationReplacements(instruction, input)
     replacements =
       [
        [/; [^\(]/, lambda { |match| match.gsub(' ', "\n") }],
@@ -90,12 +79,26 @@ class ManualData
        ['FI; near', 'FI; (* near *)'],
        [' THEN', "\nTHEN"],
        ["THEN DEST = temp;\nFI;", 'THEN DEST = temp;'],
+       ['IF DF = 0 (', "IF DF = 0\n("],
+       #["ELSE\nIF", "ELSE IF\n"],
+       ['; ', ";\n"],
+       [/\([A-Za-z][a-z]+ comparison\)/, lambda { |x| "(* #{x[1..-2]} *)" }],
+       [' THEN', ''],
+       ["\nTHEN\n", "\n"],
+       ['THEN ', ''],
+       ['ELSE (* Non-64-bit Mode *)', "FI;\nFI;\nELSE (* Non-64-bit Mode *)"],
+       #[/ELSE \(* Doubleword comparison *\).+/m, lambda { |x| x + "\nFI;" }],
+       ["multiplication;\n", 'multiplication; '],
       ]
 
-    return replaceStrings(input, replacements)
+    output = replaceStrings(input, replacements)
+    if instruction == 'CMPS/CMPSB/CMPSW/CMPSD/CMPSQ'
+      output += "\nFI;"
+    end
+    return output
   end
 
-  def extractOperation(content)
+  def extractOperation(instruction, content)
     pattern = /<P>Operation <\/P>(.+?)<P>Flags Affected <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
@@ -108,7 +111,7 @@ class ManualData
     end
 
     input = lines.join("\n")
-    input = operationReplacements(input)
+    input = operationReplacements(instruction, input)
     lines = input.split("\n")
 
     output = calculatePseudoCodeIndentation(lines)
