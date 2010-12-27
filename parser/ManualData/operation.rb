@@ -34,6 +34,12 @@ class ManualData
         indentationCheck.call
       end
 
+      #CPUID exception
+      if line == 'DEFAULT: (* EAX = Value outside of recognized range for CPUID. *)'
+        addLine.call
+        next
+      end
+
       if line.match(/:$/) || line.match(/: \(\*.*\*\)$/)
         addLine.call(0, 1)
         next
@@ -141,6 +147,11 @@ class ManualData
         line.replace(createComment(line))
       end
       input = lines.join(separator)
+      replacements +=
+        [
+         ['NewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);', "\nFI;\nNewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);"],
+         ["(* idt operand to error_code is 0 because selector is used *)\nIF new code segment is conforming or new code-segment DPL = CPL", "(* idt operand to error_code is 0 because selector is used *)\nFI;\nIF new code segment is conforming or new code-segment DPL = CPL"],
+        ]
     end
 
     output = replaceStrings(input, replacements)
