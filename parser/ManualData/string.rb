@@ -43,12 +43,19 @@ class ManualData
 
   def replaceStrings(element, replacements)
     output = element
-    replacements.each do |target, replacement|
-      if replacement.class == String
-        output = output.gsub(target, replacement)
+    replacements.each do |replacementData|
+      target, replacement = replacementData
+      if replacementData.size >= 3 && replacementData[2]
+        offset = output.index(target)
+        next if offset == nil
+        output = output[0, offset] + replacement + output[offset + target.size..-1]
       else
-        output = output.gsub(target) do |match|
-          replacement.call(match)
+        if replacement.class == String
+          output = output.gsub(target, replacement)
+        else
+          output = output.gsub(target) do |match|
+            replacement.call(match)
+          end
         end
       end
     end

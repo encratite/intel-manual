@@ -11,18 +11,18 @@ class ManualData
 
     ifIndentationStack = []
 
-    stackCheck = lambda do
-      if ifIndentationStack.empty?
-        error "Empty indentation stack:\n#{output.join("\n")}"
-      end
-    end
-
     codeLines.each do |line|
       line = line.strip
 
       indentationCheck = lambda do
         if tabLevel < 0
           error "Indentation underflow on line #{line.inspect} in:\n#{output.join("\n")}"
+        end
+      end
+
+      stackCheck = lambda do
+        if ifIndentationStack.empty?
+          error "Empty indentation stack on line #{line.inspect}:\n#{output.join("\n")}"
         end
       end
 
@@ -57,8 +57,8 @@ class ManualData
         else
           addLine.call
         end
-      #when 'THEN'
-      #  addLine.call(0, 1)
+        #when 'THEN'
+        #  addLine.call(0, 1)
       when 'FI'
         stackCheck.call
         tabLevel = ifIndentationStack.pop
@@ -149,8 +149,9 @@ class ManualData
       input = lines.join(separator)
       replacements +=
         [
-         ['NewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);', "\nFI;\nNewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);"],
+         #['NewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);', "\nFI;\nNewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);", true],
          ["(* idt operand to error_code is 0 because selector is used *)\nIF new code segment is conforming or new code-segment DPL = CPL", "(* idt operand to error_code is 0 because selector is used *)\nFI;\nIF new code segment is conforming or new code-segment DPL = CPL"],
+         ['FI ELSE', 'ELSE'],
         ]
     end
 
