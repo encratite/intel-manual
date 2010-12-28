@@ -124,6 +124,11 @@ class ManualData
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
+    convertToCommentsCommon =
+      [
+       [': ', ":\n"],
+       convertToComments,
+      ]
 
     case instruction
     when 'CRC32'
@@ -202,20 +207,12 @@ class ManualData
          [/IF \(OperandSize = \d+\) /, lambda { |x| x.strip + "\n" }],
         ]
       input += "\nFI;\nFI;"
-    when 'MOVD/MOVQ'
+    when 'MOVD/MOVQ', 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', 'OUTS/OUTSB/OUTSW/OUTSD'
       replacements << convertToComments
-    when 'MOVQ'
-      replacements +=
-        [
-         [': ', ":\n"],
-         convertToComments,
-        ]
-    when 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ'
-      replacements << convertToComments
+    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW'
+      replacements += convertToCommentsCommon
     when 'NOP'
       return nil
-    when 'OUTS/OUTSB/OUTSW/OUTSD'
-      replacements << convertToComments
     end
 
     output = replaceStrings(input, replacements)
