@@ -48,7 +48,6 @@ class ManualData
       tokens = line.split(' ')
       next if tokens.empty?
       keyword = tokens[0].gsub(';', '')
-      #puts "#{keyword.inspect} #{tabLevel}: #{line.inspect}"
       case keyword
       when 'IF'
         if tokens.size >= 2 && tokens[1] != '='
@@ -57,8 +56,6 @@ class ManualData
         else
           addLine.call
         end
-        #when 'THEN'
-        #  addLine.call(0, 1)
       when 'FI'
         stackCheck.call
         tabLevel = ifIndentationStack.pop
@@ -119,6 +116,7 @@ class ManualData
        ['H: ', "H:\n"],
        ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
        ['ELSE ', "ELSE\n"],
+       [' FI;', "\nFI;"],
       ]
 
     case instruction
@@ -149,7 +147,6 @@ class ManualData
       input = lines.join(separator)
       replacements +=
         [
-         #['NewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);', "\nFI;\nNewRSP = 8 bytes loaded from (current TSS base + TSSstackAddress);", true],
          ["(* idt operand to error_code is 0 because selector is used *)\nIF new code segment is conforming or new code-segment DPL = CPL", "(* idt operand to error_code is 0 because selector is used *)\nFI;\nIF new code segment is conforming or new code-segment DPL = CPL"],
          ['FI ELSE', 'ELSE'],
          [/INTRA-PRIVILEGE-LEVEL-INTERRUPT.+?END;/m, lambda { |x| x.gsub('IF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)', "FI;\nFI;\nIF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)") }],
@@ -179,11 +176,14 @@ class ManualData
          ['FI; (* Hidden flag;not accessible by software *)', '(* Hidden flag; not accessible by software *)'],
          ['64-BIT_MODE', '(* 64-BIT_MODE *)'],
          ['PREOTECTED MODE OR COMPATIBILITY MODE;', '(* PROTECTED MODE OR COMPATIBILITY MODE *)'],
-         #["#GP(selector);\nFI;", '#GP(selector);'],
-         #["FI;\nELSE", 'ELSE'],
-         #[/SS is loaded.+?SS = SegmentSelector\(SRC\);/, lambda { |x| x.gsub("SS = SegmentSelector(SRC);", "FI;\nFI;\nSS = SegmentSelector(SRC);") }],
          ["IF Segment marked not present\n#NP(selector);\nFI;\nFI;", "IF Segment marked not present\n#NP(selector);\nFI;"]
         ]
+    when 'LODS/LODSB/LODSW/LODSD/LODSQ'
+      replacements +=
+        [
+         ["FI;\nFI;\nELSE\nIF RAX = SRC; (* Quadword load *)", "FI;\nELSE\nIF RAX = SRC; (* Quadword load *)"],
+        ]
+      input += "\nFI;\nFI;"
     end
 
     output = replaceStrings(input, replacements)
