@@ -131,6 +131,10 @@ class ManualData
        [/^[A-Z]+ (instruction )?(with|for) \d+[- ]bit.+?operand.*$/, lambda { |x| createComment(x) }],
        [/^64-BIT_MODE$/, lambda { |x| createComment(x) }],
        ['ELSEIF', "ELSE\nIF"],
+       [/,[^ ]/, lambda { |x| ', ' + x[1..-1] }],
+       [';FI;', ";\nFI;"],
+       [';(*', '; (*'],
+       ['*)IF', "*)\nIF"],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -173,6 +177,14 @@ class ManualData
          ["(* idt operand to error_code is 0 because selector is used *)\nIF new code segment is conforming or new code-segment DPL = CPL", "(* idt operand to error_code is 0 because selector is used *)\nFI;\nIF new code segment is conforming or new code-segment DPL = CPL"],
          ['FI ELSE', 'ELSE'],
          [/INTRA-PRIVILEGE-LEVEL-INTERRUPT.+?END;/m, lambda { |x| x.gsub('IF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)', "FI;\nFI;\nIF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)") }],
+         [/IF IDT gate is 32-bit.+?FI; /m, lambda { |x| x.gsub('FI; ', '') }],
+         ['IDT gate is 16-bit)', 'IDT gate is 16-bit *)'],
+         ['*)IF', "*)\nIF"],
+         ['(error code pushed)or', '(error code pushed) or'],
+         [')#SS', ")\n#SS"],
+         [/INTRA-PRIVILEGE-LEVEL-INTERRUPT:.+?END;/m, lambda { |x| x.gsub("IF = 0;\n(* Interrupt flag set to 0;interrupts disabled *)", "IF = 0;\nFI;\n(* Interrupt flag set to 0;interrupts disabled *)") }],
+         ["\nor", ' or'],
+         [/INTERRUPT-FROM-VIRTUAL-8086-MODE:.+/m, lambda { |x| x.gsub("));\n(* idt operand", "));\nFI;\n(* idt operand") }],
         ]
     when 'IRET/IRETD'
       replacements +=
