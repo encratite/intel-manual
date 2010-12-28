@@ -123,6 +123,8 @@ class ManualData
        ['ELES', 'ELSE'],
       ]
 
+    convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
+
     case instruction
     when 'CRC32'
       replacements +=
@@ -201,7 +203,13 @@ class ManualData
         ]
       input += "\nFI;\nFI;"
     when 'MOVD/MOVQ'
-      replacements << [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
+      replacements << convertToComments
+    when 'MOVQ'
+      replacements +=
+        [
+         [': ', ":\n"],
+         convertToComments,
+        ]
     end
 
     output = replaceStrings(input, replacements)
