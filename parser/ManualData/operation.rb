@@ -113,7 +113,7 @@ class ManualData
        ["=\n", '= '],
        ["\n\n", "\n"],
        [/\[\d+\s*:\s*\d+\]/, lambda { |x| x.gsub(' ', '') }],
-       [/(^(BIT_REFLECT|MOD2).+)|Non-64-bit Mode:|FI64-bit Mode:/, lambda { |x| createComment(x) }],
+       [/(^(BIT_REFLECT|MOD2).+)|Non-64-bit Mode:|FI64-bit Mode:/, method(:createComment)],
        #risky?
        ['H: ', "H:\n"],
        ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
@@ -128,8 +128,8 @@ class ManualData
        ['ESAC:', 'ESAC;'],
        ['[ ', '['],
        [' ]', ']'],
-       [/^[A-Z]+ (instruction )?(with|for) \d+[- ]bit.+?operand.*$/, lambda { |x| createComment(x) }],
-       [/^64-BIT_MODE$/, lambda { |x| createComment(x) }],
+       [/^[A-Z]+ (instruction )?(with|for) \d+[- ]bit.+?operand.*$/, method(:createComment)],
+       [/^64-BIT_MODE$/, method(:createComment)],
        ['ELSEIF', "ELSE\nIF"],
        [/,[^ ]/, lambda { |x| ', ' + x[1..-1] }],
        [';FI;', ";\nFI;"],
@@ -146,14 +146,14 @@ class ManualData
        convertToComments,
       ]
 
-    repeatComment = [/^Repeat.+/, lambda { |x| createComment(x) }]
+    repeatComment = [/^Repeat.+/, method(:createComment)]
 
     case instruction
     when 'CRC32'
       replacements +=
         [
          ["Notes:\n", ''],
-         [/^CRC32 instruction.+/, lambda { |x| createComment(x) }],
+         [/^CRC32 instruction.+/, method(:createComment)],
         ]
     when 'CPUID'
       replacements << ["BREAK;\nBREAK;", 'BREAK;']
@@ -187,6 +187,7 @@ class ManualData
          [/INTRA-PRIVILEGE-LEVEL-INTERRUPT:.+?END;/m, lambda { |x| x.gsub("IF = 0;\n(* Interrupt flag set to 0;interrupts disabled *)", "IF = 0;\nFI;\n(* Interrupt flag set to 0;interrupts disabled *)") }],
          ["\nor", ' or'],
          [/INTERRUPT-FROM-VIRTUAL-8086-MODE:.+/m, lambda { |x| x.gsub("));\n(* idt operand", "));\nFI;\n(* idt operand") }],
+         [/^Repeat operation.+/, method(:createComment)],
         ]
     when 'IRET/IRETD'
       replacements +=
@@ -259,7 +260,7 @@ class ManualData
       replacements +=
         [
          [/1\..+?ELSE/m, 'ELSE'],
-         [/^Loading.+/, lambda { |x| createComment(x) }],
+         [/^Loading.+/, method(:createComment)],
          [/\n(OR|AND)/, lambda { |x| x.gsub("\n", ' ') }],
          ['PREOTECTED MODE OR COMPATIBILITY MODE;', '(* PROTECTED MODE OR COMPATIBILITY MODE *)'],
          ["FI;\nIF segment not marked present\n#NP(selector);\nELSE", "FI;\nIF segment not marked present\n#NP(selector);\nFI;\nELSE"],
@@ -270,6 +271,13 @@ class ManualData
          ["(* All non-reserved flags can be modified. *)\nFI;\nELSE", "(* All non-reserved flags can be modified. *)\nFI;\nFI;\nELSE"],
          repeatComment,
         ]
+    when 'PSIGNB/PSIGNW/PSIGND'
+      replacements +=
+        [
+         [' Repeat', "\nRepeat"],
+         repeatComment,
+         [') D', ")\nD"],
+        ]
     end
 
     output = replaceStrings(input, replacements)
@@ -278,14 +286,22 @@ class ManualData
       output += "\nFI;"
     when 'PSIGNB/PSIGNW/PSIGND'
       fiCount = 0
+      performReplacement = lambda do |line, isComment = true|
+        replacement = "\n" + ("FI;\n" * fiCount)
+        replacement += line if isComment
+        line.replace(replacement)
+        fiCount = 0
+      end
       lines = output.split("\n")
       lines.each do |line|
         if line.matchLeft('IF')
           fiCount += 1
         elsif line.matchLeft('(*')
-          line.replace(line + "\n" + ("FI;\n" * fiCount))
-          fiCount = 0
+          performReplacement.call(line)
         end
+      end
+      if !lines.empty?
+        performReplacement.call(lines[-1], false)
       end
       output = lines.join("\n")
     end
