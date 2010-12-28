@@ -212,6 +212,8 @@ class ManualData
         ]
     when 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ'
       replacements << convertToComments
+    when 'NOP'
+      return nil
     end
 
     output = replaceStrings(input, replacements)
@@ -242,11 +244,11 @@ class ManualData
       lines << token
     end
 
-    input = lines.join("\n")
-    input = operationReplacements(instruction, input)
-    lines = input.split("\n")
+    code = operationReplacements(instruction, lines.join("\n"))
+    return code if code == nil
+    codeLines = code.split("\n")
 
-    output = calculatePseudoCodeIndentation(lines)
+    output = calculatePseudoCodeIndentation(codeLines)
     unicodeCheck(instruction, output)
     output = output.join("\n")
     return output
