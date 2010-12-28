@@ -186,6 +186,12 @@ class ManualData
       input += "\nFI;\nFI;"
     when 'LSL'
       input += "\nFI;"
+    when 'LTR'
+      replacements +=
+        [
+         ["#GP(0);", "#GP(0);\nFI;"],
+         ["OR\nIF", "or if"],
+        ]
     end
 
     output = replaceStrings(input, replacements)
