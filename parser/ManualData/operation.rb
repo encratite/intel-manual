@@ -121,6 +121,7 @@ class ManualData
        ['( ', '('],
        [' )', ')'],
        ['ELES', 'ELSE'],
+       ['EASC:', 'ESAC;'],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -213,6 +214,8 @@ class ManualData
       replacements += convertToCommentsCommon
     when 'NOP'
       return nil
+    when 'PEXTRB/PEXTRD/PEXTRQ'
+      replacements << ["DEST = TEMP;\nESAC;", "DEST = TEMP;\nFI;\nESAC;"]
     end
 
     output = replaceStrings(input, replacements)
