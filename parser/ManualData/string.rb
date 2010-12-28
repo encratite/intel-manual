@@ -23,6 +23,7 @@ class ManualData
        ["\uF0B3", '>='],
        ["\uF0A3", '<='],
        ["\u00AB", '<<'],
+       ["\u00BB", '>>'],
 
        ['log210', 'log<sub>2</sub>(10)'],
        ['log102', 'log<sub>10</sub>(2)'],
