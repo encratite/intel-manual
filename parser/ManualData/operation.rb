@@ -210,6 +210,8 @@ class ManualData
          [': ', ":\n"],
          convertToComments,
         ]
+    when 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ'
+      replacements << convertToComments
     end
 
     output = replaceStrings(input, replacements)
