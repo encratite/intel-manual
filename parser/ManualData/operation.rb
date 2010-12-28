@@ -133,8 +133,10 @@ class ManualData
        ['ELSEIF', "ELSE\nIF"],
        [/,[^ ]/, lambda { |x| ', ' + x[1..-1] }],
        [';FI;', ";\nFI;"],
+       ['FI;FI;', "FI;\nFI;"],
        [';(*', '; (*'],
        ['*)IF', "*)\nIF"],
+       [/[^ ]\*\)/, lambda { |x| x[0] + ' *)' }],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -197,7 +199,7 @@ class ManualData
       replacements +=
         [
          ['(* OperandSize = 64) ', "(* OperandSize = 64 *)\n"],
-         [';FI;FI;FI;', ";\nFI;\nFI;\nFI;\n"],
+         #[';FI;FI;FI;', ";\nFI;\nFI;\nFI;\n"],
         ]
     when 'LDS/LES/LFS/LGS/LSS'
       replacements +=
