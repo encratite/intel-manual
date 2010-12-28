@@ -1,3 +1,5 @@
+require 'nil/string'
+
 require_relative 'string'
 
 class ManualData
@@ -116,14 +118,19 @@ class ManualData
        ['H: ', "H:\n"],
        ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
        ['ELSE ', "ELSE\n"],
+       [' ELSE', "\nELSE"],
        [' FI;', "\nFI;"],
        #['IF (', 'IF('],
        ['( ', '('],
        [' )', ')'],
        ['ELES', 'ELSE'],
-       ['EASC:', 'ESAC;'],
+       ['EASC', 'ESAC'],
+       ['ESAC:', 'ESAC;'],
        ['[ ', '['],
        [' ]', ']'],
+       [/^[A-Z]+ (instruction )?(with|for) \d+[- ]bit.+?operand.*$/, lambda { |x| createComment(x) }],
+       [/^64-BIT_MODE$/, lambda { |x| createComment(x) }],
+       ['ELSEIF', "ELSE\nIF"],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -132,6 +139,8 @@ class ManualData
        [': ', ":\n"],
        convertToComments,
       ]
+
+    repeatComment = [/^Repeat.+/, lambda { |x| createComment(x) }]
 
     case instruction
     when 'CRC32'
@@ -212,7 +221,7 @@ class ManualData
       input += "\nFI;\nFI;"
     when 'MOVD/MOVQ', 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', 'OUTS/OUTSB/OUTSW/OUTSD'
       replacements << convertToComments
-    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW', 'PADDUSB/PADDUSW', 'PAVGB/PAVGW', 'PCMPEQB/PCMPEQW/PCMPEQD', 'PCMPGTB/PCMPGTW/PCMPGTD', 'PHSUBSW', 'MOVHPD', 'MOVHPS', 'MOVLPD', 'MOVLPS', 'MOVSS'
+    when 'MOVQ', 'MOVHPD', 'MOVHPS', 'MOVLPD', 'MOVLPS', 'MOVSS'
       replacements += convertToCommentsCommon
     when 'NOP'
       return nil
@@ -224,12 +233,47 @@ class ManualData
         [
          [' :', ':'],
         ]
+    when 'PADDQ'
+      replacements +=
+        [[': ', ":\n"]] +
+        convertToCommentsCommon
+    when 'CMPPD', 'CMPSS'
+      input += "\nESAC;"
+    when 'PABSB/PABSW/PABSD'
+      replacements << repeatComment
+    when 'POP'
+      replacements +=
+        [
+         [/1\..+?ELSE/m, 'ELSE'],
+         [/^Loading.+/, lambda { |x| createComment(x) }],
+         [/\n(OR|AND)/, lambda { |x| x.gsub("\n", ' ') }],
+         ['PREOTECTED MODE OR COMPATIBILITY MODE;', '(* PROTECTED MODE OR COMPATIBILITY MODE *)'],
+         ["FI;\nIF segment not marked present\n#NP(selector);\nELSE", "FI;\nIF segment not marked present\n#NP(selector);\nFI;\nELSE"],
+        ]
+    when 'POPF/POPFD/POPFQ'
+      replacements +=
+        [
+         ["(* All non-reserved flags can be modified. *)\nFI;\nELSE", "(* All non-reserved flags can be modified. *)\nFI;\nFI;\nELSE"],
+         repeatComment,
+        ]
     end
 
     output = replaceStrings(input, replacements)
     case instruction
     when'CMPS/CMPSB/CMPSW/CMPSD/CMPSQ'
       output += "\nFI;"
+    when 'PSIGNB/PSIGNW/PSIGND'
+      fiCount = 0
+      lines = output.split("\n")
+      lines.each do |line|
+        if line.matchLeft('IF')
+          fiCount += 1
+        elsif line.matchLeft('(*')
+          line.replace(line + "\n" + ("FI;\n" * fiCount))
+          fiCount = 0
+        end
+      end
+      output = lines.join("\n")
     end
     return output
   end
@@ -243,7 +287,7 @@ class ManualData
   end
 
   def extractOperation(instruction, content)
-    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalent) <\/P>/m
+    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
