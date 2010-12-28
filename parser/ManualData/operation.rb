@@ -184,6 +184,8 @@ class ManualData
          ["FI;\nFI;\nELSE\nIF RAX = SRC; (* Quadword load *)", "FI;\nELSE\nIF RAX = SRC; (* Quadword load *)"],
         ]
       input += "\nFI;\nFI;"
+    when 'LSL'
+      input += "\nFI;"
     end
 
     output = replaceStrings(input, replacements)
