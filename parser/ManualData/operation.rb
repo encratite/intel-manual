@@ -117,6 +117,10 @@ class ManualData
        ['* BREAKEAX = 4H:', "*)\nBREAK;\nEAX = 4H:"],
        ['ELSE ', "ELSE\n"],
        [' FI;', "\nFI;"],
+       #['IF (', 'IF('],
+       ['( ', '('],
+       [' )', ')'],
+       ['ELES', 'ELSE'],
       ]
 
     case instruction
@@ -170,8 +174,6 @@ class ManualData
          ["or\n", 'or '],
          [' ;', ';'],
          ["\nor", ' or'],
-         ['( ', '('],
-         [' )', ')'],
          [' IF ', "\nIF "],
          ['FI; (* Hidden flag;not accessible by software *)', '(* Hidden flag; not accessible by software *)'],
          ['64-BIT_MODE', '(* 64-BIT_MODE *)'],
@@ -192,6 +194,12 @@ class ManualData
          ["#GP(0);", "#GP(0);\nFI;"],
          ["OR\nIF", "or if"],
         ]
+    when 'MOVBE'
+      replacements +=
+        [
+         [/IF \(OperandSize = \d+\) /, lambda { |x| x.strip + "\n" }],
+        ]
+      input += "\nFI;\nFI;"
     end
 
     output = replaceStrings(input, replacements)
