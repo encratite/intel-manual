@@ -214,6 +214,8 @@ class ManualData
       replacements << convertToComments
     when 'NOP'
       return nil
+    when 'OUTS/OUTSB/OUTSW/OUTSD'
+      replacements << convertToComments
     end
 
     output = replaceStrings(input, replacements)
