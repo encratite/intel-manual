@@ -212,7 +212,7 @@ class ManualData
       input += "\nFI;\nFI;"
     when 'MOVD/MOVQ', 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', 'OUTS/OUTSB/OUTSW/OUTSD'
       replacements << convertToComments
-    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW', 'PADDUSB/PADDUSW', 'PAVGB/PAVGW', 'PCMPEQB/PCMPEQW/PCMPEQD', 'PCMPGTB/PCMPGTW/PCMPGTD', 'PHSUBSW'
+    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW', 'PADDUSB/PADDUSW', 'PAVGB/PAVGW', 'PCMPEQB/PCMPEQW/PCMPEQD', 'PCMPGTB/PCMPGTW/PCMPGTD', 'PHSUBSW', 'MOVHPD', 'MOVHPS', 'MOVLPD', 'MOVLPS', 'MOVSS'
       replacements += convertToCommentsCommon
     when 'NOP'
       return nil
@@ -243,7 +243,7 @@ class ManualData
   end
 
   def extractOperation(instruction, content)
-    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C\/C\+\+ Compiler Intrinsic Equivalent) <\/P>/m
+    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalent) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
