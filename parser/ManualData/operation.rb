@@ -212,7 +212,7 @@ class ManualData
       input += "\nFI;\nFI;"
     when 'MOVD/MOVQ', 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', 'OUTS/OUTSB/OUTSW/OUTSD'
       replacements << convertToComments
-    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW', 'PADDUSB/PADDUSW', 'PAVGB/PAVGW', 'PCMPEQB/PCMPEQW/PCMPEQD', 'PCMPGTB/PCMPGTW/PCMPGTD'
+    when 'MOVQ', 'PADDQ', 'PADDSB/PADDSW', 'PADDUSB/PADDUSW', 'PAVGB/PAVGW', 'PCMPEQB/PCMPEQW/PCMPEQD', 'PCMPGTB/PCMPGTW/PCMPGTD', 'PHSUBSW'
       replacements += convertToCommentsCommon
     when 'NOP'
       return nil

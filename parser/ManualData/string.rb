@@ -25,6 +25,7 @@ class ManualData
        ["\u00AB", '<<'],
        ["\u00BB", '>>'],
        ["\u2022", '='],
+       ["\uF028", '('], #very strange... from PANDN
 
        ['log210', 'log<sub>2</sub>(10)'],
        ['log102', 'log<sub>10</sub>(2)'],
