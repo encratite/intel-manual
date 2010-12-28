@@ -200,6 +200,8 @@ class ManualData
          [/IF \(OperandSize = \d+\) /, lambda { |x| x.strip + "\n" }],
         ]
       input += "\nFI;\nFI;"
+    when 'MOVD/MOVQ'
+      replacements << [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
     end
 
     output = replaceStrings(input, replacements)
