@@ -498,6 +498,19 @@ class ManualData
         ]
     when 'GETSEC[SMCTRL]'
       replacements << ["END", ("FI;\n" * 3) + "END;"]
+    when 'GETSEC[WAKEUP]'
+      replacements +=
+        [
+         ["SignalTXTMsg(WAKEUP);\nEND;", "SignalTXTMsg(WAKEUP);\nFI;"],
+         ["RLP_SIPI_WAKEUP_FROM_SENTER_ROUTINE: (RLP only)", "FI;\nFI;\nFI;\n(* RLP_SIPI_WAKEUP_FROM_SENTER_ROUTINE: (RLP only) *)"],
+         ["WHILE (no SignalWAKEUP event);", "WHILE (no SignalWAKEUP event)\nELIHW;"],
+         ["IF (IA32_SMM_MONITOR_CTL[0] = 0)", "FI;\nIF (IA32_SMM_MONITOR_CTL[0] = 0)"],
+         ["Mask A20M, and NMI external pin events (unmask INIT);", "FI;\nMask A20M, and NMI external pin events (unmask INIT);"],
+         ["IF ((TempSegSel > TempGDTRLIMIT-15) or (TempSegSel < 8))", "FI;\nIF ((TempSegSel > TempGDTRLIMIT-15) or (TempSegSel < 8))"],
+         ["IF ((TempSegSel.TI = 1) or (TempSegSel.RPL!= 0))", "FI;\nIF ((TempSegSel.TI = 1) or (TempSegSel.RPL!= 0))"],
+         ["CR0.[PG, CD, W, AM, WP] = 0;", "FI;\nCR0.[PG, CD, W, AM, WP] = 0;"],
+         ["END;", ''],
+        ]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
