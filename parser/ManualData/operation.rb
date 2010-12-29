@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require 'nil/string'
 
 require_relative 'string'
@@ -366,6 +368,43 @@ class ManualData
          ["\n)", ")"],
          ["read revision identifier in MSEG;", "read revision identifier in MSEG;" + ("FI;\n" * 9)],
         ]
+    when 'VMCLEAR'
+      replacements +=
+        [
+         ["OR\n", "OR "],
+         ["and\n", "and "],
+        ]
+      #guessed
+      input += "\nFI;" * 3
+    when 'VMLAUNCH/VMRESUME'
+      replacements = [[/^Further.+/, '']] + replacements
+      input += "\nFI;" * 6
+    when 'VMPTRLD'
+      replacements =
+        [
+         [/1\..+?\)\./m, '']
+        ] + replacements
+      input += "\nFI;" * 3
+    when 'VMPTRST'
+      input += "\nFI;" * 2
+    when 'VMREAD'
+      input += "\nFI;" * 4
+    when 'VMWRITE'
+      input += "\nFI;" * 5
+    when 'VMXOFF'
+      replacements +=
+        [
+         ['IF outside SMX operation2', "(* A logical processor is outside SMX operation if GETSEC[SENTER] has not been executed or if GETSEC[SEXIT] was executed after the last execution of GETSEC[SENTER]. See Chapter 6, Safer Mode Extensions Reference. *)\nIF outside SMX operation"],
+        ]
+      input += "\nFI;" * 3
+    when 'VMXON'
+      replacements +=
+        [
+         ["or\n", "or "],
+         ["and\n", "and "],
+         [/operation\d/, 'operation'],
+        ]
+      input += "\nFI;" * 3
     when 'GETSEC[CAPABILITIES]'
       replacements +=
         [
@@ -374,6 +413,7 @@ class ManualData
          [/=[^ ]/, lambda { |x| '= ' + x[-1]  }],
          ['VM Exit (reason = "GETSEC instruction");', "VM Exit (reason =\"GETSEC instruction\");\nFI;"],
          [';;', ';'],
+         ["END;", "FI;\nEND;"],
         ]
     end
 

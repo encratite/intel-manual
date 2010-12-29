@@ -26,6 +26,8 @@ class ManualData
        ["\u00BB", '>>'],
        ["\u2022", '='],
        ["\uF028", '('], #very strange... from PANDN
+       ["\u20181", "'"], #another odd one, from the ROUND* functions
+       ["\uF02F", '/'],
 
        ['log210', 'log<sub>2</sub>(10)'],
        ['log102', 'log<sub>10</sub>(2)'],
@@ -44,8 +46,9 @@ class ManualData
     return replaceStrings(input, replacements)
   end
 
-  def replaceStrings(element, replacements)
+  def replaceStrings(element, replacements, sanityCheckString = nil)
     output = element
+    isSane = true
     replacements.each do |target, replacement|
       case replacement
       when String
@@ -57,7 +60,17 @@ class ManualData
       else
         raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"
       end
+
+      if isSane && sanityCheckString != nil
+        index = output.index(sanityCheckString)
+        #puts index
+        if index == nil
+          raise "Rule responsible for the disappearance of #{sanityCheckString.inspect}: #{[target, replacement].inspect}"
+          isSane = false
+        end
+      end
     end
+
     return output
   end
 end
