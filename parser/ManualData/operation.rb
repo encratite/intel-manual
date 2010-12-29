@@ -489,6 +489,13 @@ class ManualData
          ["SignalTXTMsg(SEXITAck);", "FI;\nSignalTXTMsg(SEXITAck);"],
          ["DONE = READ(LT.STS);", "FI;\nDONE = READ(LT.STS);"],
         ]
+    when 'GETSEC[PARAMETERS]'
+       replacements +=
+        [
+         ["IF (EBX = 0)", "FI;\nFI;\nFI;\nIF (EBX = 0)"],
+         ['¨ ', ' = '],
+         ['END;', "FI;\nFI;\nEND;"],
+        ]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
