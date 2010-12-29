@@ -212,6 +212,7 @@ class ManualData
          ["\nREAL-ADDRESS-MODE;", "\nREAL-ADDRESS-MODE:"],
          ['IA-32e-MODE:', "END;\nIA-32e-MODE:"],
          ['GOTO IA-32e-MODE-RETURN;', "FI;\nGOTO IA-32e-MODE-RETURN;\nEND;\n"],
+         [/FOR each of segment register \(ES, FS, GS, and DS\).+?END;/m, lambda { |x| x.gsub("END;", "ROF;\nEND;") }],
         ]
     when 'JMP'
       replacements +=
@@ -349,6 +350,8 @@ class ManualData
         ]
     when 'TEST'
       replacements << ['FI:', 'FI;']
+    when 'XSAVE'
+      input += "\nROF;"
     when 'INVEPT'
       #somewhat guessed
       input += "\nFI;\nFI;"
