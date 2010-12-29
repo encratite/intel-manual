@@ -480,6 +480,15 @@ class ManualData
          ["ACRAM[SCRATCH.SIGNATURE_LEN_CONST] = EDX;", "FI;\nACRAM[SCRATCH.SIGNATURE_LEN_CONST] = EDX;"],
          ["EIP = ACEntryPoint;\nEND;", "EIP = ACEntryPoint;\nROF;"],
         ]
+    when 'GETSEC[SEXIT]'
+      replacements +=
+        convertToCommentsCommon +
+        [
+         ["SignalTXTMsg(SEXIT);", "FI;\nFI;\nFI;\nFI;\nSignalTXTMsg(SEXIT);"],
+         ["Unmask SMI, INIT, A20M, and NMI external pin events;\nEND;", "Unmask SMI, INIT, A20M, and NMI external pin events;\nELIHW;"],
+         ["SignalTXTMsg(SEXITAck);", "FI;\nSignalTXTMsg(SEXITAck);"],
+         ["DONE = READ(LT.STS);", "FI;\nDONE = READ(LT.STS);"],
+        ]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
