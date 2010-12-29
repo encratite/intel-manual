@@ -386,7 +386,10 @@ class ManualData
       #guessed
       input += "\nFI;" * 3
     when 'VMLAUNCH/VMRESUME'
-      replacements = [[/^Further.+/, '']] + replacements
+      replacements =
+        [[/^Further.+/, '']] +
+        replacements +
+        [[" (see Section 22.7, in the\nIntel® 64 and IA-32 \nArchitectures Software Developer's Manual, Volume 3B\n);", "; (* see Section 22.7, in the Intel® 64 and IA-32 Architectures Software Developer's Manual, Volume 3B *)"]]
       input += "\nFI;" * 6
     when 'VMPTRLD'
       replacements =
@@ -537,7 +540,7 @@ class ManualData
         performReplacement.call(lines[-1], false)
       end
       output = lines.join("\n")
-    when 'GETSEC[SENTER]'
+    when 'VMLAUNCH/VMRESUME'
       #puts output
       #exit
     end
