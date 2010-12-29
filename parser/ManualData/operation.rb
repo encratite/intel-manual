@@ -71,9 +71,9 @@ class ManualData
         tabLevel = ifIndentationStack[-1]
         output << applyIndentation(tabLevel, line)
         tabLevel += 1
-      when 'CASE', 'WHILE'
+      when 'CASE', 'WHILE', 'FOR'
         addLine.call(0, 1)
-      when 'END', 'ESAC', 'ELIHW'
+      when 'END', 'ESAC', 'ELIHW', 'ROF'
         addLine.call(-1, 0)
       when 'BREAK'
         addLine.call(0, -1)
@@ -415,6 +415,19 @@ class ManualData
          [';;', ';'],
          ["END;", "FI;\nEND;"],
         ]
+    when 'GETSEC[ENTERACCS]'
+      replacements =
+        [["OD;", "ROF;"]]
+        replacements +
+        [
+         ["FOR I = 0 to IA32_MCG_CAP.COUNT-1 DO", ("FI;\n" * 4) + "FOR I = 0 to IA32_MCG_CAP.COUNT - 1"],
+        ]
+    when 'GETSEC[EXITACCS]'
+      replacements +=
+        [
+         ['instructionboundary', 'instruction boundary'],
+         ["IF (OperandSize = 32)", ("FI;\n" * 4) + "IF (OperandSize = 32)"],
+        ]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
@@ -454,7 +467,7 @@ class ManualData
   end
 
   def extractOperation(instruction, content)
-    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation) <\/P>/m
+    pattern = /<P>(?:Operation|Operation in a Uni-Processor Platform) <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
