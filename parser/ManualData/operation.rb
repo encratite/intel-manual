@@ -149,6 +149,9 @@ class ManualData
        [/\/\/ *.+/, lambda { |x| createComment(x[2..-1].strip) }],
        ["\t", ''],
        [/ +/, ' '],
+       #["*) ", "*)\n"],
+       [/[^ =!]=/, lambda { |x| x[0] + ' =' }],
+       [/=[^ =!]/, lambda { |x| '= ' + x[-1]  }],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -412,18 +415,32 @@ class ManualData
       replacements +=
         [
          ["1;\n", "1;\nFI;\n"],
-         [/[^ ]=/, lambda { |x| x[0] + ' =' }],
-         [/=[^ ]/, lambda { |x| '= ' + x[-1]  }],
          ['VM Exit (reason = "GETSEC instruction");', "VM Exit (reason =\"GETSEC instruction\");\nFI;"],
          [';;', ';'],
          ["END;", "FI;\nEND;"],
         ]
     when 'GETSEC[ENTERACCS]'
       replacements =
-        [["OD;", "ROF;"]]
+        [["OD;", "FI;\nROF;"]] +
         replacements +
         [
          ["FOR I = 0 to IA32_MCG_CAP.COUNT-1 DO", ("FI;\n" * 4) + "FOR I = 0 to IA32_MCG_CAP.COUNT - 1"],
+         ["ACBASE = EBX;", "FI;\nACBASE = EBX;"],
+         ["IF (secondary thread(s)", "FI;\nIF (secondary thread(s)"],
+         ['Mask SMI', "FI;\nMask SMI"],
+         ['IF (AC module header version', "FI;\nIF (AC module header version"],
+         ['(* Authenticate', "FI;\n(* Authenticate"],
+         ["SIGNATURE = DECRYPT", "FI;\nSIGNATURE = DECRYPT"],
+         ["COMPUTEDSIGNATURE = HASH", "ROF;\nCOMPUTEDSIGNATURE = HASH"],
+         ["IF (SIGNATURE<>COMPUTEDSIGNATURE)", "ROF;\nIF (SIGNATURE<>COMPUTEDSIGNATURE)"],
+         ["ACMCONTROL = ACRAM[CodeControl];", "FI;\nACMCONTROL = ACRAM[CodeControl];"],
+         ["IF (ACMCONTROL reserved bits are set)", "FI;\nIF (ACMCONTROL reserved bits are set)"],
+         ["IF ((ACRAM[GDTBasePtr] < ", "FI;\nIF ((ACRAM[GDTBasePtr] < "],
+         ["IF ((ACMCONTROL.0 = 1)", "FI;\nIF ((ACMCONTROL.0 = 1)"],
+         ["IF ((ACEntryPoint ", "FI;\nIF ((ACEntryPoint "],
+         [")))TXT-SHUTDOWN(#BadACMFormat);", ")))\nTXT-SHUTDOWN(#BadACMFormat);\nFI;"],
+         ["IF ((ACRAM[SegSel] >", "FI;\nIF ((ACRAM[SegSel] >"],
+         ["IF ((ACRAM[SegSel].TI = 1)", "FI;\nIF ((ACRAM[SegSel].TI = 1)"],
         ]
     when 'GETSEC[EXITACCS]'
       replacements +=
