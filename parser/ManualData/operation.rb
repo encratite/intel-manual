@@ -496,6 +496,8 @@ class ManualData
          ['¨ ', ' = '],
          ['END;', "FI;\nFI;\nEND;"],
         ]
+    when 'GETSEC[SMCTRL]'
+      replacements << ["END", ("FI;\n" * 3) + "END;"]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
