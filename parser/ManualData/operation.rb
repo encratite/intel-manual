@@ -152,6 +152,9 @@ class ManualData
        #["*) ", "*)\n"],
        [/[^ =!]=/, lambda { |x| x[0] + ' =' }],
        [/=[^ =!]/, lambda { |x| '= ' + x[-1]  }],
+       [/ (or|OR|and|AND)\n/, lambda { |x| x[0..-2] + ' ' }],
+       ['> =', '>='],
+       ['< =', '<='],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -448,6 +451,35 @@ class ManualData
          ['instructionboundary', 'instruction boundary'],
          ["IF (OperandSize = 32)", ("FI;\n" * 4) + "IF (OperandSize = 32)"],
         ]
+    when 'GETSEC[SENTER]'
+      replacements +=
+        convertToCommentsCommon +
+        [
+         ['FOR I = 0 to IA32_MCG_CAP.COUNT-1 DO', ("FI;\n" * 4) + "FOR I = 0 to IA32_MCG_CAP.COUNT - 1"],
+         ["IF (IA32_MCG_STATUS.MCIP = 1) or (IERR pin is asserted)", "ROF;\nIF (IA32_MCG_STATUS.MCIP = 1) or (IERR pin is asserted)"],
+         ["ACBASE = EBX;", "FI;\nACBASE = EBX;"],
+         ["Mask SMI, INIT, A20M, and NMI external pin events;", "FI;\nMask SMI, INIT, A20M, and NMI external pin events;"],
+         ["TXT-SHUTDOWN(#IllegalEvent);\nFI;\nFI;\nFI;\nFI;", "TXT-SHUTDOWN(#IllegalEvent);\nFI;"],
+         ["IF (Voltage or bus ratio status are NOT at a known good state)", "FI;\nIF (Voltage or bus ratio status are NOT at a known good state)"],
+         ["IA32_MISC_ENABLE = (IA32_MISC_ENABLE & MASK_CONST *)", "FI;\nIA32_MISC_ENABLE = (IA32_MISC_ENABLE & MASK_CONST *)"],
+         ["DONE = TXT.READ(LT.STS);\nWHILE (not DONE);", "DONE = FALSE;\nWHILE (not DONE)\nDONE = TXT.READ(LT.STS);\nELIHW;"],
+         ["DONE = FALSE;", "FI;\nDONE = FALSE;"],
+         ["IF (ACRAM memory type != WB)", "ROF;\nIF (ACRAM memory type != WB)"],
+         ["IF (AC module header version is not supported) OR (ACRAM[ModuleType] <> 2)", "FI;\nIF (AC module header version is not supported) OR (ACRAM[ModuleType] <> 2)"],
+         ["KEY = GETKEY(ACRAM, ACBASE);", "FI;\nKEY = GETKEY(ACRAM, ACBASE);"],
+         ["SIGNATURE = DECRYPT(ACRAM, ACBASE, KEY);", "FI;\nSIGNATURE = DECRYPT(ACRAM, ACBASE, KEY);"],
+         ["COMPUTEDSIGNATURE = HASH(ACRAM, ACBASE, ACSIZE);", "ROF;\nCOMPUTEDSIGNATURE = HASH(ACRAM, ACBASE, ACSIZE);"],
+         ["IF (SIGNATURE != COMPUTEDSIGNATURE)", "ROF;\nIF (SIGNATURE != COMPUTEDSIGNATURE)"],
+         ["ACMCONTROL = ACRAM[CodeControl];", "FI;\nACMCONTROL = ACRAM[CodeControl];"],
+         ["IF (ACMCONTROL reserved bits are set)", "FI;\nIF (ACMCONTROL reserved bits are set)"],
+         ["IF ((ACRAM[GDTBasePtr] < (ACRAM[HeaderLen] ", "FI;\nIF ((ACRAM[GDTBasePtr] < (ACRAM[HeaderLen] "],
+         ["IF ((ACMCONTROL.0 = 1) and (ACMCONTROL.1 = 1) and (snoop hit to modified", "FI;\nIF ((ACMCONTROL.0 = 1) and (ACMCONTROL.1 = 1) and (snoop hit to modified"],
+         ["IF ((ACEntryPoint > = ACSIZE) or (ACEntryPoint < (ACRAM[HeaderLen] * 4 + Scratch_size)))", "FI;\nIF ((ACEntryPoint > = ACSIZE) or (ACEntryPoint < (ACRAM[HeaderLen] * 4 + Scratch_size)))"],
+         ["IF ((ACRAM[SegSel] > (ACRAM[GDTLimit] - 15)) or (ACRAM[SegSel] < 8))", "FI;\nIF ((ACRAM[SegSel] > (ACRAM[GDTLimit] - 15)) or (ACRAM[SegSel] < 8))"],
+         ["IF ((ACRAM[SegSel].TI = 1) or (ACRAM[SegSel].RPL!= 0))", "FI;\nIF ((ACRAM[SegSel].TI = 1) or (ACRAM[SegSel].RPL!= 0))"],
+         ["ACRAM[SCRATCH.SIGNATURE_LEN_CONST] = EDX;", "FI;\nACRAM[SCRATCH.SIGNATURE_LEN_CONST] = EDX;"],
+         ["EIP = ACEntryPoint;\nEND;", "EIP = ACEntryPoint;\nROF;"],
+        ]
     end
 
     output = replaceStrings(input, replacements, sanityCheckString)
@@ -474,6 +506,9 @@ class ManualData
         performReplacement.call(lines[-1], false)
       end
       output = lines.join("\n")
+    when 'GETSEC[SENTER]'
+      #puts output
+      #exit
     end
     return output
   end
