@@ -36,8 +36,10 @@ class ManualData
         indentationCheck.call
       end
 
-      #CPUID exception
-      if line == 'DEFAULT: (* EAX = Value outside of recognized range for CPUID. *)'
+      cpuidMatch = line == 'DEFAULT: (* EAX = Value outside of recognized range for CPUID. *)'
+      rclMatch = line.match(/^SIZE = \d+:$/)
+
+      if cpuidMatch || rclMatch
         addLine.call
         next
       end
@@ -67,9 +69,9 @@ class ManualData
         tabLevel = ifIndentationStack[-1]
         output << applyIndentation(tabLevel, line)
         tabLevel += 1
-      when 'CASE'
+      when 'CASE', 'WHILE'
         addLine.call(0, 1)
-      when 'END', 'BREAK', 'ESAC'
+      when 'END', 'BREAK', 'ESAC', 'ELIHW'
         addLine.call(-1, 0)
       else
         addLine.call
@@ -128,8 +130,8 @@ class ManualData
        ['ESAC:', 'ESAC;'],
        ['[ ', '['],
        [' ]', ']'],
-       [/^[A-Z]+ (instruction )?(with|for) \d+[- ]bit.+?operand.*$/, method(:createComment)],
-       [/^64-BIT_MODE$/, method(:createComment)],
+       [/^[A-Z]+ (instruction )?(with|for) \d+[- ][Bb]it.+?operand.*$/, method(:createComment)],
+       [/^(64-BIT_MODE|64-bit Mode:)$/, method(:createComment)],
        ['ELSEIF', "ELSE\nIF"],
        [/,[^ ]/, lambda { |x| ', ' + x[1..-1] }],
        [';FI;', ";\nFI;"],
@@ -137,6 +139,8 @@ class ManualData
        [';(*', '; (*'],
        ['*)IF', "*)\nIF"],
        [/[^ ]\*\)/, lambda { |x| x[0] + ' *)' }],
+       ["\nDO\n", "\n"],
+       ["\nOD;", ''],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -238,6 +242,15 @@ class ManualData
       replacements << convertToComments
     when 'MOVQ', 'MOVHPD', 'MOVHPS', 'MOVLPD', 'MOVLPS', 'MOVSS'
       replacements += convertToCommentsCommon
+    when 'MWAIT'
+      replacements =
+        [
+         ['{', ''],
+         ['}', ''],
+        ] + replacements +
+        [
+         ['Set the stat', "ELIHW;\nSet the stat"],
+        ]
     when 'NOP'
       return nil
     when 'PEXTRB/PEXTRD/PEXTRQ'
@@ -278,6 +291,35 @@ class ManualData
          repeatComment,
          [') D', ")\nD"],
         ]
+    when 'PSUBQ'
+      replacements = [[': DEST', ":\nDEST"]] + replacements
+    when 'PUSHF/PUSHFD'
+      input += "\nFI;"
+    when 'RCL/RCR/ROL/ROR'
+      replacements +=
+        [
+         ['2SIZE', 'pow(2, SIZE'],
+         ["tempCOUNT = tempCOUNT - 1;\n(* ROL and ROR instructions *)", "tempCOUNT = tempCOUNT - 1;\nELIHW;\n(* ROL and ROR instructions *)"],
+        ]
+    when 'RDPMC'
+      replacements +=
+        [
+         [/^Most.+/, method(:createComment)],
+         ["(* Intel Core 2 Duo processor family and Intel Xeon processor 3000, 5100, 5300, 7400 series *)", "FI;\nFI;\n(* Intel Core 2 Duo processor family and Intel Xeon processor 3000, 5100, 5300, 7400 series *)"],
+         ["(* P6 family processors and Pentium processor with MMX technology *)", "FI;\nFI;\nFI;\n(* P6 family processors and Pentium processor with MMX technology *)"],
+         ["FI; (* Processors with CPUID family 15 *)", "FI;\n(* Processors with CPUID family 15 *)"],
+        ]
+      input += "\nFI;\nFI;"
+    when 'REP/REPE/REPZ/REPNE/REPNZ'
+      input += "\nELIHW;"
+    when 'SAL/SAR/SHL/SHR'
+      replacements +=
+        [
+         ["FI\n", "FI;\n"],
+         ["tempCOUNT = tempCOUNT - 1;", "tempCOUNT = tempCOUNT - 1;\nELIHW;"],
+        ]
+    when 'SCAS/SCASB/SCASW/SCASD'
+      replacements << [/^F$/, 'FI;']
     end
 
     output = replaceStrings(input, replacements)
@@ -322,7 +364,7 @@ class ManualData
     return nil if match == nil
     operationContent = match[1]
     lines = []
-    operationContent.scan(/<P>(.+?)<\/P>/m) do |match|
+    operationContent.scan(/<(?:P|TD)>(.+?)<\/(?:P|TD)>/m) do |match|
       token = match[0].strip
       token = replaceCommonStrings(token)
       lines << token

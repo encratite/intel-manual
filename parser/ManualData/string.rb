@@ -47,12 +47,15 @@ class ManualData
   def replaceStrings(element, replacements)
     output = element
     replacements.each do |target, replacement|
-      if replacement.class == String
+      case replacement
+      when String
         output = output.gsub(target, replacement)
-      else
+      when Proc, Method
         output = output.gsub(target) do |match|
           replacement.call(match)
         end
+      else
+        raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"
       end
     end
     return output
