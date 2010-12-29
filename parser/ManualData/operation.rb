@@ -71,8 +71,10 @@ class ManualData
         tabLevel += 1
       when 'CASE', 'WHILE'
         addLine.call(0, 1)
-      when 'END', 'BREAK', 'ESAC', 'ELIHW'
+      when 'END', 'ESAC', 'ELIHW'
         addLine.call(-1, 0)
+      when 'BREAK'
+        addLine.call(0, -1)
       else
         addLine.call
       end
@@ -133,6 +135,7 @@ class ManualData
        [/^[A-Z]+ (instruction )?(with|for) \d+[- ][Bb]it.+?operand.*$/, method(:createComment)],
        [/^(64-BIT_MODE|64-bit Mode:)$/, method(:createComment)],
        ['ELSEIF', "ELSE\nIF"],
+       ['ELSIF', "ELSE\nIF"],
        [/,[^ ]/, lambda { |x| ', ' + x[1..-1] }],
        [';FI;', ";\nFI;"],
        ['FI;FI;', "FI;\nFI;"],
@@ -141,6 +144,9 @@ class ManualData
        [/[^ ]\*\)/, lambda { |x| x[0] + ' *)' }],
        ["\nDO\n", "\n"],
        ["\nOD;", ''],
+       [/\/\/ *.+/, lambda { |x| createComment(x[2..-1].strip) }],
+       ["\t", ''],
+       [/ +/, ' '],
       ]
 
     convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
@@ -151,6 +157,8 @@ class ManualData
       ]
 
     repeatComment = [/^Repeat.+/, method(:createComment)]
+
+    sanityCheckString = nil
 
     case instruction
     when 'CRC32'
@@ -192,6 +200,9 @@ class ManualData
          ["\nor", ' or'],
          [/INTERRUPT-FROM-VIRTUAL-8086-MODE:.+/m, lambda { |x| x.gsub("));\n(* idt operand", "));\nFI;\n(* idt operand") }],
          [/^Repeat operation.+/, method(:createComment)],
+         ['otherwise, EXT is ELSE', "otherwise, EXT is 1. *)"],
+         ['(* PE = 1 *)', 'IF PE = 1'],
+         ['REAL-ADDRESS-MODE:', "FI;\nREAL-ADDRESS-MODE:"],
         ]
     when 'IRET/IRETD'
       replacements +=
@@ -232,6 +243,16 @@ class ManualData
          ["#GP(0);", "#GP(0);\nFI;"],
          ["OR\nIF", "or if"],
         ]
+    when 'MOV'
+      replacements +=
+        [
+         [/^Loading.+points\.$/, method(:createComment)],
+         ["\nor", ' or'],
+         #[/1\..+?ELSE/m, 'ELSE'],
+         [/1\..+?EBP\n/m, ''],
+        ]
+      #sanityCheckString = 'If a code instruction breakpoint'
+      #puts sanityCheckString
     when 'MOVBE'
       replacements +=
         [
@@ -272,7 +293,6 @@ class ManualData
     when 'POP'
       replacements +=
         [
-         [/1\..+?ELSE/m, 'ELSE'],
          [/^Loading.+/, method(:createComment)],
          [/\n(OR|AND)/, lambda { |x| x.gsub("\n", ' ') }],
          ['PREOTECTED MODE OR COMPATIBILITY MODE;', '(* PROTECTED MODE OR COMPATIBILITY MODE *)'],
@@ -320,9 +340,44 @@ class ManualData
         ]
     when 'SCAS/SCASB/SCASW/SCASD'
       replacements << [/^F$/, 'FI;']
+    when 'STI'
+      replacements +=
+        [
+         ["FI;)", 'FI;'],
+        ]
+    when 'TEST'
+      replacements << ['FI:', 'FI;']
+    when 'INVEPT'
+      #somewhat guessed
+      input += "\nFI;\nFI;"
+    when 'INVVPID'
+      #guessed, too
+      input += "\nFI;\nFI;"
+    when 'VMCALL'
+      replacements +=
+        [
+         ["\nof", " of"],
+         ["\nIntel", " Intel"],
+         ["Archi\n", "Archi"],
+         ['  ', ' '],
+         #["active\n", "active "],
+         [" \nin", " in"],
+         [" \n", " "],
+         ["\n)", ")"],
+         ["read revision identifier in MSEG;", "read revision identifier in MSEG;" + ("FI;\n" * 9)],
+        ]
+    when 'GETSEC[CAPABILITIES]'
+      replacements +=
+        [
+         ["1;\n", "1;\nFI;\n"],
+         [/[^ ]=/, lambda { |x| x[0] + ' =' }],
+         [/=[^ ]/, lambda { |x| '= ' + x[-1]  }],
+         ['VM Exit (reason = "GETSEC instruction");', "VM Exit (reason =\"GETSEC instruction\");\nFI;"],
+         [';;', ';'],
+        ]
     end
 
-    output = replaceStrings(input, replacements)
+    output = replaceStrings(input, replacements, sanityCheckString)
     case instruction
     when'CMPS/CMPSB/CMPSW/CMPSD/CMPSQ'
       output += "\nFI;"
@@ -359,7 +414,7 @@ class ManualData
   end
 
   def extractOperation(instruction, content)
-    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?) <\/P>/m
+    pattern = /<P>Operation <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
