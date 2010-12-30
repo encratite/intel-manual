@@ -1,0 +1,14 @@
+(* PSADBW instructions when using 64-bit operands: *)
+TEMP0  ABS(DEST[7:0]  SRC[7:0]);
+(* Repeat operation for bytes 2 through 6 *)
+TEMP7  ABS(DEST[63:56]  SRC[63:56]);
+DEST[15:0]  SUM(TEMP0:TEMP7);
+DEST[63:16]  000000000000H;
+(* PSADBW instructions when using 128-bit operands: *)
+TEMP0  ABS(DEST[7:0]  SRC[7:0]);
+(* Repeat operation for bytes 2 through 14 *)
+TEMP15  ABS(DEST[127:120]  SRC[127:120]);
+DEST[15:0]  SUM(TEMP0:TEMP7);
+DEST[63:16]  000000000000H;
+DEST[79:64]  SUM(TEMP8:TEMP15);
+DEST[127:80]  000000000000H;

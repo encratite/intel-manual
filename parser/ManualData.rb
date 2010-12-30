@@ -132,6 +132,7 @@ class ManualData
       operation = extractOperation(instruction, content)
 
       flagsAffected = extractFlagsAffected(instruction, content)
+      fpuFlagsAffected = extractFlagsAffected(instruction, content, :fpuFlags)
 
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)
