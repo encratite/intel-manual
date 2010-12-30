@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'nil/string'
+require 'nil/file'
 
 require_relative 'string'
 
@@ -166,6 +167,8 @@ class ManualData
 
     repeatComment = [/^Repeat.+/, method(:createComment)]
 
+    insertBreaks = [/:\n.+/, lambda { |x| x + "\nBREAK;" }]
+
     sanityCheckString = nil
 
     case instruction
@@ -177,6 +180,10 @@ class ManualData
         ]
     when 'CPUID'
       replacements << ["BREAK;\nBREAK;", 'BREAK;']
+    when 'F2XM1'
+      return 'ST(0) = (pow(2, ST(0)) - 1);'
+    when 'FICOM/FICOMP', 'FUCOM/FUCOMP/FUCOMPP'
+      replacements << insertBreaks
     when 'IMUL'
       replacements << ["ELSE\nIF (NumberOfOperands = 2)", "FI;\nELSE\nIF (NumberOfOperands = 2)"]
     when 'INSERTPS'
@@ -251,6 +258,31 @@ class ManualData
         [
          ["#GP(0);", "#GP(0);\nFI;"],
          ["OR\nIF", "or if"],
+        ]
+    when 'MAXPD', 'MAXPS', 'MINPD', 'MINPS'
+      replacements +=
+        [
+         ['= IF', "=\nIF"],
+         ["\nFI;", ''],
+         ["\nDEST[127:64] =", "\nFI;\nFI;\nFI;\nFI;\nDEST[127:64] ="],
+         ['@', "\nFI;\nFI;\nFI;\nFI;"],
+        ]
+      input += '@'
+    when 'MAXSD', 'MAXSS'
+      replacements +=
+        [
+         ['= IF', "=\nIF"],
+         ["\nFI;", ''],
+         ['IF (DEST[63:0] = SNaN)', "ELSE\nIF (DEST[63:0] = SNaN)"],
+         ["(*", "FI;\nFI;\nFI;\nFI;\n(*"],
+        ]
+    when 'MINSD', 'MINSS'
+      replacements +=
+        [
+         ['= IF', "=\nIF"],
+         ["\nFI;", ''],
+         #['IF (DEST[63:0] = SNaN)', "ELSE\nIF (DEST[63:0] = SNaN)"],
+         [" (*", "\nFI;\nFI;\nFI;\nFI;\n(*"],
         ]
     when 'MOV'
       replacements +=
@@ -555,11 +587,24 @@ class ManualData
     end
   end
 
+  def loadHardCodedOperation(instruction)
+    return Nil.readFile("../hard-coded/#{instruction}")
+  end
+
   def extractOperation(instruction, content)
-    pattern = /<P>(?:Operation|Operation in a Uni-Processor Platform) <\/P>(.+?)<P>(Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation) <\/P>/m
+    #hardCodedData = loadHardCodedOperation(instruction)
+    #return hardCodedData if hardCodedData != nil
+    case instruction
+    when 'FNOP'
+      return '(* No operation *)'
+    end
+    pattern = /(?:<TH>Operation <\/TH>|<P>(?:Operation|Operation in a Uni-Processor Platform) <\/P>)(.+?)<P>(?:Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation|FPU Flags Affected|x87 FPU and SIMD Floating-Point Exceptions|Protected Mode Exceptions|Intel.+?Compiler Intrinsic Equivalent) <\/P>/m
     match = content.match(pattern)
     return nil if match == nil
     operationContent = match[1]
+    if operationContent == nil
+      puts match.inspect
+    end
     lines = []
     operationContent.scan(/<(?:P|TD)>(.+?)<\/(?:P|TD)>/m) do |match|
       token = match[0].strip

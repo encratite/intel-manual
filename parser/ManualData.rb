@@ -129,13 +129,14 @@ class ManualData
       encodingTable = getEncodingTable(instruction, content)
 
       operation = extractOperation(instruction, content)
+      error "Unable to extract the operation" if operation == nil
 
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)
       writeTag('EncodingTable', encodingTable)
       writeTag('Description', description)
       writeTag('Operation', operation)
-      writeTag('OperationSymbols', operation.inspect)
+      #writeTag('OperationSymbols', operation.inspect)
       writeLine('')
 
       instruction = Instruction.new(opcodeTable, encodingTable, operation)
