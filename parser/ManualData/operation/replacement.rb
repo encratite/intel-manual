@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 class ManualData
   def operationReplacements(instruction, input)
     replacements = getGlobalOperatorReplacements
@@ -265,7 +265,7 @@ class ManualData
       replacements =
         [[/^Further.+/, '']] +
         replacements +
-        [[" (see Section 22.7, in the\nIntel® 64 and IA-32 \nArchitectures Software Developer's Manual, Volume 3B\n);", "; (* see Section 22.7, in the Intel® 64 and IA-32 Architectures Software Developer's Manual, Volume 3B *)"]]
+        [[" (see Section 22.7, in the\nIntelÂ® 64 and IA-32 \nArchitectures Software Developer's Manual, Volume 3B\n);", "; (* see Section 22.7, in the IntelÂ® 64 and IA-32 Architectures Software Developer's Manual, Volume 3B *)"]]
       input += "\nFI;" * 6
     when 'VMPTRLD'
       replacements =
@@ -372,7 +372,7 @@ class ManualData
        replacements +=
         [
          ["IF (EBX = 0)", "FI;\nFI;\nFI;\nIF (EBX = 0)"],
-         ['¨ ', ' = '],
+         ['Â¨ ', ' = '],
          ['END;', "FI;\nFI;\nEND;"],
         ]
     when 'GETSEC[SMCTRL]'
