@@ -140,9 +140,10 @@ class ManualData
       writeTag('Description', description)
       writeTag('Operation', operation)
       writeTag('FlagsAffected', flagsAffected.inspect)
+      writeTag('FPUFlagsAffected', fpuFlagsAffected)
       writeLine('')
 
-      instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected)
+      instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
 
       @instructions << instruction
 
