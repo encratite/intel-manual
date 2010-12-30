@@ -12,6 +12,7 @@ require_relative 'ManualData/description'
 require_relative 'ManualData/encoding'
 require_relative 'ManualData/opcodes'
 require_relative 'ManualData/operation'
+require_relative 'ManualData/flags'
 
 class ManualData
   class Error < Exception
@@ -130,15 +131,17 @@ class ManualData
 
       operation = extractOperation(instruction, content)
 
+      flagsAffected = extractFlagsAffected(instruction, content)
+
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)
       writeTag('EncodingTable', encodingTable)
       writeTag('Description', description)
       writeTag('Operation', operation)
-      #writeTag('OperationSymbols', operation.inspect)
+      writeTag('FlagsAffected', flagsAffected.inspect)
       writeLine('')
 
-      instruction = Instruction.new(opcodeTable, encodingTable, operation)
+      instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected)
 
       @instructions << instruction
 

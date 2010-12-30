@@ -18,7 +18,7 @@ class ManualData
 
   def unicodeCheck(instruction, lines)
     lines.each do |line|
-      if line.inspect.index("\\u") != nil
+      if line.inspect.index("\\u") != nil && line.inspect.index("\\u00AE") == nil #ignore copyright thing
         puts "Discovered unprocessed Unicode content in instruction #{instruction}: #{line.inspect}"
       end
     end
@@ -34,6 +34,7 @@ class ManualData
   def extractOperation(instruction, content)
     hardCodedData = loadHardCodedOperation(instruction)
     if hardCodedData != nil
+      hardCodedData = replaceCommonStrings(hardCodedData)
       code = operationReplacements(instruction, hardCodedData)
     else
       case instruction
