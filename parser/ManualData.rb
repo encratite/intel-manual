@@ -129,7 +129,6 @@ class ManualData
       encodingTable = getEncodingTable(instruction, content)
 
       operation = extractOperation(instruction, content)
-      error "Unable to extract the operation" if operation == nil
 
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)
@@ -157,7 +156,12 @@ class ManualData
   end
 
   def writeLine(line)
-    @output += "#{line}\n"
+    begin
+      @output += "#{line}\n"
+    rescue Encoding::CompatibilityError => exception
+      puts "Error in the following line: #{line.inspect}"
+      raise exception
+    end
   end
 
   def writeOutput(path)

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 class ManualData
   def replaceCommonStrings(input)
     replacements =
@@ -50,27 +49,33 @@ class ManualData
     output = element
     isSane = true
     replacements.each do |target, replacement|
-      case replacement
-      when String
-        output = output.gsub(target, replacement)
-      when Proc, Method
-        output = output.gsub(target) do |match|
-          replacement.call(match)
+      target.force_encoding('utf-8') if target === String
+      begin
+        case replacement
+        when String
+          output = output.gsub(target, replacement)
+        when Proc, Method
+          output = output.gsub(target) do |match|
+            replacement.call(match)
+          end
+        else
+          raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"
         end
-      else
-        raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"
-      end
-
-      if isSane && sanityCheckString != nil
-        index = output.index(sanityCheckString)
-        #puts index
-        if index == nil
-          raise "Rule responsible for the disappearance of #{sanityCheckString.inspect}: #{[target, replacement].inspect}"
-          isSane = false
+        
+        if isSane && sanityCheckString != nil
+          index = output.index(sanityCheckString)
+          #puts index
+          if index == nil
+            raise "Rule responsible for the disappearance of #{sanityCheckString.inspect}: #{[target, replacement].inspect}"
+            isSane = false
+          end
         end
+      rescue Encoding::CompatibilityError => exception
+        puts "Rule: #{[target, replacement].inspect}"
+        raise exception
       end
     end
-
+    
     return output
   end
 end

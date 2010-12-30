@@ -1,5 +1,4 @@
 # -*- coding: iso-8859-1 -*-
-
 class ManualData
   def operationReplacements(instruction, input)
     replacements = getGlobalOperatorReplacements

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 require 'nil/string'
 require 'nil/file'
 
@@ -27,34 +25,42 @@ class ManualData
   end
 
   def loadHardCodedOperation(instruction)
-    return Nil.readFile("../hard-coded/#{instruction}")
+    data = Nil.readFile("../hard-coded/#{instruction}")
+    return data if data == nil
+    data.force_encoding('utf-8')
+    return data
   end
 
   def extractOperation(instruction, content)
-    #hardCodedData = loadHardCodedOperation(instruction)
-    #return hardCodedData if hardCodedData != nil
-    case instruction
-    when 'FNOP'
-      return '(* No operation *)'
+    hardCodedData = loadHardCodedOperation(instruction)
+    if hardCodedData != nil
+      code = operationReplacements(instruction, hardCodedData)
+    else
+      case instruction
+      when 'FNOP', 'NOP'
+        return '(* No operation *)'
+      when 'PCMPESTRI', 'PCMPESTRM', 'PCMPISTRI', 'PCMPISTRM'
+        return nil
+      end
+      pattern = /(?:<TH>Operation <\/TH>|<P>(?:Operation|Operation in a Uni-Processor Platform) <\/P>)(.+?)<P>(?:Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation|FPU Flags Affected|x87 FPU and SIMD Floating-Point Exceptions|Protected Mode Exceptions|Intel.+?Compiler Intrinsic Equivalent|Numeric Exceptions) <\/P>/m
+      match = content.match(pattern)
+      error "Unable to parse operation" if match == nil
+      operationContent = match[1]
+      if operationContent == nil
+        puts match.inspect
+      end
+      lines = []
+      operationContent.scan(/<(?:P|TD)>(.+?)<\/(?:P|TD)>/m) do |match|
+        token = match[0].strip
+        token = replaceCommonStrings(token)
+        lines << token
+      end
+      
+      code = operationReplacements(instruction, lines.join("\n"))
     end
-    pattern = /(?:<TH>Operation <\/TH>|<P>(?:Operation|Operation in a Uni-Processor Platform) <\/P>)(.+?)<P>(?:Flags Affected|Intel C.+? Compiler Intrinsic Equivalents?|IA-32e Mode Operation|FPU Flags Affected|x87 FPU and SIMD Floating-Point Exceptions|Protected Mode Exceptions|Intel.+?Compiler Intrinsic Equivalent) <\/P>/m
-    match = content.match(pattern)
-    return nil if match == nil
-    operationContent = match[1]
-    if operationContent == nil
-      puts match.inspect
-    end
-    lines = []
-    operationContent.scan(/<(?:P|TD)>(.+?)<\/(?:P|TD)>/m) do |match|
-      token = match[0].strip
-      token = replaceCommonStrings(token)
-      lines << token
-    end
-
-    code = operationReplacements(instruction, lines.join("\n"))
     return code if code == nil
     codeLines = code.split("\n")
-
+    
     output = calculatePseudoCodeIndentation(codeLines)
     unicodeCheck(instruction, output)
     output = output.join("\n")
