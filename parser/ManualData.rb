@@ -13,6 +13,7 @@ require_relative 'ManualData/encoding'
 require_relative 'ManualData/opcodes'
 require_relative 'ManualData/operation'
 require_relative 'ManualData/flags'
+require_relative 'ManualData/exceptions'
 
 class ManualData
   class Error < Exception
@@ -30,11 +31,15 @@ class ManualData
   def processPath(path)
     data = Nil.readFile(path)
     raise "Unable to read manual file \"#{path}\"" if data == nil
-    instructionPattern = /<Sect>.*?<H4 id="LinkTarget_\d+">(.+?) <\/H4>(.*?)<\/Sect>/m
+    instructionPattern = /<P id="LinkTarget_\d+">(ADC\u2014Add with Carry) <\/P>(.+?)<\/Sect>|<Sect>.*?<H4 id="LinkTarget_\d+">(.+?) <\/H4>(.*?)(?:<\/Sect>|<P id="LinkTarget_\d+">)/m
     data = data.gsub("\r", '')
     data.force_encoding('utf-8')
     data.scan(instructionPattern) do |match|
+      if match.first == nil
+        match = match[2..-1]
+      end
       title, content = match
+      
       parseInstruction(title, content)
     end
   end
@@ -133,6 +138,8 @@ class ManualData
 
       flagsAffected = extractFlagsAffected(instruction, content)
       fpuFlagsAffected = extractFlagsAffected(instruction, content, :fpuFlags)
+
+      exceptions = extractExceptions(instruction, content)
 
       writeTag('Instruction', instruction)
       writeTag('OpcodeTable', opcodeTable)
