@@ -3,12 +3,12 @@ require_relative '../InstructionException'
 class ManualData
   def extractExceptionType(exception, symbol, instruction, content, acceptAllOperatingModes)
     case instruction
-    when 'CMPSS'
+    when 'CMPSS', 'INVLPG'
       return 'None.' if exception == 'Compatibility Mode Exceptions'
     end
     target = exception
     if acceptAllOperatingModes
-      target = Regexp.union(target, 'Exceptions (All Operating Modes)')
+      target = Regexp.union(target, 'Exceptions (All Operating Modes)', 'Exceptions (All Modes of Operation)')
     end
     pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|<\/H4>|(.+))/m
     match = content.match(pattern)
@@ -22,13 +22,15 @@ class ManualData
 
   def extractSpecialExceptionType(exception, symbol, instruction, content)
     return nil if symbol == nil
-    trigger = 'Protected Mode Exceptions Real-Address Mode Exceptions'
-    beginning = content.index(trigger)
-    return nil if beginning == nil
+    pattern = /Protected Mode Exceptions Real Mode Exceptions|Protected Mode Exceptions Real-Address Mode Exceptions/
+    beginningMatch = content.match(pattern)
+    return nil if beginningMatch == nil
+    beginning = beginningMatch.offset(0)[0]
     tableBeginning = content.index('<Table>', beginning)
     error 'Unable to locate the table in a special exception type instruction' if tableBeginning == nil
-    virtualOffset = content.index('Virtual-8086 Mode Exceptions')
-    error 'Unable to determine the offset of the V8086 mode' if virtualOffset == nil
+    virtualMatch = content.match(/Virtual[- ]8086 Mode Exceptions/)
+    error 'Unable to determine the offset of the V8086 mode' if virtualMatch == nil
+    virtualOffset = virtualMatch.offset(0)[0]
     tableEnd = content.rindex('</Table>', virtualOffset)
     error 'Unable to locate the end of the table in a special exception type instruction' if tableEnd == nil
     case symbol
