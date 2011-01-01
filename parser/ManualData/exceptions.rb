@@ -1,60 +1,74 @@
+require_relative '../InstructionException'
+
 class ManualData
-  def extractExceptionType(exception, symbol, isEssential, instruction, content)
-    pattern = /<P>(#{exception}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|(.+))/m
+  def extractExceptionType(exception, symbol, instruction, content, acceptAllOperatingModes)
+    case instruction
+    when 'CMPSS'
+      return 'None.' if exception == 'Compatibility Mode Exceptions'
+    end
+    target = exception
+    if acceptAllOperatingModes
+      target = Regexp.union(target, 'Exceptions (All Operating Modes)')
+    end
+    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|<\/H4>|(.+))/m
     match = content.match(pattern)
     if match == nil
-      return extractSpecialExceptionType(exception, symbol, isEssential, instruction, content)
+      return extractSpecialExceptionType(exception, symbol, instruction, content)
     end
     exceptionName = match[1]
     exceptionContent = match[2] || match[3]
     return exceptionContent
   end
 
-  def extractSpecialExceptionType(exception, symbol, isEssential, instruction, content)
+  def extractSpecialExceptionType(exception, symbol, instruction, content)
     return nil if symbol == nil
     trigger = 'Protected Mode Exceptions Real-Address Mode Exceptions'
     beginning = content.index(trigger)
     return nil if beginning == nil
     tableBeginning = content.index('<Table>', beginning)
     error 'Unable to locate the table in a special exception type instruction' if tableBeginning == nil
-    tableEnd = content.rindex('</Table>', tableBeginning)
+    virtualOffset = content.index('Virtual-8086 Mode Exceptions')
+    error 'Unable to determine the offset of the V8086 mode' if virtualOffset == nil
+    tableEnd = content.rindex('</Table>', virtualOffset)
     error 'Unable to locate the end of the table in a special exception type instruction' if tableEnd == nil
     case symbol
     when :protected
       tableContent = content[tableBeginning, tableEnd - tableBeginning]
-      puts tableContent.inspect
       return tableContent
     when :real
-      realContent = content[tableEnd..-1]
-      pattern = /(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|(.+))/m
-      match = realContent.match(pattern)
-      error 'Unable to get a match in a special exception type instruction'
-      realData = match[1]
-      return realData
+      realContent = content[tableEnd, virtualOffset - tableEnd]
+      return realContent
     end
   end
 
   def extractExceptions(instruction, content)
     exceptions =
       [
-       #exception name pattern, essential
        ['Protected Mode Exceptions', true, :protected],
-       ['Real-Address Mode Exceptions', true, :real],
-       ['Virtual-8086 Mode Exceptions', true, nil],
-       ['Compatibility Mode Exceptions', true, nil],
-       ['64-Bit Mode Exceptions', true, nil],
+       InstructionException.regex('Real-Address Mode Exceptions', /Real[- ]Address Mode Exceptions/, true, :real),
+       InstructionException.regex('Virtual-8086 Mode Exceptions', /Virtual[- ]8086 Mode Exceptions/, true),
+       ['Compatibility Mode Exceptions', true],
+       ['64-Bit Mode Exceptions', true],
 
-       ['SIMD Floating-Point Exceptions', false, nil],
-       ['Floating-Point Exceptions', false, nil],
-       ['Numeric Exceptions', false, nil],
-      ]
-
-    exceptions.each do |exception, isEssential, symbol|
-      exceptionData = extractExceptionType(exception, symbol, isEssential, instruction, content)
-      if exceptionData == nil && isEssential
-        error "Unable to extract data for essential exception #{exception}"
+       ['Exceptions'],
+       ['SIMD Floating-Point Exceptions'],
+       ['Floating-Point Exceptions'],
+       ['Numeric Exceptions'],
+      ].map do |data|
+      if data === InstructionException
+        data
+      else
+        InstructionException.new(*data)
       end
-      puts "#{instruction} #{exception.inspect}: #{exceptionData.inspect}"
+    end
+
+    exceptions.each do |exception|
+      exceptionData = extractExceptionType(exception.pattern, exception.symbol, instruction, content, exception.isEssential)
+      if exceptionData == nil && exception.isEssential
+        #uts content.inspect
+        error "Unable to extract data for essential exception #{exception.name.inspect}"
+      end
+      puts "#{instruction} #{exception.name.inspect}: #{exceptionData.inspect}"
     end
   end
 end
