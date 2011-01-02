@@ -1,26 +1,29 @@
 require_relative '../InstructionException'
 
 class ManualData
-  def extractExceptionType(exception, symbol, instruction, content, acceptAllOperatingModes)
+  def extractExceptionType(exceptionName, exceptionPattern, symbol, instruction, content, acceptAllOperatingModes)
     case instruction
     when 'CMPSS', 'INVLPG'
-      return 'None.' if exception == 'Compatibility Mode Exceptions'
+      return 'None.' if exceptionName == 'Compatibility Mode Exceptions'
+    when 'GETSEC[WAKEUP]'
+      #this is broken in the reference
+      return 'GETSEC[WAKEUP] is not recognized in real-address mode.' if exceptionName == 'Real-Address Mode Exceptions'
     end
-    target = exception
+    target = exceptionPattern
     if acceptAllOperatingModes
       target = Regexp.union(target, 'Exceptions (All Operating Modes)', 'Exceptions (All Modes of Operation)')
     end
-    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|<\/H4>|(.+))/m
+    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|<\/H4>|VM-exit Condition|<TD>GETSEC[WAKEUP] is not recognized in real-address mode.|VM-exit Condition|(.+))/m
     match = content.match(pattern)
     if match == nil
-      return extractSpecialExceptionType(exception, symbol, instruction, content)
+      return extractSpecialExceptionType(symbol, instruction, content)
     end
     exceptionName = match[1]
     exceptionContent = match[2] || match[3]
     return exceptionContent
   end
 
-  def extractSpecialExceptionType(exception, symbol, instruction, content)
+  def extractSpecialExceptionType(symbol, instruction, content)
     return nil if symbol == nil
     pattern = /Protected Mode Exceptions Real Mode Exceptions|Protected Mode Exceptions Real-Address Mode Exceptions/
     beginningMatch = content.match(pattern)
@@ -40,6 +43,8 @@ class ManualData
     when :real
       realContent = content[tableEnd, virtualOffset - tableEnd]
       return realContent
+    else
+      raise "Unknown symbol: #{symbol.inspect}"
     end
   end
 
@@ -47,7 +52,7 @@ class ManualData
     exceptions =
       [
        ['Protected Mode Exceptions', true, :protected],
-       InstructionException.regex('Real-Address Mode Exceptions', /Real[- ]Address Mode Exceptions/, true, :real),
+       InstructionException.regex('Real-Address Mode Exceptions', /Real[- ](?:Address )?Mode Exceptions/, true, :real),
        InstructionException.regex('Virtual-8086 Mode Exceptions', /Virtual[- ]8086 Mode Exceptions/, true),
        ['Compatibility Mode Exceptions', true],
        ['64-Bit Mode Exceptions', true],
@@ -57,7 +62,7 @@ class ManualData
        ['Floating-Point Exceptions'],
        ['Numeric Exceptions'],
       ].map do |data|
-      if data === InstructionException
+      if InstructionException === data
         data
       else
         InstructionException.new(*data)
@@ -65,7 +70,7 @@ class ManualData
     end
 
     exceptions.each do |exception|
-      exceptionData = extractExceptionType(exception.pattern, exception.symbol, instruction, content, exception.isEssential)
+      exceptionData = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
       if exceptionData == nil && exception.isEssential
         #uts content.inspect
         error "Unable to extract data for essential exception #{exception.name.inspect}"
