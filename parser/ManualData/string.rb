@@ -62,7 +62,7 @@ class ManualData
         else
           raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"
         end
-        
+
         if isSane && sanityCheckString != nil
           index = output.index(sanityCheckString)
           #puts index
@@ -76,7 +76,7 @@ class ManualData
         raise exception
       end
     end
-    
+
     return output
   end
 end

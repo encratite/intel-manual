@@ -13,7 +13,7 @@ class ManualData
     if acceptAllOperatingModes
       target = Regexp.union(target, 'Exceptions (All Operating Modes)', 'Exceptions (All Modes of Operation)')
     end
-    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:VM-exit Condition|<P>[^<]+?Exceptions <\/P>|<\/H4>|<TD>GETSEC\[WAKEUP\] is not recognized in real-address mode\.)|(.+))/m
+    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:VM-[eE]xit Condition|<P>[^<]+?Exceptions <\/P>|<\/H4>|<TD>GETSEC\[WAKEUP\] is not recognized in real-address mode\.|Exceptions \(All Operating Modes\))|(.+))/m
     #puts pattern.inspect
     match = content.match(pattern)
     if match == nil
@@ -50,44 +50,52 @@ class ManualData
     end
   end
 
-  def processExceptionMarkup(markup)
+  def processExceptionMarkup(markup, useTable = true)
     replacements =
       [
        ['IF', 'If'],
-       ['<P>GP', '<P>#GP'],
+       ['>GP', '>#GP'],
+       ['Same exceptions as in Real Address Mode ', 'Same exceptions as in Real Address Mode.'],
+       ['Same exceptions as in Protected Mode ', 'Same exceptions as in Protected Mode.'],
       ]
-    scanPattern = /<(?:TD|TH|P)>(.+?)<\/(?:TD|TH|P)>/
+    scanPattern = /<(?:TD|TH|P)>(.+?)<\/(?:TD|TH|P)>/m
     tokens = []
     replaceStrings(markup, replacements).scan(scanPattern) do |match|
       token = replaceCommonStrings(match[0].strip)
       tokens << token
     end
     text = tokens.join(' ')
-    splitPattern = /(^|\. )(#[A-Z]+(?:\(.+?\))?) /
-    tokens = text.split(splitPattern)
-    if !tokens.empty? && tokens.first == ''
-      tokens = tokens[1..-1]
-    end
-    if tokens.size == 1
-      return [[nil, tokens[0]]]
-    end
+    return text if !useTable
+    originalText = text.dup
+    exceptionPattern = /^(#[A-Z]+(?:\(.+?\))?|Reason \(GETSEC\)) /
+    delimiterPattern = /\. (#[A-Z]+(?:\(.+?\))?) /
+    nilExceptionNamePattern = /^(?:(?:Same exceptions|Same as|When the source operand|Invalid|Overflow|General|Exceptions may|The only exceptions generated|All protected mode).*?\.|Not applicable\.|None\.|None;.+|None$)/
     exceptionTable = []
-    if !tokens.empty?
-      match = tokens.first.match(/^Same exceptions.+?\./)
+    while true
+      text = text.strip
+      match = text.match(nilExceptionNamePattern)
       if match != nil
-        exceptionTable << [nil, match[0]]
-        tokens = tokens[1..-1]
+        output = match[0]
+        tokens << [nil, output]
+        text = text[output.size..-1]
+        next
       end
+      match = text.match(exceptionPattern)
+      break if match == nil
+      exception = match[1]
+      descriptionBeginning = exception.size + 1
+      match = text.match(delimiterPattern)
+      if match == nil
+        descriptionEnd = text.size
+      else
+        descriptionEnd = match.offset(1)[0]
+      end
+      description = text[descriptionBeginning, descriptionEnd - descriptionBeginning]
+      tokens << [exception, description]
+      text = text[descriptionEnd..-1]
     end
-    if tokens.size % 2 != 0
-      error "Invalid token count: #{tokens.inspect}\nFrom the following markup: #{markup.inspect}"
-    end
-    i = 0
-    while i < tokens.size
-      exception = tokens[i]
-      description = tokens[i + 1]
-      exceptionTable << [exception, description]
-      i += 2
+    if !text.empty?
+      error "Unable to parse the rest of the text: #{text.inspect}\nIn the following markup: #{markup.inspect}\nIn the following text: #{originalText.inspect}"
     end
     return exceptionTable
   end
@@ -103,9 +111,10 @@ class ManualData
        ['64-Bit Mode Exceptions', true],
 
        ['Exceptions'],
-       ['SIMD Floating-Point Exceptions'],
+       InstructionException.new('SIMD Floating-Point Exceptions', false, nil, false),
        ['Floating-Point Exceptions'],
        ['Numeric Exceptions'],
+       ['VM-Exit Condition'],
       ].map do |data|
       if InstructionException === data
         data
@@ -114,18 +123,24 @@ class ManualData
       end
     end
 
+    output = []
+
     exceptions.each do |exception|
       exceptionMarkup = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
       if exceptionMarkup == nil
         if exception.isEssential
           puts content.inspect
           error "Unable to extract data for essential exception #{exception.name.inspect}"
+        else
+          exceptionData = nil
         end
       else
-        exceptionData = processExceptionMarkup(exceptionMarkup)
+        exceptionData = processExceptionMarkup(exceptionMarkup, exception.usesTableDescription)
         error "Empty parsed data: #{exceptionMarkup.inspect}" if exceptionData == nil
       end
       #puts "#{instruction} #{exception.name.inspect}: #{exceptionMarkup.inspect}"
+      output << exceptionData
     end
+    return output
   end
 end
