@@ -123,7 +123,7 @@ class ManualData
       end
     end
 
-    output = []
+    output = {}
 
     exceptions.each do |exception|
       exceptionMarkup = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
@@ -139,7 +139,7 @@ class ManualData
         error "Empty parsed data: #{exceptionMarkup.inspect}" if exceptionData == nil
       end
       #puts "#{instruction} #{exception.name.inspect}: #{exceptionMarkup.inspect}"
-      output << exceptionData
+      output[exception.name] = exceptionData
     end
     return output
   end

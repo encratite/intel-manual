@@ -39,7 +39,6 @@ class ManualData
         match = match[2..-1]
       end
       title, content = match
-      
       parseInstruction(title, content)
     end
   end
@@ -148,6 +147,7 @@ class ManualData
       writeTag('Operation', operation)
       writeTag('FlagsAffected', flagsAffected.inspect)
       writeTag('FPUFlagsAffected', fpuFlagsAffected)
+      writeTag('Exceptions', exceptions.inspect)
       writeLine('')
 
       instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
