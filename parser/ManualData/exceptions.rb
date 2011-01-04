@@ -50,6 +50,48 @@ class ManualData
     end
   end
 
+  def processExceptionMarkup(markup)
+    replacements =
+      [
+       ['IF', 'If'],
+       ['<P>GP', '<P>#GP'],
+      ]
+    scanPattern = /<(?:TD|TH|P)>(.+?)<\/(?:TD|TH|P)>/
+    tokens = []
+    replaceStrings(markup, replacements).scan(scanPattern) do |match|
+      token = replaceCommonStrings(match[0].strip)
+      tokens << token
+    end
+    text = tokens.join(' ')
+    splitPattern = /(^|\. )(#[A-Z]+(?:\(.+?\))?) /
+    tokens = text.split(splitPattern)
+    if !tokens.empty? && tokens.first == ''
+      tokens = tokens[1..-1]
+    end
+    if tokens.size == 1
+      return [[nil, tokens[0]]]
+    end
+    exceptionTable = []
+    if !tokens.empty?
+      match = tokens.first.match(/^Same exceptions.+?\./)
+      if match != nil
+        exceptionTable << [nil, match[0]]
+        tokens = tokens[1..-1]
+      end
+    end
+    if tokens.size % 2 != 0
+      error "Invalid token count: #{tokens.inspect}\nFrom the following markup: #{markup.inspect}"
+    end
+    i = 0
+    while i < tokens.size
+      exception = tokens[i]
+      description = tokens[i + 1]
+      exceptionTable << [exception, description]
+      i += 2
+    end
+    return exceptionTable
+  end
+
   def extractExceptions(instruction, content)
     #return if instruction != 'GETSEC[ENTERACCS]'
     exceptions =
@@ -73,12 +115,17 @@ class ManualData
     end
 
     exceptions.each do |exception|
-      exceptionData = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
-      if exceptionData == nil && exception.isEssential
-        puts content.inspect
-        error "Unable to extract data for essential exception #{exception.name.inspect}"
+      exceptionMarkup = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
+      if exceptionMarkup == nil
+        if exception.isEssential
+          puts content.inspect
+          error "Unable to extract data for essential exception #{exception.name.inspect}"
+        end
+      else
+        exceptionData = processExceptionMarkup(exceptionMarkup)
+        error "Empty parsed data: #{exceptionMarkup.inspect}" if exceptionData == nil
       end
-      puts "#{instruction} #{exception.name.inspect}: #{exceptionData.inspect}"
+      #puts "#{instruction} #{exception.name.inspect}: #{exceptionMarkup.inspect}"
     end
   end
 end
