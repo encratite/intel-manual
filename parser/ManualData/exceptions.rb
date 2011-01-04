@@ -50,33 +50,41 @@ class ManualData
     end
   end
 
-  def processExceptionMarkup(markup, useTable = true)
-    replacements =
-      [
-       ['IF', 'If'],
-       ['>GP', '>#GP'],
-       ['Same exceptions as in Real Address Mode ', 'Same exceptions as in Real Address Mode.'],
-       ['Same exceptions as in Protected Mode ', 'Same exceptions as in Protected Mode.'],
-      ]
-    scanPattern = /<(?:TD|TH|P)>(.+?)<\/(?:TD|TH|P)>/m
-    tokens = []
-    replaceStrings(markup, replacements).scan(scanPattern) do |match|
-      token = replaceCommonStrings(match[0].strip)
-      tokens << token
+  def processExceptionMarkup(instruction, exception, markup, useTable = true)
+    if markup == 'None.' || markup.matchLeft('GETSEC')
+      text = markup
+    else
+      replacements =
+        [
+         ['IF', 'If'],
+         ['>GP', '>#GP'],
+         ['#SS(0):', '#SS(0)'],
+         ['Same exceptions as in Real Address Mode ', 'Same exceptions as in Real Address Mode.'],
+         ['Same exceptions as in Protected Mode ', 'Same exceptions as in Protected Mode.'],
+         ["\n", ' '],
+        ]
+      scanPattern = /<(?:TD|TH|P)>(.+?)<\/(?:TD|TH|P)>/m
+      tokens = []
+      modifiedMarkup = replaceStrings(markup, replacements)
+      modifiedMarkup.scan(scanPattern) do |match|
+        token = match[0].strip
+        token = replaceCommonStrings(token)
+        tokens << token
+      end
+      text = tokens.join(' ')
     end
-    text = tokens.join(' ')
     return text if !useTable
     originalText = text.dup
     exceptionPattern = /^(#[A-Z]+(?:\(.+?\))?|Reason \(GETSEC\)) /
     delimiterPattern = /\. (#[A-Z]+(?:\(.+?\))?) /
-    nilExceptionNamePattern = /^(?:(?:Same exceptions|Same as|When the source operand|Invalid|Overflow|General|Exceptions may|The only exceptions generated|All protected mode).*?\.|Not applicable\.|None\.|None;.+|None$)/
+    nilExceptionNamePattern = /^(?:(?:Same exceptions|Same as|When the source operand|Invalid|Overflow|General|Exceptions may|The only exceptions generated|All protected mode|GETSEC\[WAKEUP\]).*?\.|Not applicable\.|None\.|None;.+|None$)/
     exceptionTable = []
     while true
       text = text.strip
       match = text.match(nilExceptionNamePattern)
       if match != nil
         output = match[0]
-        tokens << [nil, output]
+        exceptionTable << [nil, output]
         text = text[output.size..-1]
         next
       end
@@ -91,11 +99,18 @@ class ManualData
         descriptionEnd = match.offset(1)[0]
       end
       description = text[descriptionBeginning, descriptionEnd - descriptionBeginning]
-      tokens << [exception, description]
+      if description == nil
+        error "Encountered a nil description in #{originalText.inspect}"
+      end
+      description = description.strip
+      exceptionTable << [exception, description]
       text = text[descriptionEnd..-1]
     end
     if !text.empty?
       error "Unable to parse the rest of the text: #{text.inspect}\nIn the following markup: #{markup.inspect}\nIn the following text: #{originalText.inspect}"
+    end
+    if exceptionTable == []
+      error "Got an empty exception table for exception #{exception.inspect} in the text: #{originalText.inspect}\nIn the following markup: #{markup.inspect}"
     end
     return exceptionTable
   end
@@ -127,15 +142,18 @@ class ManualData
 
     exceptions.each do |exception|
       exceptionMarkup = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
-      if exceptionMarkup == nil
+      case exceptionMarkup
+      when nil
         if exception.isEssential
           puts content.inspect
           error "Unable to extract data for essential exception #{exception.name.inspect}"
         else
           exceptionData = nil
         end
+      when ''
+        error "Empty exception markup for #{exception.name.inspect}: #{content.inspect}"
       else
-        exceptionData = processExceptionMarkup(exceptionMarkup, exception.usesTableDescription)
+        exceptionData = processExceptionMarkup(instruction, exception.name, exceptionMarkup, exception.usesTableDescription)
         error "Empty parsed data: #{exceptionMarkup.inspect}" if exceptionData == nil
       end
       #puts "#{instruction} #{exception.name.inspect}: #{exceptionMarkup.inspect}"
