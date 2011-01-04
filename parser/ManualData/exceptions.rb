@@ -13,18 +13,20 @@ class ManualData
     if acceptAllOperatingModes
       target = Regexp.union(target, 'Exceptions (All Operating Modes)', 'Exceptions (All Modes of Operation)')
     end
-    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:<P>[^<]+?Exceptions <\/P>)|<\/H4>|VM-exit Condition|<TD>GETSEC[WAKEUP] is not recognized in real-address mode.|VM-exit Condition|(.+))/m
+    pattern = /<P>(#{target}) <\/P>(?:(.+?)(?:VM-exit Condition|<P>[^<]+?Exceptions <\/P>|<\/H4>|<TD>GETSEC\[WAKEUP\] is not recognized in real-address mode\.)|(.+))/m
+    #puts pattern.inspect
     match = content.match(pattern)
     if match == nil
       return extractSpecialExceptionType(symbol, instruction, content)
     end
     exceptionName = match[1]
     exceptionContent = match[2] || match[3]
+    raise "Bad exception content: #{exceptionContent.inspect}" if exceptionContent.index(" Exceptions") != nil
     return exceptionContent
   end
 
   def extractSpecialExceptionType(symbol, instruction, content)
-    return nil if symbol == nil
+    return if symbol == nil
     pattern = /Protected Mode Exceptions Real Mode Exceptions|Protected Mode Exceptions Real-Address Mode Exceptions/
     beginningMatch = content.match(pattern)
     return nil if beginningMatch == nil
@@ -49,6 +51,7 @@ class ManualData
   end
 
   def extractExceptions(instruction, content)
+    #return if instruction != 'GETSEC[ENTERACCS]'
     exceptions =
       [
        ['Protected Mode Exceptions', true, :protected],
@@ -72,7 +75,7 @@ class ManualData
     exceptions.each do |exception|
       exceptionData = extractExceptionType(exception.name, exception.pattern, exception.symbol, instruction, content, exception.isEssential)
       if exceptionData == nil && exception.isEssential
-        #uts content.inspect
+        puts content.inspect
         error "Unable to extract data for essential exception #{exception.name.inspect}"
       end
       puts "#{instruction} #{exception.name.inspect}: #{exceptionData.inspect}"
