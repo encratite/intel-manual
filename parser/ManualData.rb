@@ -22,10 +22,14 @@ class ManualData
     end
   end
 
+  attr_reader :instructions, :tableCount, :imageCount
+
   def initialize
     @instructions = []
     @html = HTMLEntities.new
     @output = ''
+    @tableCount = 0
+    @imageCount = 0
   end
 
   def processPath(path)
@@ -41,6 +45,7 @@ class ManualData
       title, content = match
       parseInstruction(title, content)
     end
+    return data.size
   end
 
   def parseTable(input)

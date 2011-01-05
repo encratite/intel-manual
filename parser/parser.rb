@@ -1,4 +1,5 @@
 require 'nil/file'
+require 'nil/string'
 
 require_relative 'ManualData'
 
@@ -11,11 +12,16 @@ outputPath = ARGV[0]
 inputPaths = ARGV[1..-1]
 
 begin
+  totalSize = 0
   manualData = ManualData.new
   inputPaths.each do |path|
     puts "Processing #{path}"
-    manualData.processPath(path)
+    size = manualData.processPath(path)
+    totalSize += size
   end
+  puts "Loaded #{manualData.instructions.size} instruction(s) from #{inputPaths.size} file(s) totalling #{Nil.getSizeString(totalSize)} of XML"
+  puts "Number of tables: #{manualData.tableCount}"
+  puts "Number of images: #{manualData.imageCount}"
   manualData.writeOutput(outputPath)
 rescue => exception
   puts exception.inspect

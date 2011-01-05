@@ -278,6 +278,14 @@ class ManualData
     return markup
   end
 
+  def performTableCheck(instruction, markup)
+    index = markup.index('Table')
+    if index != nil
+      warning(instruction, "References a table at index #{index}")
+      @tableCount += 1
+    end
+  end
+
   def extractDescription(instruction, content)
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
@@ -288,6 +296,7 @@ class ManualData
     descriptionMatch = content.match(descriptionPattern)
     return nil if descriptionMatch == nil
     markup = descriptionMatch[1]
+    performTableCheck(instruction, markup)
     root = XMLParser.parse(markup)
     descriptionPostProcessing(root)
     fixWhitespace(root)
@@ -301,6 +310,7 @@ class ManualData
     printMarkedStrings(root)
     if containedAFigure
       warning(instruction, 'Detected a figure')
+      @imageCount += 1
     end
     if containedLeakedImageData
       warning(instruction, 'Detected leaked image data')
