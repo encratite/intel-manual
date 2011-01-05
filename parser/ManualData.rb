@@ -14,6 +14,7 @@ require_relative 'ManualData/opcodes'
 require_relative 'ManualData/operation'
 require_relative 'ManualData/flags'
 require_relative 'ManualData/exceptions'
+require_relative 'ManualData/processedInstructions'
 
 class ManualData
   class Error < Exception

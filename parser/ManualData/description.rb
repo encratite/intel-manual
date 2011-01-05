@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require_relative 'string'
 
 class ManualData
@@ -257,7 +258,10 @@ class ManualData
        [/<p>NOTES:<\/p>.+?<p>This instruction/m, '<p>This instruction', ["FSUBR/FSUBRP/FISUBR"]],
        [/<p>IA-32 Architecture Compatibility<\/p>.+/m, ''],
        [/<p>FXCH.+?<\/p>/m, lambda { |x| x.gsub('p>', 'pre>').gsub("\n<", '<') }],
+       ["<p>Figure 3-3. ADDSUBPD—Packed Double-FP Add/Subtract</p>\n", ''],
+       [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
       ]
+
     replacements.each do |replacementData|
       target, replacement = replacementData
       if replacementData.size >= 3
@@ -278,10 +282,10 @@ class ManualData
     return markup
   end
 
-  def performTableCheck(instruction, markup)
+  def performTableCheck(printWarnings, instruction, markup)
     index = markup.index('Table')
     if index != nil
-      warning(instruction, "References a table at index #{index}")
+      warning(instruction, "References a table at index #{index}") if printWarnings
       @tableCount += 1
     end
   end
@@ -293,10 +297,11 @@ class ManualData
       #the second one is for MAXPD, the third one for GETSEC[SEXIT]
       descriptionPattern = /<P>Description <\/P>(.+?)(?:<P>(?:Operation|FPU Flags Affected|Numeric Exceptions) <\/P>|<Table>|<P>Operation in a Uni-Processor Platform <\/P>)/m
     end
+    printWarnings = !isFullyProcessedInstruction(instruction)
     descriptionMatch = content.match(descriptionPattern)
     return nil if descriptionMatch == nil
     markup = descriptionMatch[1]
-    performTableCheck(instruction, markup)
+    performTableCheck(printWarnings, instruction, markup)
     root = XMLParser.parse(markup)
     descriptionPostProcessing(root)
     fixWhitespace(root)
@@ -309,11 +314,11 @@ class ManualData
     lowerCaseTags(root)
     printMarkedStrings(root)
     if containedAFigure
-      warning(instruction, 'Detected a figure')
+      warning(instruction, 'Detected a figure') if printWarnings
       @imageCount += 1
     end
     if containedLeakedImageData
-      warning(instruction, 'Detected leaked image data')
+      warning(instruction, 'Detected leaked image data') if printWarnings
     end
     markup = root.visualise
     descriptionMarkupReplacements(instruction, markup)
