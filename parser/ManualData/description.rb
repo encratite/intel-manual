@@ -136,6 +136,7 @@ class ManualData
   #returns if the tree contained a figure
   def removeImageData(node)
     output = false
+    return output if node.content == nil
     i = 0
     while i < node.content.size
       element = node.content[i]
@@ -214,7 +215,7 @@ class ManualData
        ['Bit(BitBase, BitOffset)on', 'Bit(BitBase, BitOffset) on'],
        ['registers.1', 'registers. On Intel 64 processors, CPUID clears the high 32 bits of the RAX/RBX/RCX/RDX registers in all modes.'],
       ]
-
+    return if node.content == nil
     node.content.each do |element|
       if element.class == String
         newElement = replaceCommonStrings(element)
@@ -234,6 +235,7 @@ class ManualData
        #'the values being multiplied i',
        #'Remainder',
       ]
+    return if node.content == nil
     node.content.each do |element|
       if element.class == String
         targets.each do |target|
@@ -295,7 +297,7 @@ class ManualData
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
     else
       #the second one is for MAXPD, the third one for GETSEC[SEXIT]
-      descriptionPattern = /<P>Description <\/P>(.+?)(?:<P>(?:Operation|FPU Flags Affected|Numeric Exceptions) <\/P>|<Table>|<P>Operation in a Uni-Processor Platform <\/P>)/m
+      descriptionPattern = /<P>Description <\/P>(.+?)(?:<P>(?:Operation|FPU Flags Affected|Numeric Exceptions) <\/P>|<P>Operation in a Uni-Processor Platform <\/P>|<Table>\n<TR>\n<TH>Operation <\/TH>|<P>Intel C\/C\+\+ Compiler Intrinsic Equivalent For Returning (?:Mask|Index) <\/P>)/m
     end
     printWarnings = !isFullyProcessedInstruction(instruction)
     descriptionMatch = content.match(descriptionPattern)
