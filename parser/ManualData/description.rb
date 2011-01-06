@@ -359,7 +359,7 @@ class ManualData
   end
 
   def extractDescription(instruction, content)
-    hardCodedData = loadHardCodedInstructionFile(instruction, 'description')
+    hardCodedData = loadHardCodedInstructionFile("#{instruction}.html", 'description')
     return hardCodedData if hardCodedData != nil
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
