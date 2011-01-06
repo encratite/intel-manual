@@ -3,17 +3,19 @@ require 'nil/string'
 
 require_relative 'ManualData'
 
-if ARGV.size < 2
-  puts '<SQL output path> <input paths>'
+if ARGV.size < 3
+  puts '<main output path> <debug output path> <input paths>'
   exit
 end
 
 outputPath = ARGV[0]
-inputPaths = ARGV[1..-1]
+debugOutputPath = ARGV[1]
+inputPaths = ARGV[2..-1]
 
 begin
   totalSize = 0
   manualData = ManualData.new
+  manualData.debugOutputPath = debugOutputPath
   inputPaths.each do |path|
     puts "Processing #{path}"
     size = manualData.processPath(path)

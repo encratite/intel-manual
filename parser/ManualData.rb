@@ -25,6 +25,8 @@ class ManualData
 
   attr_reader :instructions, :tableCount, :imageCount
 
+  attr_accessor :debugOutputPath
+
   def initialize
     @instructions = []
     @html = HTMLEntities.new
@@ -173,6 +175,10 @@ class ManualData
       writeTag('FPUFlagsAffected', fpuFlagsAffected)
       writeTag('Exceptions', exceptions.inspect)
       writeLine('')
+
+      if @focusInstruction != nil
+        Nil.writeFile(@debugOutputPath, description)
+      end
 
       instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
 

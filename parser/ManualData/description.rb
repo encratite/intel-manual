@@ -38,7 +38,8 @@ class ManualData
       end
       left = offset - 1
       right = offset + 1
-      replacement = parentContent[0..left] + node.content + parentContent[right..-1]
+      #the strip might introduce problems with other descriptions...
+      replacement = parentContent[0..left] + node.content.map { |x| x.strip } + parentContent[right..-1]
       if offset > 0
         removeNewlinesAroundLink(replacement[left], true)
       end
@@ -110,6 +111,16 @@ class ManualData
   end
 
   def isLeakedImageDataString(input)
+    strings =
+      [
+       'FKLWHFWXUH',
+       '5HVHUYHG',
+      ]
+
+    strings.each do |string|
+      return true if input.index(string) != nil
+    end
+
     targets = "\u0014\u0018\u001C\u001C\u0014"
     input.each_char do |char|
       if targets.index(char) != nil
@@ -285,7 +296,6 @@ class ManualData
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
 
        [/\n+/, "\n"],
-       #CPUID
        [/<caption>.+?<\/caption>\n/m, '', 'CPUID'],
        [/<p>Table 3-12\. +(Information Returned by CPUID Instruction)[^<]+?<\/p>\n(<table>)/, lambda { |x| "#{x[2]}\n<caption>#{x[1]}</caption>" }],
        ['Table 3-12', '"Information Returned by CPUID Instruction"'],
@@ -295,13 +305,19 @@ class ManualData
        ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
        ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
        ['Table 3-11', '"Pseudo-Ops and CMPSS"'],
-       #CPUID
        ["<p>MOV EAX, 00H</p>\n<p>CPUID</p>", lambda { |x| "<pre>#{x[0].gsub(/<\/?p>/, '')}</pre>" }],
        [/(<p>CPUID\.EAX = 05H.+)(<p>If a value entered)/m, lambda { |x| "<pre>#{x[1].gsub(/<\/?p>/, '')}</pre>\n#{x[2]}" }],
        ['(*Returns', '(* Returns'],
        [/<h>See also:<\/h>.+?Volume 3A.<\/p>\n/m, ''],
        #[/<p>(?:: Table \d+-\d+\. .+? Table \d+-\d+\. +(.+?)|Table \d+-\d+. (.+?))<\/p>\n(<table>)/, lambda { |x| "#{x[3]}\n<caption>#{x[1] || x[2]}</caption>" }],
        [/<p>(CPUID.EAX.+?)<\/p>/, lambda { |x| "<pre>#{x[1]}</pre>" }],
+
+       ["</table>\n<table>\n", '', 'CPUID'],
+       [/<td>Information Provided about the Processor<\/td>/, lambda { |x| x[0].gsub('td', 'th') }],
+       [/<th>(?:0|01)H<\/th>/, lambda { |x| x[0].gsub('th', 'td') }],
+       [/<tr>\n<td>0H<\/td>.+?Basic CPUID Information.+?<\/td>\n<\/tr>(\n<tr>\n<td>01H<\/td>)/m, lambda { |x| "<tr>\n<td>0H</td>\n<td>\n<p>Basic CPUID Information:</p>\n<ul>\n<li>EAX: Maximum Input Value for Basic CPUID Information (see Table 3-13)</li>\n<li>EBX: \"Genu\"</li>\n<li>ECX: \"ntel\"</li>\n<li>EDX: \"ineI\"</li>\n</td>\n</tr>#{x[1]}" }],
+       #garbled leaked image data stuff
+       ["<p>(&apos;;</p>\n", ''],
       ]
 
     debugString = nil
