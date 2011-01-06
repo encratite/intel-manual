@@ -1111,19 +1111,13 @@
         <li>CLFLUSH instruction cache line size (second byte of EBX) — this number indicates the size of the cache line flushed with CLFLUSH instruction in 8-byte increments. This field was introduced in the Pentium 4 processor.</li>
         <li>Local APIC ID (high byte of EBX) — this number is the 8-bit ID that is assigned to the local APIC on the processor during power up. This field was introduced in the Pentium 4 processor.</li>
       </ul>
-      <p>INPUT EAX = 1: Returns Feature Information in ECX and EDX</p>
+      <h3>INPUT EAX = 1: Returns Feature Information in ECX and EDX</h3>
       <p>When CPUID executes with EAX set to 1, feature information is returned in ECX and EDX.</p>
-      <ul>
-        <li>Figure 3-6 and Table 3-15 show encodings for ECX.</li>
-        <li>Figure 3-7 and Table 3-16 show encodings for EDX.</li>
-      </ul>
       <p>For all feature flags, a 1 indicates that the feature is supported. Use Intel to properly interpret feature flags.</p>
-      <p>NOTE</p>
+      <h3>Important note</h3>
       <p>Software must confirm that a processor feature is present using feature flags returned by CPUID prior to using the feature. Software should not depend on future offerings retaining all features.</p>
-      <p>Figure 3-6. Feature Information Returned in the ECX Register
-        Table 3-15. Feature Information Returned in the ECX Register
-      </p>
       <table>
+        <caption>Feature Information Returned in the ECX Register</caption>
         <tr>
           <th>Bit #</th>
           <th>Mnemonic</th>
@@ -1148,14 +1142,6 @@
           <td>3</td>
           <td>MONITOR</td>
           <td>MONITOR/MWAIT. A value of 1 indicates the processor supports this feature.</td>
-        </tr>
-      </table>
-      <p>Table 3-15. Feature Information Returned in the ECX Register (Contd.)</p>
-      <table>
-        <tr>
-          <th>Bit #</th>
-          <th>Mnemonic</th>
-          <th>Description</th>
         </tr>
         <tr>
           <td>4</td>
@@ -1242,14 +1228,6 @@
           <td>SSE4.2</td>
           <td>A value of 1 indicates that the processor supports SSE4.2.</td>
         </tr>
-      </table>
-      <p>Table 3-15. Feature Information Returned in the ECX Register (Contd.)</p>
-      <table>
-        <tr>
-          <th>Bit #</th>
-          <th>Mnemonic</th>
-          <th>Description</th>
-        </tr>
         <tr>
           <td>21</td>
           <td>x2APIC</td>
@@ -1301,9 +1279,8 @@
           <td>Always returns 0</td>
         </tr>
       </table>
-      <p>Figure 3-7. Feature Information Returned in the EDX Register</p>
-      <p>Table 3-16. More on Feature Information Returned in the EDX Register</p>
       <table>
+        <caption>More on Feature Information Returned in the EDX Register</caption>
         <tr>
           <th>Bit #</th>
           <th>Mnemonic</th>
@@ -1374,14 +1351,6 @@
           <td>MTRR</td>
           <td>Memory Type Range Registers. MTRRs are supported. The MTRRcap MSR contains feature bits that describe what memory types are supported, how many variable MTRRs are supported, and whether fixed MTRRs are supported.</td>
         </tr>
-      </table>
-      <p>Table 3-16. More on Feature Information Returned in the EDX Register (Contd.) Table 3-16. More on Feature Information Returned in the EDX Register (Contd.)</p>
-      <table>
-        <tr>
-          <th>Bit #</th>
-          <th>Mnemonic</th>
-          <th>Description</th>
-        </tr>
         <tr>
           <td>13</td>
           <td>PGE</td>
@@ -1443,11 +1412,6 @@
           <td>FXSAVE and FXRSTOR Instructions. The FXSAVE and FXRSTOR instructions are supported for fast save and restore of the floating point context. Presence of this bit also indicates that CR4.OSFXSR is available for an operating system to indicate that it supports the FXSAVE and FXRSTOR instructions.</td>
         </tr>
         <tr>
-          <th>Bit #</th>
-          <th>Mnemonic</th>
-          <th>Description</th>
-        </tr>
-        <tr>
           <td>25</td>
           <td>SSE</td>
           <td>SSE. The processor supports the SSE extensions.</td>
@@ -1483,15 +1447,15 @@
           <td>Pending Break Enable. The processor supports the use of the FERR#/PBE# pin when the processor is in the stop-clock state (STPCLK# is asserted) to signal the processor that an interrupt is pending and that the processor should return to normal operation to handle the interrupt. Bit 10 (PBE enable) in the IA32_MISC_ENABLE MSR enables this capability.</td>
         </tr>
       </table>
-      <p>INPUT EAX = 2: TLB/Cache/Prefetch Information Returned in EAX, EBX, ECX, EDX</p>
+      <h3>INPUT EAX = 2: TLB/Cache/Prefetch Information Returned in EAX, EBX, ECX, EDX</h3>
       <p>When CPUID executes with EAX set to 2, the processor returns information about the processor's internal TLBs, cache and prefetch hardware in the EAX, EBX, ECX, and EDX registers. The information is reported in encoded form and fall into the following categories:</p>
       <ul>
         <li>The least-significant byte in register EAX (register AL) indicates the number of times the CPUID instruction must be executed with an input value of 2 to get a complete description of the processor's TLB/Cache/Prefetch hardware. The Intel Xeon processor 7400 series will return a 1.</li>
         <li>The most significant bit (bit 31) of each register indicates whether the register contains valid information (set to 0) or is reserved (set to 1).</li>
         <li>If a register contains valid information, the information is contained in 1 byte descriptors. There are four types of encoding values for the byte descriptor, the encoding type is noted in the second column of Table 3-17. Table 3-17 lists theencoding of these descriptors. Note that the order of descriptors in the EAX, EBX, ECX, and EDX registers is not defined; that is, specific bytes are not designated to contain descriptors for specific cache, prefetch, or TLB types. The descriptors may appear in any order. Note also a processor may report a general descriptor type (FFH) and not report any byte descriptor of "cache type" via CPUID leaf 2.</li>
       </ul>
-      <p>Table 3-17. Encoding of CPUID Leaf 2 Descriptors</p>
       <table>
+        <caption>Encoding of CPUID Leaf 2 Descriptors</caption>
         <tr>
           <th>Value</th>
           <th>Type</th>
@@ -1631,14 +1595,6 @@
           <td>45H</td>
           <td>Cache</td>
           <td>2nd-level cache: 2 MByte, 4-way set associative, 32 byte line size</td>
-        </tr>
-      </table>
-      <p>Table 3-17. Encoding of CPUID Leaf 2 Descriptors (Contd.)</p>
-      <table>
-        <tr>
-          <th>Value</th>
-          <th>Type</th>
-          <th>Description</th>
         </tr>
         <tr>
           <td>46H</td>
@@ -1790,14 +1746,6 @@
           <td>Cache</td>
           <td>2nd-level cache: 128 KByte, 8-way set associative, 64 byte line size, 2 lines per sector</td>
         </tr>
-      </table>
-      <p>Table 3-17. Encoding of CPUID Leaf 2 Descriptors (Contd.)</p>
-      <table>
-        <tr>
-          <th>Value</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
         <tr>
           <td>7AH</td>
           <td>Cache</td>
@@ -1934,12 +1882,13 @@
           <td>CPUID leaf 2 does not report cache descriptor information, use CPUID leaf 4 to query cache parameters</td>
         </tr>
       </table>
-      <p>Example 3-1. Example of Cache and TLB Interpretation</p>
+      <h3>Example of Cache and TLB Interpretation</h3>
       <p>The first member of the family of Pentium 4 processors returns the following information about caches and TLBs when the CPUID executes with an input value of 2:</p>
-      <p>EAX 66 5B 50 01H</p>
-      <p>EBX 0H</p>
-      <p>ECX 0H</p>
-      <p>EDX 00 7A 70 00H</p>
+      <pre>EAX 66 5B 50 01H
+      EBX 0H
+      ECX 0H
+      EDX 00 7A 70 00H
+      </pre>
       <p>Which means:</p>
       <ul>
         <li>The least-significant byte (byte 0) of register EAX is set to 01H. This indicates that CPUID needs to be executed once with an input value of 2 to retrieve complete information about caches and TLBs.</li>
@@ -1961,25 +1910,28 @@
         <li>7AH - a 256-KByte 2nd level cache, 8-way set associative, with a sectored, 64-byte cache line size.</li>
         <li>00H - NULL descriptor.</li>
       </ul>
-      <p>INPUT EAX = 04H: Returns Deterministic Cache Parameters for Each Level</p>
+      <h3>INPUT EAX = 04H: Returns Deterministic Cache Parameters for Each Level</h3>
       <p>When CPUID executes with EAX set to 04H and ECX contains an index value, the processor returns encoded data that describe a set of deterministic cache parameters (for the cache level associated with the input in ECX). Valid index values start from 0.</p>
       <p>Software can enumerate the deterministic cache parameters for each level of the cache hierarchy starting with an index value of 0, until the parameters report the value associated with the cache type field is 0. The architecturally defined fields reported by deterministic cache parameters are documented in "Information Returned by CPUID Instruction".</p>
-      <p>This Cache Size in Bytes</p>
-      <p>= (Ways + 1) * (Partitions + 1) * (Line_Size + 1) * (Sets + 1) = (EBX[31:22] + 1) * (EBX[21:12] + 1) * (EBX[11:0] + 1) * (EXC + 1)</p>
+      <pre>This Cache Size in Bytes = (Ways + 1) * (Partitions + 1) * (Line_Size + 1) * (Sets + 1) = (EBX[31:22] + 1) * (EBX[21:12] + 1) * (EBX[11:0] + 1) * (EXC + 1)</pre>
       <p>The CPUID leaf 04H also reports data that can be used to derive the topology of processor cores in a physical package. This information is constant for all valid index values. Software can query the raw data reported by executing CPUID with EAX=04H and ECX=0 and use it as part of the topology enumeration algorithm described in Chapter 8, "Multiple-Processor Management," in theIntel® 64 and IA-32 Architectures Software Developer's Manual, Volume 3A.</p>
-      <p>INPUT EAX = 05H: Returns MONITOR and MWAIT Features</p>
+      <h3>INPUT EAX = 05H: Returns MONITOR and MWAIT Features</h3>
       <p>When CPUID executes with EAX set to 05H, the processor returns information about features available to MONITOR/MWAIT instructions. The MONITOR instruction is used for address-range monitoring in conjunction with MWAIT instruction. The MWAIT instruction optionally provides additional extensions for advanced power management. See "Information Returned by CPUID Instruction".</p>
-      <p>INPUT EAX = 06H: Returns Thermal and Power Management Features</p>
+      <h3>INPUT EAX = 06H: Returns Thermal and Power Management Features</h3>
       <p>When CPUID executes with EAX set to 06H, the processor returns information about thermal and power management features. See "Information Returned by CPUID Instruction".</p>
-      <p>INPUT EAX = 09H: Returns Direct Cache Access Information</p>
+      <h3>INPUT EAX = 09H: Returns Direct Cache Access Information</h3>
       <p>When CPUID executes with EAX set to 09H, the processor returns information about Direct Cache Access capabilities. See "Information Returned by CPUID Instruction".</p>
-      <p>INPUT EAX = 0AH: Returns Architectural Performance Monitoring Features</p>
+      <h3>INPUT EAX = 0AH: Returns Architectural Performance Monitoring Features</h3>
       <p>When CPUID executes with EAX set to 0AH, the processor returns information about support for architectural performance monitoring capabilities. Architectural performance monitoring is supported if the version ID (see "Information Returned by CPUID Instruction") is greater thanPn 0. See "Information Returned by CPUID Instruction".</p>
       <p>For each version of architectural performance monitoring capability, software must enumerate this leaf to discover the programming facilities and the architectural performance events available in the processor. The details are described in Chapter20, "Introduction to Virtual-Machine Extensions," in theIntel®64 and IA-32 Architectures Software Developer's Manual, Volume 3B.</p>
-      <p>INPUT EAX = 0BH: Returns Extended Topology Information</p>
-      <p>When CPUID executes with EAX set to 0BH, the processor returns information about extended topology enumeration data. Software must detect the presence of CPUID leaf 0BH by verifying (a) the highest leaf index supported by CPUID is &gt;= 0BH, and</p>
-      <p>(b)CPUID.0BH:EBX[15:0] reports a non-zero value. See "Information Returned by CPUID Instruction".</p>
-      <p>INPUT EAX = 0DH: Returns Processor Extended States Enumeration Information</p>
+      <h3>INPUT EAX = 0BH: Returns Extended Topology Information</h3>
+      <p>When CPUID executes with EAX set to 0BH, the processor returns information about extended topology enumeration data. Software must detect the presence of CPUID leaf 0BH by verifying</p>
+        <ul>
+          <li>(a) the highest leaf index supported by CPUID is &gt;= 0BH, and</li>
+          <li>(b) CPUID.0BH:EBX[15:0] reports a non-zero value.</li>
+        </ul>
+      <p>See "Information Returned by CPUID Instruction".</p>
+      <h3>INPUT EAX = 0DH: Returns Processor Extended States Enumeration Information</h3>
       <p>When CPUID executes with EAX set to 0DH and ECX = 0, the processor returns information about the bit-vector representation of all processor state extensions that are supported in the processor and storage size requirements of the XSAVE/XRSTOR area. See "Information Returned by CPUID Instruction".</p>
       <p>When CPUID executes with EAX set to 0DH and ECX = n (n &gt; 1, and is a valid sub-leaf index), the processor returns information about the size and offset of each processor extended state save area within the XSAVE/XRSTOR area. See "Information Returned by CPUID Instruction".Software can use the forward-extendable technique depicted below to query the valid sub-leaves and obtain size and offset information for each processor extended state save area:</p>
       <p>For i = 2 to 62 // sub-leaf 1 is reserved IF (CPUID.(EAX=0DH, ECX=0):VECTOR[i] = 1 ) // VECTOR is the 64-bit value of EDX:EAX Execute CPUID.(EAX=0DH, ECX = i) to examine size and offset for sub-leaf i; FI;</p>
