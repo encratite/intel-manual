@@ -298,39 +298,15 @@ class ManualData
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
 
        [/\n+/, "\n"],
-       [/<caption>.+?<\/caption>\n/m, '', 'CPUID'],
-       [/<p>Table 3-12\. +(Information Returned by CPUID Instruction)[^<]+?<\/p>\n(<table>)/, lambda { |x| "#{x[2]}\n<caption>#{x[1]}</caption>" }],
-       ['Table 3-12', '"Information Returned by CPUID Instruction"'],
 
        [' Table 3-7. Comparison Predicate for CMPPD and CMPPS Instructions (Contd.)', ''],
        ['Table 3-7', '"Comparison Predicate for CMPPD and CMPPS Instructions"'],
        ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
        ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
        ['Table 3-11', '"Pseudo-Ops and CMPSS"'],
-       ["<p>MOV EAX, 00H</p>\n<p>CPUID</p>", lambda { |x| "<pre>#{x[0].gsub(/<\/?p>/, '')}</pre>" }],
-       [/(<p>CPUID\.EAX = 05H.+)(<p>If a value entered)/m, lambda { |x| "<pre>#{x[1].gsub(/<\/?p>/, '')}</pre>\n#{x[2]}" }],
-       ['(*Returns', '(* Returns'],
-       [/<h>See also:<\/h>.+?Volume 3A.<\/p>\n/m, ''],
-       #[/<p>(?:: Table \d+-\d+\. .+? Table \d+-\d+\. +(.+?)|Table \d+-\d+. (.+?))<\/p>\n(<table>)/, lambda { |x| "#{x[3]}\n<caption>#{x[1] || x[2]}</caption>" }],
-       [/<p>(CPUID.EAX.+?)<\/p>/, lambda { |x| "<pre>#{x[1]}</pre>" }],
-
-       ["</table>\n<table>\n", '', 'CPUID'],
-       [/<td>Information Provided about the Processor<\/td>/, lambda { |x| x[0].gsub('td', 'th') }],
-       [/<th>(?:0|01)H<\/th>/, lambda { |x| x[0].gsub('th', 'td') }],
-       [/<tr>\n<td>0H<\/td>.+?Basic CPUID Information.+?<\/td>\n<\/tr>(\n<tr>\n<td>01H<\/td>)/m, lambda { |x| "<tr>\n<td>0H</td>\n<td>\n<p>Basic CPUID Information:</p>\n<table>\n<tr>\n<td>EAX</td>\n<td>Maximum Input Value for Basic CPUID Information (see Table 3-13)</td>\n</tr>\n<tr>\n<td>EBX</td>\n<td>\"Genu\"</td>\n</tr>\n<tr>\n<td>ECX</td>\n<td>\"ntel\"</td>\n</tr>\n<tr>\n<td>EDX</td>\n<td>\"ineI\"</td>\n</tr>\n</table>\n</td>\n</tr>#{x[1]}" }],
-       #garbled leaked image data stuff
-       ["<p>(&apos;;</p>\n", ''],
-       [/<td>(EAX EBX ECX EDX Version Information.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Bits', 'Feature'], [1, 4, 1, 1])}</td>" }],
-       ["<tr>\n<td>Initial EAX Value</td>\n<th>Information Provided about the Processor</th>\n</tr>\n", ''],
-       [/<td>(EAX EBX ECX EDX Cache and TLB Information.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Cache'], [1, 1, 1, 1])}</td>" }],
-       [/<td>(EAX EBX ECX EDX Reserved.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Reserved', 'Bits'], [1, 1, 1, 1], ['Processor serial number (PSN) is not supported in the Pentium 4 processor or later. On all models, use the PSN flag (returned using CPUID) to check for PSN support before accessing the feature.', 'See AP-485, <i>Intel Processor Identification</i> and the CPUID Instruction (Order Number 241618) for more information on PSN.', 'CPUID leaves &gt; 3 &lt; 80000000 are visible only when IA32_MISC_ENABLES.BOOT_NT4[bit 22] = 0 (default).', '<i>Deterministic Cache Parameters Leaf</i>'])}</td>" }],
-       [/<tr>\n<td \/>\n<td>NOTES: Processor serial number.+?<td>Deterministic Cache Parameters Leaf<\/td>\n<\/tr>\n/m, ''],
-       [/NOTES: Leaf 04H.+?3-221\./, ''],
       ]
 
     debugString = nil
-    #debugString = 'Information Returned by CPUID Instruction'
-    #return markup if instruction == 'CPUID'
 
     actualReplacements = []
     replacements.each do |replacementData|
