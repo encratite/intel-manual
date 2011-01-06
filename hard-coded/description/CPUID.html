@@ -685,13 +685,66 @@
           </tr>
           <tr>
             <td>80000001H</td>
-            <td>EAX EBX ECX</td>
-            <td>Extended Processor Signature and Feature Bits. Reserved Bit 0: LAHF/SAHF available in 64-bit mode Bits 31-1 Reserved</td>
-          </tr>
-          <tr>
-            <td />
-            <td>EDX</td>
-            <td>Bits 10-0: Reserved Bit 11: SYSCALL/SYSRET available (when in 64-bit mode) Bits 19-12: Reserved = 0 Bit 20: Execute Disable Bit available Bits 25-21: Reserved = 0 Bit 26: 1-GByte pages are available if 1 Bit 27: RDTSCP and IA32_TSC_AUX are available if 1 Bits 28: Reserved = 0 Bit 29: Intel® 64 Architecture available if 1 Bits 31-30: Reserved = 0</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Extended Processor Signature and Feature Bits.</td>
+                </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Reserved</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>Bit 0: LAHF/SAHF available in 64-bit mode</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31-1 Reserved</td>
+                </tr>
+                <tr>
+                  <td>EDX</td>
+                  <td>Bits 10-0: Reserved</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 11: SYSCALL/SYSRET available (when in 64-bit mode)</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 19-12: Reserved = 0</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 20: Execute Disable Bit available</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 25-21: Reserved = 0</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 26: 1-GByte pages are available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 27: RDTSCP and IA32_TSC_AUX are available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 28: Reserved = 0</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 29: Intel® 64 Architecture available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31-30: Reserved = 0</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td>80000002H</td>
