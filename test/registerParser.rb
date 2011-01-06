@@ -7,6 +7,6 @@ delimiters = [
               'Feature',
              ]
 
-stringCounts = [1, 4, 2]
+stringCounts = [1, 4, 1, 1]
 
 puts ManualData.new.cpuidParseRegisterInformation(text, delimiters, stringCounts).inspect

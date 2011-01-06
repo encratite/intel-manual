@@ -11,7 +11,7 @@ class ManualData
       match = false
       delimiters.each do |delimiter|
         if string[i..-1].matchLeft(delimiter)
-          token = string[lastTokenOffset, i - lastTokenOffset]
+          token = string[lastTokenOffset, i - lastTokenOffset].strip
           output << token
           lastTokenOffset = i
           match = true
@@ -32,12 +32,15 @@ class ManualData
       text = match[1]
       notes = match[2]
     end
-    pattern = /(E[ABCD]X )+(.+)/
+    pattern = /^(E[ABCD]X )+(.+)/
     match = text.match(pattern)
     if match == nil
       error 'Unable to get a register match'
     end
-    registers = match[1].strip.split(' ')
+    #puts match.inspect
+    registerString = text[0, match.offset(1)[1]]
+    puts registerString.inspect
+    registers = registerString.strip.split(' ')
     text = match[2]
     tokens = parseMergedRegisterString(text, delimiters)
     if registers.size != stringCounts.size
@@ -45,7 +48,7 @@ class ManualData
     end
     sum = stringCounts.inject(0) { |state, x| state += x }
     if sum != tokens.size
-      error "String count sum/token count mismatch: #{stringCounts.inspect}, #{tokens.inspect}"
+      error "String count sum/token count mismatch: #{sum} vs. #{tokens.size}\n#{stringCounts.inspect}, #{tokens.inspect}"
     end
     tokenIndex = 0
     registerIndex = 0
