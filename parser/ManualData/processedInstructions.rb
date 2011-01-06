@@ -9,6 +9,7 @@ class ManualData
        'CLI',
        'CMPPD',
        'CMPPS',
+       'CMPSS',
       ]
     return processedInstructions.include?(instruction)
   end

@@ -291,6 +291,7 @@ class ManualData
        ['Table 3-7', '"Comparison Predicate for CMPPD and CMPPS Instructions"'],
        ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
        ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
+       ['Table 3-11', '"Pseudo-Ops and CMPSS"'],
       ]
 
     replacements.each do |replacementData|
