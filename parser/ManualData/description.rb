@@ -283,8 +283,14 @@ class ManualData
        [/<p>FXCH.+?<\/p>/m, lambda { |x| x[0].gsub('p>', 'pre>').gsub("\n<", '<') }],
        ["<p>Figure 3-3. ADDSUBPD—Packed Double-FP Add/Subtract</p>\n", ''],
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
-       [/<p>Table \d+-\d+. (.+?)<\/p>\n<table>/, lambda { |x| "<table>\n<caption>#{x[1]}</caption>" }],
+
        ["\n\n", "\n"],
+       [/<p>(?:: Table \d+-\d+\. .+? Table \d+-\d+\. +(.+?)|Table \d+-\d+. (.+?))<\/p>\n<table>/, lambda { |x| "<table>\n<caption>#{x[1] || x[2]}</caption>" }],
+
+       [' Table 3-7. Comparison Predicate for CMPPD and CMPPS Instructions (Contd.)', ''],
+       ['Table 3-7', '"Comparison Predicate for CMPPD and CMPPS Instructions"'],
+       ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
+       ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
       ]
 
     replacements.each do |replacementData|
