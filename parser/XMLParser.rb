@@ -35,6 +35,8 @@ class XMLParser
         node.set(output, tag, attributes)
         node.content = nil
         output.add(node)
+      else
+        error "Invalid mode: #{mode.inspect}"
       end
     end
     if offset != markup.size

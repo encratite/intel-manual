@@ -89,6 +89,9 @@ class ManualData
     #puts "Processing instruction #{instruction}"
     STDOUT.flush
 
+    #just for debugging purposes
+    @currentInstruction = instruction
+
     begin
 
       tablePattern = /<Table>(.*?)<\/Table>/m

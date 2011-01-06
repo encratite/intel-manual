@@ -83,7 +83,18 @@ class ManualData
           match[0]
         end
       else
-        fixWhitespace(element)
+        if @currentInstruction == 'CLI'
+          #puts "#{element.content.size}: #{node.visualise.inspect}" if element.tag == 'TR'
+          #puts element.tag.inspect
+        end
+        if ['TD', 'TH'].include?(element.tag)
+          content = element.content
+          if content != nil && content.size == 1
+            content[0].strip!
+          end
+        else
+          fixWhitespace(element)
+        end
       end
     end
   end
@@ -262,6 +273,8 @@ class ManualData
        [/<p>FXCH.+?<\/p>/m, lambda { |x| x.gsub('p>', 'pre>').gsub("\n<", '<') }],
        ["<p>Figure 3-3. ADDSUBPD—Packed Double-FP Add/Subtract</p>\n", ''],
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
+       ['<p>Table 3-6. Decision Table for CLI Results</p>', ''],
+       ["\n\n", "\n"],
       ]
 
     replacements.each do |replacementData|
