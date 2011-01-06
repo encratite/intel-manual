@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+require 'htmlentities'
+
 require_relative 'string'
 
 class ManualData
@@ -83,10 +86,6 @@ class ManualData
           match[0]
         end
       else
-        if @currentInstruction == 'CLI'
-          #puts "#{element.content.size}: #{node.visualise.inspect}" if element.tag == 'TR'
-          #puts element.tag.inspect
-        end
         if ['TD', 'TH'].include?(element.tag)
           content = element.content
           if content != nil && content.size == 1
@@ -95,6 +94,17 @@ class ManualData
         else
           fixWhitespace(element)
         end
+      end
+    end
+  end
+
+  def applyHTMLEntities(node)
+    node.each do |element|
+      if element.class == String
+        entities = HTMLEntities.new
+        element.replace(entities.encode(element))
+      else
+        applyHTMLEntities(element)
       end
     end
   end
@@ -328,6 +338,7 @@ class ManualData
     performStringReplacements(root)
     lowerCaseTags(root)
     printMarkedStrings(root)
+    applyHTMLEntities(root)
     if containedAFigure
       warning(instruction, 'Detected a figure') if printWarnings
       @imageCount += 1
