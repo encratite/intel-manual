@@ -4,6 +4,8 @@ require 'htmlentities'
 
 require_relative 'string'
 
+require_relative 'cpuid'
+
 class ManualData
   def removeNewlinesAroundLink(element, isLeftSideOfLink)
     if element.class != String
@@ -315,7 +317,7 @@ class ManualData
        ["</table>\n<table>\n", '', 'CPUID'],
        [/<td>Information Provided about the Processor<\/td>/, lambda { |x| x[0].gsub('td', 'th') }],
        [/<th>(?:0|01)H<\/th>/, lambda { |x| x[0].gsub('th', 'td') }],
-       [/<tr>\n<td>0H<\/td>.+?Basic CPUID Information.+?<\/td>\n<\/tr>(\n<tr>\n<td>01H<\/td>)/m, lambda { |x| "<tr>\n<td>0H</td>\n<td>\n<p>Basic CPUID Information:</p>\n<ul>\n<li>EAX: Maximum Input Value for Basic CPUID Information (see Table 3-13)</li>\n<li>EBX: \"Genu\"</li>\n<li>ECX: \"ntel\"</li>\n<li>EDX: \"ineI\"</li>\n</td>\n</tr>#{x[1]}" }],
+       [/<tr>\n<td>0H<\/td>.+?Basic CPUID Information.+?<\/td>\n<\/tr>(\n<tr>\n<td>01H<\/td>)/m, lambda { |x| "<tr>\n<td>0H</td>\n<td>\n<p>Basic CPUID Information:</p>\n<table>\n<tr>\n<td>EAX</td>\n<td>Maximum Input Value for Basic CPUID Information (see Table 3-13)</td>\n</tr>\n<tr>\n<td>EBX</td>\n<td>\"Genu\"</td>\n</tr>\n<tr>\n<td>ECX</td>\n<td>\"ntel\"</td>\n</tr>\n<tr>\n<td>EDX</td>\n<td>\"ineI\"</td>\n</tr>\n</table>\n</td>\n</tr>#{x[1]}" }],
        #garbled leaked image data stuff
        ["<p>(&apos;;</p>\n", ''],
       ]
