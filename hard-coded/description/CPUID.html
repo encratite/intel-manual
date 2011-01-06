@@ -415,19 +415,91 @@
           </tr>
           <tr>
             <td>0AH</td>
-            <td>EAX Bits 07 - 00: Version ID of architectural performance monitoring Bits 15- 08: Number of general-purpose performance monitoring counter per logical processor Bits 23 - 16: Bit width of general-purpose, performance monitoring counter Bits 31 - 24: Length of EBX bit vector to enumerate architectural performance monitoring events</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Bits 07 - 00: Version ID of architectural performance monitoring</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 15- 08: Number of general-purpose performance monitoring counter per logical processor</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 23 - 16: Bit width of general-purpose, performance monitoring counter</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31 - 24: Length of EBX bit vector to enumerate architectural performance monitoring events</td>
+                </tr>
+                </table>
           </tr>
           <tr>
             <td />
-            <td>EBX Bit 0: Core cycle event not available if 1 Bit 1: Instruction retired event not available if 1 Bit 2: Reference cycles event not available if 1 Bit 3: Last-level cache reference event not available if 1 Bit 4: Last-level cache misses event not available if 1 Bit 5: Branch instruction retired event not available if 1 Bit 6: Branch mispredict retired event not available if 1 Bits 31- 07: Reserved = 0 ECX Reserved = 0</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EBX</td>
+                  <td>Bit 0: Core cycle event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 1: Instruction retired event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 2: Reference cycles event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 3: Last-level cache reference event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 4: Last-level cache misses event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 5: Branch instruction retired event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 6: Branch mispredict retired event not available if 1</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31- 07: Reserved = 0</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>Reserved = 0</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>EDX Bits 04 - 00: Number of fixed-function performance counters (if Version ID &gt; 1) Bits 12- 05: Bit width of fixed-function performance counters (if Version ID &gt; 1) Reserved = 0</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EDX</td>
+                  <td>Bits 04 - 00: Number of fixed-function performance counters (if Version ID &gt; 1)</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 12- 05: Bit width of fixed-function performance counters (if Version ID &gt; 1)</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Reserved = 0</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>Extended Topology Enumeration Leaf</td>
+            <td><i>Extended Topology Enumeration Leaf</i></td>
           </tr>
           <tr>
             <td>0BH</td>
