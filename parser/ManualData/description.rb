@@ -336,7 +336,11 @@ class ManualData
 
   def extractDescription(instruction, content)
     hardCodedData = loadHardCodedInstructionFile("#{instruction}.html", 'description')
-    return hardCodedData if hardCodedData != nil
+    if hardCodedData != nil
+      #get rid of emacs formatting
+      hardCodedData.gsub!(/^ +/, '')
+      return hardCodedData
+    end
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
     else
