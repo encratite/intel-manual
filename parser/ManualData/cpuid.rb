@@ -10,7 +10,7 @@ class ManualData
     while i < string.size do
       match = false
       delimiters.each do |delimiter|
-        if string[i..-1].matchLeft(delimiter)
+        if string[i..-1].matchLeft(delimiter) && i > lastTokenOffset
           token = string[lastTokenOffset, i - lastTokenOffset].strip
           output << token
           lastTokenOffset = i
@@ -24,24 +24,47 @@ class ManualData
     return output
   end
 
-  def cpuidParseRegisterInformation(text, delimiters, stringCounts)
-    notes = nil
-    pattern = /(.+?) (NOTES:.+)/
+  def cpuidGenerateRegisterInformationMarkup(registerObjects, notes)
+    output = "<table>\n"
+    registerObjects.each do |registerObject|
+      output += "<tr>\n"
+      output += "<td>#{registerObject.register}</td>\n"
+      output += "<td>#{registerObject.strings.first}</td>\n"
+      registerObject.strings[1..-1].each do |string|
+        output += "<tr>"
+        output += "<td />\n"
+        output += "<td>#{string}</td>\n"
+        output += "</tr>"
+      end
+      output += "</tr>\n"
+    end
+    output += "</table>\n"
+    if !notes.empty?
+      output += "<ul>\n"
+      output += "<li><b>Notes:</b></li>\n"
+      notes.each do |text|
+        output += "<li>#{text}</li>\n"
+      end
+      output += "</ul>\n"
+    end
+    return output
+  end
+
+  def cpuidParseRegisterInformation(text, delimiters, stringCounts, notes = [])
+    pattern = /(.+?) NOTES: (.+)/
     match = text.match(pattern)
     if match != nil
       text = match[1]
-      notes = match[2]
+      notes << match[2]
     end
     pattern = /^(E[ABCD]X )+(.+)/
     match = text.match(pattern)
     if match == nil
       error 'Unable to get a register match'
     end
-    #puts match.inspect
     registerString = text[0, match.offset(1)[1]]
-    puts registerString.inspect
     registers = registerString.strip.split(' ')
-    text = match[2]
+    text = match[2].strip
     tokens = parseMergedRegisterString(text, delimiters)
     if registers.size != stringCounts.size
       error "Register/string count mismatch: #{registers.inspect}, #{stringCounts.inspect}"
@@ -52,14 +75,14 @@ class ManualData
     end
     tokenIndex = 0
     registerIndex = 0
-    output = []
+    registerObjects = []
     registers.each do |register|
       stringCount = stringCounts[registerIndex]
       registerTokens = tokens[tokenIndex, stringCount]
       tokenIndex += stringCount
       registerIndex += 1
-      output << RegisterInformation.new(register, registerTokens)
+      registerObjects << RegisterInformation.new(register, registerTokens)
     end
-    return output
+    return cpuidGenerateRegisterInformationMarkup(registerObjects, notes)
   end
 end

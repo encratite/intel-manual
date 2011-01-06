@@ -215,4 +215,11 @@ class ManualData
   def error(message)
     raise Error.new(message)
   end
+
+  def loadHardCodedInstructionFile(instruction, category)
+    data = Nil.readFile("../hard-coded/#{category}/#{instruction}")
+    return data if data == nil
+    data.force_encoding('utf-8')
+    return data
+  end
 end

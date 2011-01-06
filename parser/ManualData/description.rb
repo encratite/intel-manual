@@ -320,6 +320,12 @@ class ManualData
        [/<tr>\n<td>0H<\/td>.+?Basic CPUID Information.+?<\/td>\n<\/tr>(\n<tr>\n<td>01H<\/td>)/m, lambda { |x| "<tr>\n<td>0H</td>\n<td>\n<p>Basic CPUID Information:</p>\n<table>\n<tr>\n<td>EAX</td>\n<td>Maximum Input Value for Basic CPUID Information (see Table 3-13)</td>\n</tr>\n<tr>\n<td>EBX</td>\n<td>\"Genu\"</td>\n</tr>\n<tr>\n<td>ECX</td>\n<td>\"ntel\"</td>\n</tr>\n<tr>\n<td>EDX</td>\n<td>\"ineI\"</td>\n</tr>\n</table>\n</td>\n</tr>#{x[1]}" }],
        #garbled leaked image data stuff
        ["<p>(&apos;;</p>\n", ''],
+       [/<td>(EAX EBX ECX EDX Version Information.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Bits', 'Feature'], [1, 4, 1, 1])}</td>" }],
+       ["<tr>\n<td>Initial EAX Value</td>\n<th>Information Provided about the Processor</th>\n</tr>\n", ''],
+       [/<td>(EAX EBX ECX EDX Cache and TLB Information.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Cache'], [1, 1, 1, 1])}</td>" }],
+       [/<td>(EAX EBX ECX EDX Reserved.+?)<\/td>/, lambda { |x| "<td>\n#{cpuidParseRegisterInformation(x[1], ['Reserved', 'Bits'], [1, 1, 1, 1], ['Processor serial number (PSN) is not supported in the Pentium 4 processor or later. On all models, use the PSN flag (returned using CPUID) to check for PSN support before accessing the feature.', 'See AP-485, <i>Intel Processor Identification</i> and the CPUID Instruction (Order Number 241618) for more information on PSN.', 'CPUID leaves &gt; 3 &lt; 80000000 are visible only when IA32_MISC_ENABLES.BOOT_NT4[bit 22] = 0 (default).', '<i>Deterministic Cache Parameters Leaf</i>'])}</td>" }],
+       [/<tr>\n<td \/>\n<td>NOTES: Processor serial number.+?<td>Deterministic Cache Parameters Leaf<\/td>\n<\/tr>\n/m, ''],
+       [/NOTES: Leaf 04H.+?3-221\./, ''],
       ]
 
     debugString = nil
@@ -353,6 +359,8 @@ class ManualData
   end
 
   def extractDescription(instruction, content)
+    hardCodedData = loadHardCodedInstructionFile(instruction, 'description')
+    return hardCodedData if hardCodedData != nil
     if instruction == 'JMP'
       descriptionPattern = /(<P>Transfers .+?data and limits. <\/P>)/m
     else

@@ -24,15 +24,8 @@ class ManualData
     end
   end
 
-  def loadHardCodedOperation(instruction)
-    data = Nil.readFile("../hard-coded/#{instruction}")
-    return data if data == nil
-    data.force_encoding('utf-8')
-    return data
-  end
-
   def extractOperation(instruction, content)
-    hardCodedData = loadHardCodedOperation(instruction)
+    hardCodedData = loadHardCodedInstructionFile(instruction, 'operation')
     if hardCodedData != nil
       hardCodedData = replaceCommonStrings(hardCodedData)
       code = operationReplacements(instruction, hardCodedData)
@@ -56,12 +49,12 @@ class ManualData
         token = replaceCommonStrings(token)
         lines << token
       end
-      
+
       code = operationReplacements(instruction, lines.join("\n"))
     end
     return code if code == nil
     codeLines = code.split("\n")
-    
+
     output = calculatePseudoCodeIndentation(codeLines)
     unicodeCheck(instruction, output)
     output = output.join("\n")
