@@ -564,19 +564,34 @@
           </tr>
           <tr>
             <td>0DH</td>
-            <td>NOTES: Leaf 0DH main leaf (ECX = 0). EAX Bits 31-0: Reports the valid bit fields of the lower 32 bits of the XFEATURE_ENABLED_MASK register (XCR0). If a bit is 0, the corresponding bit field in XCR0 is reserved.</td>
+            <td>
+              <ul>
+                <li><b>Notes:</b></li>
+                <li>Leaf 0DH main leaf (ECX = 0).</li>
+              </ul>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Bits 31-0: Reports the valid bit fields of the lower 32 bits of the XFEATURE_ENABLED_MASK register (XCR0). If a bit is 0, the corresponding bit field in XCR0 is reserved.</td>
+                </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Bits 31-0: Maximum size (bytes) required by enabled features in XFEATURE_ENABLED_MASK (XCR0). May be different than ECX when features at the end of the save area are not enabled.</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>Bit 31-0: Maximum size (bytes) of the XSAVE/XRSTOR save area required by all supported features in the processor, i.e all the valid bit fields in XFEATURE_ENABLED_MASK. This includes the size needed for the XSAVE.HEADER.</td>
+                </tr>
+                <tr>
+                  <td>EDX</td>
+                  <td>Bit 31-0: Reports the valid bit fields of the upper 32 bits of the XFEATURE_ENABLED_MASK register (XCR0). If a bit is 0, the corresponding bit field in XCR0 is reserved. Information Provided about the Processor</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>EBX Bits 31-0: Maximum size (bytes) required by enabled features in XFEATURE_ENABLED_MASK (XCR0). May be different than ECX when features at the end of the save area are not enabled.</td>
-          </tr>
-          <tr>
-            <th>Initial EAX Value</th>
-            <th>ECX Bit 31-0: Maximum size (bytes) of the XSAVE/XRSTOR save area required by all supported features in the processor, i.e all the valid bit fields in XFEATURE_ENABLED_MASK. This includes the size needed for the XSAVE.HEADER. EDX Bit 31-0: Reports the valid bit fields of the upper 32 bits of the XFEATURE_ENABLED_MASK register (XCR0). If a bit is 0, the corresponding bit field in XCR0 is reserved. Information Provided about the Processor</th>
-          </tr>
-          <tr>
-            <td />
-            <td>Processor Extended State Enumeration Sub-leaf (EAX = 0DH, ECX = 1)</td>
+            <td><i>Processor Extended State Enumeration Sub-leaf</i> (EAX = 0DH, ECX = 1)</td>
           </tr>
           <tr>
             <td />
