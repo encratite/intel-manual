@@ -230,15 +230,80 @@
           </tr>
           <tr>
             <td>05H</td>
-            <td>EAX Bits 15-00: Smallest monitor-line size in bytes (default is processor&apos;s monitor granularity) Bits 31-16: Reserved = 0 EBX Bits 15-00: Largest monitor-line size in bytes (default is processor&apos;s monitor granularity) Bits 31-16: Reserved = 0</td>
-          </tr>
-          <tr>
-            <td>Initial EAX Value</td>
-            <td>ECX Bit 00: Enumeration of Monitor-Mwait extensions (beyond EAX and EBX registers) supported Bit 01: Supports treating interrupts as break-event for MWAIT, even when interrupts disabled Bits 31 - 02: Reserved Information Provided about the Processor</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Bits 15-00: Smallest monitor-line size in bytes (default is processor&apos;s monitor granularity)</td>
+                  </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31-16: Reserved = 0</td>
+                </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Bits 15-00: Largest monitor-line size in bytes (default is processor&apos;s monitor granularity)</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31-16: Reserved = 0</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>EDX Bits 03 - 00: Number of C0* sub C-states supported using MWait Bits 07 - 04: Number of C1* sub C-states supported using MWAIT Bits 11 - 08: Number of C2* sub C-states supported using MWAIT Bits 15 - 12: Number of C3* sub C-states supported using MWAIT Bits 19 - 16: Number of C4* sub C-states supported using MWAIT Bits 31 - 20: Reserved = 0 NOTE: * The definition of C0 through C4 states for MWAIT extension are processor-specific C-states, not ACPI C-states.</td>
+            <td>
+              <table>
+                <tr>
+                  <td>ECX</td>
+                  <td>Bit 00: Enumeration of Monitor-Mwait extensions (beyond EAX and EBX registers) supported</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bit 01: Supports treating interrupts as break-event for MWAIT, even when interrupts disabled</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31 - 02: Reserved Information Provided about the Processor</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td />
+            <td>
+              <table>
+                <tr>
+                  <td>EDX</td>
+                  <td>Bits 03 - 00: Number of C0* sub C-states supported using MWAIT</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 07 - 04: Number of C1* sub C-states supported using MWAIT</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 11 - 08: Number of C2* sub C-states supported using MWAIT</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 15 - 12: Number of C3* sub C-states supported using MWAIT</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 19 - 16: Number of C4* sub C-states supported using MWAIT</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31 - 20: Reserved = 0</td>
+                </tr>
+              </table>
+              <ul>
+                <li><b>Notes:</b></li>
+                <li>* The definition of C0 through C4 states for MWAIT extension are processor-specific C-states, not ACPI C-states.</li>
+              </ul>
+            </td>
           </tr>
           <tr>
             <td />
