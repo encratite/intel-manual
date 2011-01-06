@@ -503,23 +503,64 @@
           </tr>
           <tr>
             <td>0BH</td>
-            <td>NOTES: Most of Leaf 0BH output depends on the initial value in ECX. EDX output do not vary with initial value in ECX. ECX[7:0] output always reflect initial value in ECX. All other output value for an invalid initial value in ECX are 0. Leaf 0BH exists if EBX[15:0] is not zero.</td>
-          </tr>
-          <tr>
-            <td>Initial EAX Value</td>
-            <td>EAX Bits 4-0: Number of bits to shift right on x2APIC ID to get a unique topology ID of the next level type*. All logical processors with the same next level ID share current level. Bits 31-5: Reserved. EBX Bits 15 - 00: Number of logical processors at this level type. The number reflects configuration as shipped by Intel**. Bits 31- 16: Reserved. ECX Bits 07 - 00: Level number. Same value in ECX input Bits 15 - 08: Level type***. Bits 31 - 16:: Reserved. EDX Bits 31- 0: x2APIC ID the current logical processor. Information Provided about the Processor</td>
+            <td>
+              <ul>
+                <li><b>Notes:</b></li>
+                <li>Most of Leaf 0BH output depends on the initial value in ECX. EDX output do not vary with initial value in ECX. ECX[7:0] output always reflect initial value in ECX. All other output value for an invalid initial value in ECX are 0. Leaf 0BH exists if EBX[15:0] is not zero.</li>
+              </ul>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Bits 4-0: Number of bits to shift right on x2APIC ID to get a unique topology ID of the next level type*. All logical processors with the same next level ID share current level.</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31-5: Reserved.</td>
+                </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Bits 15 - 00: Number of logical processors at this level type. The number reflects configuration as shipped by Intel**.</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 31- 16: Reserved.</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>Bits 07 - 00: Level number. Same value in ECX input</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>Bits 15 - 08: Level type***.
+                </tr>
+                <tr>
+                   <td />
+                   <td>Bits 31 - 16:: Reserved.</td>
+                </tr>
+                <tr>
+                  <td>EDX</td>
+                  <td>Bits 31- 0: x2APIC ID the current logical processor. Information Provided about the Processor</td>
+                </tr>
+              </table>
+              <ul>
+                <li><b>Notes:</b></li>
+                <li>* Software should use this field (EAX[4:0]) to enumerate processor topology of the system.</li>
+                <li>** Software must not use EBX[15:0] to enumerate processor topology of the system. This value in this field (EBX[15:0]) is only intended for display/diagnostic purposes. The actual number of logical processors available to BIOS/OS/Applications may be different from the value of EBX[15:0], depending on software and platform hardware configurations.</li>
+                <li>*** The value of the &quot;level type&quot; field is not related to level numbers in any way, higher &quot;level type&quot; values do not mean higher levels. Level type field has the following encoding:</li>
+                <li>
+                  <ul>
+                    <li>0 : invalid</li>
+                    <li>1 : SMT</li>
+                    <li>2 : Core</li>
+                    <li>3-255 : Reserved</li>
+                  </ul>
+                </li>
+              </ul>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>NOTES: * Software should use this field (EAX[4:0]) to enumerate processor topology of the system.</td>
-          </tr>
-          <tr>
-            <td />
-            <td>** Software must not use EBX[15:0] to enumerate processor topology of the system. This value in this field (EBX[15:0]) is only intended for display/diagnostic purposes. The actual number of logical processors available to BIOS/OS/Applications may be different from the value of EBX[15:0], depending on software and platform hardware configurations. *** The value of the &quot;level type&quot; field is not related to level numbers in any way, higher &quot;level type&quot; values do not mean higher levels. Level type field has the following encoding: 0 : invalid 1 : SMT 2 : Core 3-255 : Reserved</td>
-          </tr>
-          <tr>
-            <td />
-            <td>Processor Extended State Enumeration Main Leaf (EAX = 0DH, ECX = 0)</td>
+            <td><i>Processor Extended State Enumeration Main Leaf</i> (EAX = 0DH, ECX = 0)</td>
           </tr>
           <tr>
             <td>0DH</td>
