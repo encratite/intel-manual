@@ -56,8 +56,8 @@ class ManualData
         when String
           output = output.gsub(target, replacement)
         when Proc, Method
-          output = output.gsub(target) do |match|
-            replacement.call(match)
+          output = output.gsub(target) do
+            replacement.call($~)
           end
         else
           raise "Invalid replacement object: #{[target, replacement].inspect}, type is #{replacement.class}"

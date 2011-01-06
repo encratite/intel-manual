@@ -3,7 +3,7 @@ class ManualData
   def operationReplacements(instruction, input)
     replacements = getGlobalOperatorReplacements
 
-    convertToComments = [/^.+:$/, lambda { |x| createComment(x[0..-2]) }]
+    convertToComments = [/^.+:$/, lambda { |x| createComment(x[0][0..-2]) }]
     convertToCommentsCommon =
       [
        [': ', ":\n"],
@@ -12,7 +12,7 @@ class ManualData
 
     repeatComment = [/^Repeat.+/, method(:createComment)]
 
-    insertBreaks = [/:\n.+/, lambda { |x| x + "\nBREAK;" }]
+    insertBreaks = [/:\n.+/, lambda { |x| x[0] + "\nBREAK;" }]
 
     sanityCheckString = nil
 
@@ -50,15 +50,15 @@ class ManualData
         [
          ["(* idt operand to error_code is 0 because selector is used *)\nIF new code segment is conforming or new code-segment DPL = CPL", "(* idt operand to error_code is 0 because selector is used *)\nFI;\nIF new code segment is conforming or new code-segment DPL = CPL"],
          ['FI ELSE', 'ELSE'],
-         [/INTRA-PRIVILEGE-LEVEL-INTERRUPT.+?END;/m, lambda { |x| x.gsub('IF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)', "FI;\nFI;\nIF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)") }],
-         [/IF IDT gate is 32-bit.+?FI; /m, lambda { |x| x.gsub('FI; ', '') }],
+         [/INTRA-PRIVILEGE-LEVEL-INTERRUPT.+?END;/m, lambda { |x| x[0].gsub('IF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)', "FI;\nFI;\nIF (IA32_EFER.LMA = 0) (* Not IA-32e mode *)") }],
+         [/IF IDT gate is 32-bit.+?FI; /m, lambda { |x| x[0].gsub('FI; ', '') }],
          ['IDT gate is 16-bit)', 'IDT gate is 16-bit *)'],
          ['*)IF', "*)\nIF"],
          ['(error code pushed)or', '(error code pushed) or'],
          [')#SS', ")\n#SS"],
-         [/INTRA-PRIVILEGE-LEVEL-INTERRUPT:.+?END;/m, lambda { |x| x.gsub("IF = 0;\n(* Interrupt flag set to 0;interrupts disabled *)", "IF = 0;\nFI;\n(* Interrupt flag set to 0;interrupts disabled *)") }],
+         [/INTRA-PRIVILEGE-LEVEL-INTERRUPT:.+?END;/m, lambda { |x| x[0].gsub("IF = 0;\n(* Interrupt flag set to 0;interrupts disabled *)", "IF = 0;\nFI;\n(* Interrupt flag set to 0;interrupts disabled *)") }],
          ["\nor", ' or'],
-         [/INTERRUPT-FROM-VIRTUAL-8086-MODE:.+/m, lambda { |x| x.gsub("));\n(* idt operand", "));\nFI;\n(* idt operand") }],
+         [/INTERRUPT-FROM-VIRTUAL-8086-MODE:.+/m, lambda { |x| x[0].gsub("));\n(* idt operand", "));\nFI;\n(* idt operand") }],
          [/^Repeat operation.+/, method(:createComment)],
          ['otherwise, EXT is ELSE', "otherwise, EXT is 1. *)"],
          ['(* PE = 1 *)', 'IF PE = 1'],
@@ -70,7 +70,7 @@ class ManualData
          ["\nREAL-ADDRESS-MODE;", "\nREAL-ADDRESS-MODE:"],
          ['IA-32e-MODE:', "END;\nIA-32e-MODE:"],
          ['GOTO IA-32e-MODE-RETURN;', "FI;\nGOTO IA-32e-MODE-RETURN;\nEND;\n"],
-         [/FOR each of segment register \(ES, FS, GS, and DS\).+?END;/m, lambda { |x| x.gsub("END;", "ROF;\nEND;") }],
+         [/FOR each of segment register \(ES, FS, GS, and DS\).+?END;/m, lambda { |x| x[0].gsub("END;", "ROF;\nEND;") }],
         ]
     when 'JMP'
       replacements +=
@@ -141,7 +141,7 @@ class ManualData
     when 'MOVBE'
       replacements +=
         [
-         [/IF \(OperandSize = \d+\) /, lambda { |x| x.strip + "\n" }],
+         [/IF \(OperandSize = \d+\) /, lambda { |x| x[0].strip + "\n" }],
         ]
       input += "\nFI;\nFI;"
     when 'MOVD/MOVQ', 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', 'OUTS/OUTSB/OUTSW/OUTSD'
@@ -179,7 +179,7 @@ class ManualData
       replacements +=
         [
          [/^Loading.+/, method(:createComment)],
-         [/\n(OR|AND)/, lambda { |x| x.gsub("\n", ' ') }],
+         [/\n(OR|AND)/, lambda { |x| x[0].gsub("\n", ' ') }],
          ['PREOTECTED MODE OR COMPATIBILITY MODE;', '(* PROTECTED MODE OR COMPATIBILITY MODE *)'],
          ["FI;\nIF segment not marked present\n#NP(selector);\nELSE", "FI;\nIF segment not marked present\n#NP(selector);\nFI;\nELSE"],
         ]

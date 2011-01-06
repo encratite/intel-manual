@@ -280,10 +280,10 @@ class ManualData
        [/<p>NOTES:<\/p>.+?\n<\/p>\n/m, '', ["FDIV/FDIVP/FIDIV", "FDIVR/FDIVRP/FIDIVR", "FPREM", "FPREM1"]],
        [/<p>NOTES:<\/p>.+?<p>This instruction/m, '<p>This instruction', ["FSUBR/FSUBRP/FISUBR"]],
        [/<p>IA-32 Architecture Compatibility<\/p>.+/m, ''],
-       [/<p>FXCH.+?<\/p>/m, lambda { |x| x.gsub('p>', 'pre>').gsub("\n<", '<') }],
+       [/<p>FXCH.+?<\/p>/m, lambda { |x| x[0].gsub('p>', 'pre>').gsub("\n<", '<') }],
        ["<p>Figure 3-3. ADDSUBPD—Packed Double-FP Add/Subtract</p>\n", ''],
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
-       ['<p>Table 3-6. Decision Table for CLI Results</p>', ''],
+       [/<p>Table \d+-\d+. (.+?)<\/p>\n<table>/, lambda { |x| "<table>\n<caption>#{x[1]}</caption>" }],
        ["\n\n", "\n"],
       ]
 
@@ -301,7 +301,7 @@ class ManualData
       if replacement.class == String
         markup.gsub!(target, replacement)
       else
-        markup.gsub!(target) { |x| replacement.call(x) }
+        markup.gsub!(target) { replacement.call($~) }
       end
     end
     return markup

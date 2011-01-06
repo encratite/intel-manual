@@ -6,6 +6,7 @@ class ManualData
       [
        'ADDSUBPS',
        'ADDSUBPD',
+       'CLI',
       ]
     return processedInstructions.include?(instruction)
   end
