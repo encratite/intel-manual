@@ -275,7 +275,7 @@ class ManualData
       [
        [/<p>.*1.+CPUID clears the high 32 bits of.+<\/p>\n/, ''],
        [' </p>', '</p>'],
-       [/<sect>.*<\/sect>/m, '', 'CPUID'],
+       #[/<sect>.*<\/sect>/m, '', 'CPUID'],
        [/<p>NOTES:<\/p>.+/m, '', ["FADD/FADDP/FIADD", "FMUL/FMULP/FIMUL", "FPATAN"]],
        [/<p>NOTES:<\/p>.+?\n<\/p>\n/m, '', ["FDIV/FDIVP/FIDIV", "FDIVR/FDIVRP/FIDIVR", "FPREM", "FPREM1"]],
        [/<p>NOTES:<\/p>.+?<p>This instruction/m, '<p>This instruction', ["FSUBR/FSUBRP/FISUBR"]],
@@ -284,16 +284,31 @@ class ManualData
        ["<p>Figure 3-3. ADDSUBPD—Packed Double-FP Add/Subtract</p>\n", ''],
        [" See Figure 3-4.</p>\n<p>Figure 3-4. ADDSUBPS—Packed Single-FP Add/Subtract</p>\n<p>3-50 Vol. 2A ADDSUBPS—Packed Single-FP Add/Subtract</p>", '</p>'],
 
-       ["\n\n", "\n"],
-       [/<p>(?:: Table \d+-\d+\. .+? Table \d+-\d+\. +(.+?)|Table \d+-\d+. (.+?))<\/p>\n<table>/, lambda { |x| "<table>\n<caption>#{x[1] || x[2]}</caption>" }],
+       [/\n+/, "\n"],
+       #CPUID
+       [/<caption>.+?<\/caption>\n/m, '', 'CPUID'],
+       [/<p>Table 3-12\. +(Information Returned by CPUID Instruction)[^<]+?<\/p>\n(<table>)/, lambda { |x| "#{x[2]}\n<caption>#{x[1]}</caption>" }],
+       ['Table 3-12', '"Information Returned by CPUID Instruction"'],
 
        [' Table 3-7. Comparison Predicate for CMPPD and CMPPS Instructions (Contd.)', ''],
        ['Table 3-7', '"Comparison Predicate for CMPPD and CMPPS Instructions"'],
        ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
        ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
        ['Table 3-11', '"Pseudo-Ops and CMPSS"'],
+       #CPUID
+       ["<p>MOV EAX, 00H</p>\n<p>CPUID</p>", lambda { |x| "<pre>#{x[0].gsub(/<\/?p>/, '')}</pre>" }],
+       [/(<p>CPUID\.EAX = 05H.+)(<p>If a value entered)/m, lambda { |x| "<pre>#{x[1].gsub(/<\/?p>/, '')}</pre>\n#{x[2]}" }],
+       ['(*Returns', '(* Returns'],
+       [/<h>See also:<\/h>.+?Volume 3A.<\/p>\n/m, ''],
+       #[/<p>(?:: Table \d+-\d+\. .+? Table \d+-\d+\. +(.+?)|Table \d+-\d+. (.+?))<\/p>\n(<table>)/, lambda { |x| "#{x[3]}\n<caption>#{x[1] || x[2]}</caption>" }],
+       [/<p>(CPUID.EAX.+?)<\/p>/, lambda { |x| "<pre>#{x[1]}</pre>" }],
       ]
 
+    debugString = nil
+    #debugString = 'Information Returned by CPUID Instruction'
+    #return markup if instruction == 'CPUID'
+
+    actualReplacements = []
     replacements.each do |replacementData|
       target, replacement = replacementData
       if replacementData.size >= 3
@@ -305,12 +320,9 @@ class ManualData
          instructionData.include?(instruction)
          )
       end
-      if replacement.class == String
-        markup.gsub!(target, replacement)
-      else
-        markup.gsub!(target) { replacement.call($~) }
-      end
+      actualReplacements << [target, replacement]
     end
+    markup = replaceStrings(markup, actualReplacements, debugString)
     return markup
   end
 
@@ -354,7 +366,7 @@ class ManualData
       warning(instruction, 'Detected leaked image data') if printWarnings
     end
     markup = root.visualise
-    descriptionMarkupReplacements(instruction, markup)
+    markup = descriptionMarkupReplacements(instruction, markup)
     markup = markup.strip
     return markup
   end

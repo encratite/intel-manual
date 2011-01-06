@@ -47,16 +47,16 @@ class ManualData
   end
 
   def replaceStrings(element, replacements, sanityCheckString = nil)
-    output = element
+    output = element.dup
     isSane = true
     replacements.each do |target, replacement|
       target.force_encoding('utf-8') if target === String
       begin
         case replacement
         when String
-          output = output.gsub(target, replacement)
+          output.gsub!(target, replacement)
         when Proc, Method
-          output = output.gsub(target) do
+          output.gsub!(target) do
             replacement.call($~)
           end
         else

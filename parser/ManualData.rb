@@ -31,9 +31,16 @@ class ManualData
     @output = ''
     @tableCount = 0
     @imageCount = 0
+
+    @focusInstruction = 'CPUID'
+    @active = true
   end
 
   def processPath(path)
+    if !@active
+      puts "Processing of #{path} was cancelled because single instruction debugging is activated and the instruction has already been parsed in a previous markup file"
+      return 0
+    end
     data = Nil.readFile(path)
     raise "Unable to read manual file \"#{path}\"" if data == nil
     instructionPattern = /<P id="LinkTarget_\d+">(ADC\u2014Add with Carry) <\/P>(.+?)<\/Sect>|<Sect>.*?<H4 id="LinkTarget_\d+">(.+?) <\/H4>(.*?)(?:<\/Sect>|<P id="LinkTarget_\d+">)/m
@@ -44,7 +51,10 @@ class ManualData
         match = match[2..-1]
       end
       title, content = match
-      parseInstruction(title, content)
+      stopParsing = parseInstruction(title, content)
+      if stopParsing
+        @active = false
+      end
     end
     return data.size
   end
@@ -70,6 +80,7 @@ class ManualData
     puts "Warning for instruction #{instruction.inspect}: #{message}"
   end
 
+  #returns if the parsing should be stopped for single instruction debugging
   def parseInstruction(title, content)
     titlePattern = /(.+?)(—|-)(.+?)/
     titleMatch = titlePattern.match(title)
@@ -91,6 +102,10 @@ class ManualData
 
     #just for debugging purposes
     @currentInstruction = instruction
+
+    if @focusInstruction != nil && @focusInstruction != instruction
+      return false
+    end
 
     begin
 
@@ -167,6 +182,8 @@ class ManualData
       error = Error.new("In instruction #{instruction}: #{error.message}")
       raise error
     end
+
+    return @focusInstruction != nil
   end
 
   def writeTag(tag, data)
