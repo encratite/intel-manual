@@ -614,49 +614,74 @@
                   <td>Reserved</td>
                 </tr>
               </table>
-              <ul>
-                <li><b>Notes:</b></li>
-                <li>Processor serial number (PSN) is not supported in the Pentium 4 processor or later. On all models, use the PSN flag (returned using CPUID) to check for PSN support before accessing the feature.</li>
-                <li>See AP-485, <i>Intel Processor Identification</i> and the CPUID Instruction (Order Number 241618) for more information on PSN.</li>
-                <li>CPUID leaves &gt; 3 &lt; 80000000 are visible only when IA32_MISC_ENABLES.BOOT_NT4[bit 22] = 0 (default).</li>
-                <li><i>Deterministic Cache Parameters Leaf</i></li>
-              </ul>
             </td>
           </tr>
           <tr>
             <td />
-            <td>Processor Extended State Enumeration Sub-leaves (EAX = 0DH, ECX = n, n &gt; 1)</td>
+            <td><i>Processor Extended State Enumeration Sub-leaves</i> (EAX = 0DH, ECX = n, n &gt; 1)</td>
           </tr>
           <tr>
             <td>0DH</td>
-            <td>NOTES: Leaf 0DH output depends on the initial value in ECX. If ECX contains an invalid sub leaf index, EAX/EBX/ECX/EDX return 0. EAX Bits 31-0: The size in bytes of the save area for an extended state feature associated with a valid sub-leaf index, n. Each valid sub-leaf index maps to a valid bit in the XFEATURE_ENABLED_MASK register (XCR0) starting at bit position 2. This field reports 0 if the sub-leaf index, n, is invalid*. EBX Bits 31-0: The offset in bytes of the save area from the beginning of the XSAVE/XRSTOR area. This field reports 0 if the sub-leaf index, n, is invalid*.</td>
+            <td>
+              <ul>
+                <li><b>Notes:</b></li>
+                <li>Leaf 0DH output depends on the initial value in ECX.</li>
+                <li>If ECX contains an invalid sub leaf index, EAX/EBX/ECX/EDX return 0.</li>
+              </ul>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Bits 31-0: The size in bytes of the save area for an extended state feature associated with a valid sub-leaf index, n. Each valid sub-leaf index maps to a valid bit in the XFEATURE_ENABLED_MASK register (XCR0) starting at bit position 2. This field reports 0 if the sub-leaf index, n, is invalid*.</td>
+                </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Bits 31-0: The offset in bytes of the save area from the beginning of the XSAVE/XRSTOR area. This field reports 0 if the sub-leaf index, n, is invalid*.</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>This field reports 0 if the sub-leaf index, n, is invalid*; otherwise it is reserved.</td>
+                </tr>
+                <tr>
+                  <td>EDX</td>
+                  <td>This field reports 0 if the sub-leaf index, n, is invalid*; otherwise it is reserved.</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td />
-            <td>ECX This field reports 0 if the sub-leaf index, n, is invalid*; otherwise it is reserved. EDX This field reports 0 if the sub-leaf index, n, is invalid*; otherwise it is reserved.</td>
+            <td><i>Unimplemented CPUID Leaf Functions</i></td>
           </tr>
           <tr>
-            <td />
-            <td>Unimplemented CPUID Leaf Functions</td>
-          </tr>
-          <tr>
-            <td>40000000H -4FFFFFFFH</td>
-            <td />
+            <td>40000000H - 4FFFFFFFH</td>
             <td>Invalid. No existing or future CPU will return processor identification or feature information if the initial EAX value is in the range 40000000H to 4FFFFFFFH.</td>
           </tr>
           <tr>
             <td />
-            <td>Extended Function CPUID Information</td>
-          </tr>
-          <tr>
-            <th>Initial EAX Value</th>
-            <th />
-            <th>Information Provided about the Processor</th>
+            <td><i>Extended Function CPUID Information</i></td>
           </tr>
           <tr>
             <td>80000000H</td>
-            <td>EAX EBX ECX EDX</td>
-            <td>Maximum Input Value for Extended Function CPUID Information (see Table 3-13). Reserved Reserved Reserved</td>
+            <td>
+              <table>
+                <tr>
+                  <td>EAX</td>
+                  <td>Maximum Input Value for Extended Function CPUID Information (see Table 3-13).</td>
+                  </tr>
+                <tr>
+                  <td>EBX</td>
+                  <td>Reserved</td>
+                </tr>
+                <tr>
+                  <td>ECX</td>
+                  <td>Reserved</td>
+                </tr>
+                <tr>
+                  <td>EDX</td>
+                  <td>Reserved</td>
+                </tr>
+              </table>
+            </td>
           </tr>
           <tr>
             <td>80000001H</td>
