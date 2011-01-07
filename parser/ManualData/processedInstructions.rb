@@ -17,6 +17,7 @@ class ManualData
        'FABS',
        'FADD/FADDP/FIADD',
        'FBSTP',
+       'FCHS',
       ]
     return processedInstructions.include?(instruction)
   end

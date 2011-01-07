@@ -1,5 +1,3 @@
-Warning for instruction "FBSTP": References a table at index 749
-Warning for instruction "FCHS": References a table at index 246
 Warning for instruction "FCOMI/FCOMIP/FUCOMI/FUCOMIP": References a table at index 280
 Warning for instruction "FDIV/FDIVP/FIDIV": References a table at index 1779
 Warning for instruction "FDIV/FDIVP/FIDIV": Detected a figure
