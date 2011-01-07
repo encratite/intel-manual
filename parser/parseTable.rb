@@ -9,6 +9,7 @@ def performReplacements(string)
      ["\uF020", ''],
      ["\uF02F", '/'],
      ["\uF070", '&pi;'],
+     ["\uF0B1F", '&plusmn;'],
      [';*', '; *'],
      ['*+', '* +'],
      ['- F', '-F'],
@@ -21,6 +22,9 @@ def performReplacements(string)
      ['0-', '0 -'],
      [';to', ';@to@'],
      [' or ', '@or'],
+     ['***', '** *'],
+     ['***', '** *'],
+     ['0*', '0 *'],
     ]
 
   replacements.each do |target, replacement|
