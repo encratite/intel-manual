@@ -31,6 +31,11 @@ class ManualData
        'FSINCOS',
        'FSQRT',
        'FSUB/FSUBP/FISUB',
+       'FSUBR/FSUBRP/FISUBR',
+       'FTST',
+       'FUCOM/FUCOMP/FUCOMPP',
+       'FXRSTOR',
+       'FXSAVE',
       ]
     return processedInstructions.include?(instruction)
   end

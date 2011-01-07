@@ -1,0 +1,37 @@
+<p>Compares the value in the ST(0) register with 0.0 and sets the condition code flags C0, C2, and C3 in the FPU status word according to the results (see table below).</p>
+<table>
+<caption>FTST Results</caption>
+<tr>
+<th>Condition</th>
+<th>C3</th>
+<th>C2</th>
+<th>C0</th>
+</tr>
+<tr>
+<td>ST(0) &gt; 0.0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ST(0) &lt; 0.0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>ST(0) = 0.0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Unordered</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</table>
+<p>This instruction performs an "unordered comparison." An unordered comparison also checks the class of the numbers being compared (see "FXAM—Examine ModR/M" inthis chapter). If the value in register ST(0) is a NaN or is in an undefined format, the condition flags are set to "unordered" and the invalid operation exception is generated.</p>
+<p>The sign of zero is ignored, so that (-0.0 = +0.0).</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

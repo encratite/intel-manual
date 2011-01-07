@@ -1,11 +1,3 @@
-Warning for instruction "FSUB/FSUBP/FISUB": References a table at index 1429
-Warning for instruction "FSUB/FSUBP/FISUB": Detected a figure
-Warning for instruction "FSUBR/FSUBRP/FISUBR": References a table at index 2285
-Warning for instruction "FSUBR/FSUBRP/FISUBR": Detected a figure
-Warning for instruction "FTST": References a table at index 180
-Warning for instruction "FUCOM/FUCOMP/FUCOMPP": References a table at index 351
-Warning for instruction "FXRSTOR": References a table at index 574
-Warning for instruction "FXSAVE": References a table at index 552
 Warning for instruction "FYL2X": References a table at index 341
 Warning for instruction "FYL2X": Detected a figure
 Warning for instruction "FYL2XP1": References a table at index 874

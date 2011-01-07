@@ -1,0 +1,42 @@
+<p>Performs an unordered comparison of the contents of register ST(0) and ST(i) and sets condition code flags C0, C2, and C3 in the FPU status word according to the results (see the table below). If no operand is specified, the contents of registers ST(0) and ST(1) are compared. The sign of zero is ignored, so that -0.0 is equal to +0.0.</p>
+<table>
+<caption>FUCOM/FUCOMP/FUCOMPP Results</caption>
+<tr>
+<th>Comparison Results*</th>
+<th>C3</th>
+<th>C2</th>
+<th>C0</th>
+</tr>
+<tr>
+<td>ST0 &gt; ST(i)</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ST0 &lt; ST(i)</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>ST0 = ST(i)</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Unordered</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</table>
+<ul>
+<li class="notes">Notes:</li>
+<li>* Flags not set if unmasked invalid-arithmetic-operand (#IA) exception is generated.</li>
+</ul>
+<p>An unordered comparison checks the class of the numbers being compared (see "FXAM—Examine ModR/M" in this chapter). The FUCOM/FUCOMP/FUCOMPP instructions perform the same operations as the FCOM/FCOMP/FCOMPP instructions. The only difference is that the FUCOM/FUCOMP/FUCOMPP instructions raise the invalidarithmetic-operand exception (#IA) only when either or both operands are an SNaN or are in an unsupported format; QNaNs cause the condition code flags to be set to unordered, but do not cause an exception to be generated. The FCOM/FCOMP/FCOMPP instructions raise an invalid-operation exception when either or both of the operands are a NaN value of any kind or are in an unsupported format.</p>
+<p>As with the FCOM/FCOMP/FCOMPP instructions, if the operation results in an invalidarithmetic-operand exception being raised, the condition code flags are set only if the exception is masked.</p>
+<p>The FUCOMP instruction pops the register stack following the comparison operation and the FUCOMPP instruction pops the register stack twice following the comparison operation. To pop the register stack, the processor marks the ST(0) register as empty and increments the stack pointer (TOP) by 1.</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>
