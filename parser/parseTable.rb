@@ -20,6 +20,7 @@ def performReplacements(string)
      ['0+', '0 +'],
      ['0-', '0 -'],
      [';to', ';@to@'],
+     [' or ', '@or'],
     ]
 
   replacements.each do |target, replacement|
