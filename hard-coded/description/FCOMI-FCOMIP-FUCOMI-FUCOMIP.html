@@ -1,0 +1,44 @@
+<p>Performs an unordered comparison of the contents of registers ST(0) and ST(i) and sets the status flags ZF, PF, and CF in the EFLAGS register according to the results (see the table below). The sign of zero is ignored for comparisons, so that -0.0 is equal to +0.0.</p>
+<table>
+<caption>FCOMI/FCOMIP/ FUCOMI/FUCOMIP Results</caption>
+<tr>
+<th>Comparison Results*</th>
+<th>ZF</th>
+<th>PF</th>
+<th>CF</th>
+</tr>
+<tr>
+<th>ST(0) &gt; ST(i)</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<th>ST(0) &lt; ST(i)</th>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<th>ST(0) = ST(i)</th>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<th>Unordered**</th>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</table>
+<ul>
+<li class="notes">NOTES:</li>
+<li>* See the IA-32 Architecture Compatibility section below.</li>
+<li>** Flags not set if unmasked invalid-arithmetic-operand (#IA) exception is generated.</li>
+</ul>
+<p>An unordered comparison checks the class of the numbers being compared (see "FXAM—Examine ModR/M" in this chapter). The FUCOMI/FUCOMIP instructions perform the same operations as the FCOMI/FCOMIP instructions. The only difference is that the FUCOMI/FUCOMIP instructions raise the invalid-arithmetic-operand exception (#IA) only when either or both operands are an SNaN or are in an unsupported format; QNaNs cause the condition code flags to be set to unordered, but do not cause an exception to be generated. The FCOMI/FCOMIP instructions raise an invalid-operation exception when either or both of the operands are a NaN value of any kind or are in an unsupported format.</p>
+<p>If the operation results in an invalid-arithmetic-operand exception being raised, the status flags in the EFLAGS register are set only if the exception is masked.</p>
+<p>The FCOMI/FCOMIP and FUCOMI/FUCOMIP instructions clear the OF flag in the EFLAGS register (regardless of whether an invalid-operation exception is detected).</p>
+<p>The FCOMIP and FUCOMIP instructions also pop the register stack following the comparison operation. To pop the register stack, the processor marks the ST(0) register as empty and increments the stack pointer (TOP) by 1.</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

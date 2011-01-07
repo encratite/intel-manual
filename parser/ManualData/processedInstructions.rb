@@ -18,6 +18,7 @@ class ManualData
        'FADD/FADDP/FIADD',
        'FBSTP',
        'FCHS',
+       'FCOMI/FCOMIP/FUCOMI/FUCOMIP',
       ]
     return processedInstructions.include?(instruction)
   end
