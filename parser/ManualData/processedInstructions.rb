@@ -25,6 +25,12 @@ class ManualData
        'FMUL/FMULP/FIMUL',
        'FPREM',
        'FPREM1',
+       'FPTAN',
+       'FSCALE',
+       'FSIN',
+       'FSINCOS',
+       'FSQRT',
+       'FSUB/FSUBP/FISUB',
       ]
     return processedInstructions.include?(instruction)
   end

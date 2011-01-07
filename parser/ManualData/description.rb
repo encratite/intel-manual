@@ -321,6 +321,10 @@ class ManualData
        ['’', "'"],
        ['+=', '+&infin;'],
        ['-=', '-&infin;'],
+
+       ['<p>NOTES:</p>', "<ul>\n<li class=\"notes\">Notes:</li>"],
+       ['<p>FMeans finite floating-point value.</p>', '<li>F means finite floating-point value.</li>'],
+       [/<p>(\* Indicates floating-point.+?)<\/p>/, lambda { |x| "<li>#{x}</li>" }],
       ]
 
     debugString = nil

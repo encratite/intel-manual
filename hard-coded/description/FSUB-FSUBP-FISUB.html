@@ -1,0 +1,107 @@
+<p>Subtracts the source operand from the destination operand and stores the difference in the destination location. The destination operand is always an FPU data register; the source operand can be a register or a memory location. Source operands in memory can be in single-precision or double-precision floating-point format or in word or doubleword integer format.</p>
+<p>The no-operand version of the instruction subtracts the contents of the ST(0) register from the ST(1) register and stores the result in ST(1). The one-operand version subtracts the contents of a memory location (either a floating-point or an integer value) from the contents of the ST(0) register and stores the result in ST(0). The two-operand version, subtracts the contents of the ST(0) register from the ST(i) register or vice versa.</p>
+<p>The FSUBP instructions perform the additional operation of popping the FPU register stack following the subtraction. To pop the register stack, the processor marks the ST(0) register as empty and increments the stack pointer (TOP) by 1. The no-operand version of the floating-point subtract instructions always results in the register stack being popped. In some assemblers, the mnemonic for this instruction is FSUB rather than FSUBP.</p>
+<p>The FISUB instructions convert an integer source operand to double extended-precision floating-point format before performing the subtraction.</p>
+<p>Table 3-43 shows the results obtained when subtracting various classes of numbersfrom one another, assuming that neither overflow nor underflow occurs. Here, the SRC value is subtracted from the DEST value (DEST - SRC = result).</p>
+<p>When the difference between two operands of like sign is 0, the result is +0, except for the round toward -∞ mode, in which case the result is -0. This instruction also guarantees that +0 - (-0) =+0, and that -0 - (+0) =-0. When the source operand is an integer 0, it is treated as a +0.</p>
+<p>When one operand is ∞, the result is ∞ of the expected sign. If both operands are ∞ of the same sign, an invalid-operation exception is generated.</p>
+<table>
+  <caption>FSUB/FSUBP/FISUB Results</caption>
+  <tr>
+    <th colspan="2">DEST</th>
+  </tr>
+  <tr>
+    <th>SRC</th>
+    <td>
+      <table>
+        <tr>
+          <td />
+          <td>- &infin;</td>
+          <td>- F</td>
+          <td>- 0</td>
+          <td>+ 0</td>
+          <td>+ F</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>- &infin;</td>
+          <td>- &infin;</td>
+          <td>- &infin;</td>
+          <td>- &infin;</td>
+          <td>- &infin;</td>
+          <td>- &infin;</td>
+          <td>*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-F or -I</td>
+          <td>- &infin;</td>
+          <td>- F</td>
+          <td>SRC</td>
+          <td>SRC</td>
+          <td>&plusmn; F or &plusmn; 0</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>- 0</td>
+          <td>- &infin;</td>
+          <td>DEST</td>
+          <td>- 0</td>
+          <td>&plusmn; 0</td>
+          <td>DEST</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+ 0</td>
+          <td>- &infin;</td>
+          <td>DEST</td>
+          <td>&plusmn; 0</td>
+          <td>+ 0</td>
+          <td>DEST</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+ F or + I</td>
+          <td>- &infin;</td>
+          <td>&plusmn; F or &plusmn; 0</td>
+          <td>SRC</td>
+          <td>SRC</td>
+          <td>+ F</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+ &infin;</td>
+          <td>*</td>
+          <td>+ &infin;</td>
+          <td>+ &infin;</td>
+          <td>+ &infin;</td>
+          <td>+ &infin;</td>
+          <td>+ &infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>F Means finite floating-point value.</li>
+  <li>I Means integer.</li>
+  <li>* Indicates floating-point invalid-arithmetic-operand (#IA) exception.</li>
+</ul>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

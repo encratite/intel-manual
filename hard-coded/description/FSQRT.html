@@ -1,0 +1,43 @@
+<p>Computes the square root of the source value in the ST(0) register and stores the result in ST(0).</p>
+<p>The following table shows the results obtained when taking the square root of various classes of numbers, assuming that neither overflow nor underflow occurs.</p>
+<table>
+<caption>FSQRT Results</caption>
+<tr>
+<th>SRC (ST(0))</th>
+<th>DEST (ST(0))</th>
+</tr>
+<tr>
+<td>-&infin;</td>
+<td>*</td>
+</tr>
+<tr>
+<td>- F</td>
+<td>*</td>
+</tr>
+<tr>
+<td>- 0</td>
+<td>- 0</td>
+</tr>
+<tr>
+<td>+ 0</td>
+<td>+ 0</td>
+</tr>
+<tr>
+<td>+ F</td>
+<td>+ F</td>
+</tr>
+<tr>
+<td>+&infin;</td>
+<td>+&infin;</td>
+</tr>
+<tr>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</table>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>F means finite floating-point value</li>
+  <li>* Indicates floating-point invalid-arithmetic-operand (#IA) exception.</li>
+</ul>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

@@ -9,7 +9,7 @@ def performReplacements(string)
      ["\uF020", ''],
      ["\uF02F", '/'],
      ["\uF070", '&pi;'],
-     ["\uF0B1F", '&plusmn;'],
+     ["\uF0B1", '&plusmn;'],
      [';*', '; *'],
      ['*+', '* +'],
      ['- F', '-F'],
