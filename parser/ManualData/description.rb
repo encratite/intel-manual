@@ -316,6 +316,8 @@ class ManualData
 
        ['&apos;', "'"],
        ['&quot;', '"'],
+       ['&lt;=', '&le'],
+       ['&gt;=', '&ge'],
       ]
 
     debugString = nil

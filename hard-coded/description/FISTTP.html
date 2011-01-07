@@ -1,0 +1,40 @@
+<p>FISTTP converts the value in ST into a signed integer using truncation (chop) as rounding mode, transfers the result to the destination, and pop ST. FISTTP accepts word, short integer, and long integer destinations.</p>
+<p>The following table shows the results obtained when storing various classes of numbers in integer format.</p>
+<table>
+<caption>FISTTP Results</caption>
+<tr>
+<th>ST(0)</th>
+<th>DEST</th>
+</tr>
+<tr>
+<td>-&infin; or Value Too Large for DEST Format</td>
+<td>*</td>
+</tr>
+<tr>
+<td>F &le; - 1</td>
+<td>- I</td>
+</tr>
+<tr>
+<td>- 1 &lt; F &lt; + 1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>F &ge; + 1</td>
+<td>+ I</td>
+</tr>
+<tr>
+<td>+&infin; or Value Too Large for DEST Format</td>
+<td>*</td>
+</tr>
+<tr>
+<td>NaN</td>
+<td>*</td>
+</tr>
+</table>
+<ul>
+  <li class="notes">Notes</li>
+  <li>F means finite floating-point value.</li>
+  <li>I means integer.</li>
+  <li>Indicates floating-point invalid-operation (#IA) exception.</li>
+</ul>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

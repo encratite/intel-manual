@@ -49,7 +49,7 @@
   <li>F refers to a finite floating-point value.</li>
   <li>D refers to packed-BCD number.</li>
   <li>* Indicates floating-point invalid-operation (#IA) exception.</li>
-  <li>** &#177;0 or &#177;1, depending on the rounding mode.</li>
+  <li>** &plusmn;0 or &plusmn;1, depending on the rounding mode.</li>
 </ul>
 <p>If the converted value is too large for the destination format, or if the source operand is an ∞, SNaN, QNAN, or is in an unsupported format, an invalid-arithmetic-operand condition is signaled. If the invalid-operation exception is not masked, an invalidarithmetic-operand exception (#IA) is generated and no value is stored in the desti-nation operand. If the invalid-operation exception is masked, the packed BCD indefinite value is stored in memory.</p>
 <p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>
