@@ -27,14 +27,14 @@ class ManualData
 
   attr_accessor :debugOutputPath
 
-  def initialize
+  def initialize(debugInstruction = nil)
     @instructions = []
     @html = HTMLEntities.new
     @output = ''
     @tableCount = 0
     @imageCount = 0
 
-    @focusInstruction = 'F2XM1'
+    @focusInstruction = debugInstruction
     @active = true
   end
 

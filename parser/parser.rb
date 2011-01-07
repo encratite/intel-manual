@@ -11,10 +11,11 @@ end
 outputPath = ARGV[0]
 debugOutputPath = ARGV[1]
 inputPaths = ARGV[2..-1]
+debugInstruction = 'FADD/FADDP/FIADD'
 
 begin
   totalSize = 0
-  manualData = ManualData.new
+  manualData = ManualData.new(debugInstruction)
   manualData.debugOutputPath = debugOutputPath
   inputPaths.each do |path|
     puts "Processing #{path}"

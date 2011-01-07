@@ -14,6 +14,8 @@ class ManualData
        'CPUID',
        'DIV',
        'F2XM1',
+       'FABS',
+       'FADD/FADDP/FIADD',
       ]
     return processedInstructions.include?(instruction)
   end
