@@ -19,6 +19,7 @@ class ManualData
        'FBSTP',
        'FCHS',
        'FCOMI/FCOMIP/FUCOMI/FUCOMIP',
+       'FDIV/FDIVP/FIDIV',
       ]
     return processedInstructions.include?(instruction)
   end

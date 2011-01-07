@@ -1,5 +1,3 @@
-Warning for instruction "FDIV/FDIVP/FIDIV": References a table at index 1779
-Warning for instruction "FDIV/FDIVP/FIDIV": Detected a figure
 Warning for instruction "FDIVR/FDIVRP/FIDIVR": References a table at index 1874
 Warning for instruction "FDIVR/FDIVRP/FIDIVR": Detected a figure
 Warning for instruction "FICOM/FICOMP": References a table at index 302
