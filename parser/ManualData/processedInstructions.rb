@@ -23,6 +23,8 @@ class ManualData
        'FDIVR/FDIVRP/FIDIVR',
        'FISTTP',
        'FMUL/FMULP/FIMUL',
+       'FPREM',
+       'FPREM1',
       ]
     return processedInstructions.include?(instruction)
   end

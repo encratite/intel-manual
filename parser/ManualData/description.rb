@@ -319,6 +319,8 @@ class ManualData
        ['&lt;=', '&le'],
        ['&gt;=', '&ge'],
        ['’', "'"],
+       ['+=', '+&infin;'],
+       ['-=', '-&infin;'],
       ]
 
     debugString = nil

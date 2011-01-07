@@ -1,7 +1,3 @@
-Warning for instruction "FPREM": References a table at index 899
-Warning for instruction "FPREM": Detected a figure
-Warning for instruction "FPREM1": References a table at index 887
-Warning for instruction "FPREM1": Detected a figure
 Warning for instruction "FPTAN": References a table at index 384
 Warning for instruction "FSCALE": References a table at index 491
 Warning for instruction "FSCALE": Detected a figure

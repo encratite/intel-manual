@@ -1,0 +1,105 @@
+<p>Truncates the value in the source operand (toward 0) to an integral value and adds that value to the exponent of the destination operand. The destination and source operands are floating-point values located in registers ST(0) and ST(1), respectively. This instruction provides rapid multiplication or division by integral powers of 2. The following table shows the results obtained when scaling various classes of numbers, assuming that neither overflow nor underflow occurs.</p>
+<table>
+  <caption>FSCALE Results</caption>
+  <tr>
+    <th colspan="2">DEST</th>
+  </tr>
+  <tr>
+    <th>SRC</th>
+    <td>
+      <table>
+        <tr>
+          <td />
+          <td>-&infin;</td>
+          <td>-F</td>
+          <td>-0</td>
+          <td>+0</td>
+          <td>+F</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-&infin;</td>
+          <td>NaN</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-F</td>
+          <td>-0</td>
+          <td>-F</td>
+          <td>-F</td>
+          <td>-F</td>
+          <td>-F</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+F</td>
+          <td>+0</td>
+          <td>+F</td>
+          <td>+F</td>
+          <td>+F</td>
+          <td>+F</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+&infin;</td>
+          <td>NaN</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>F means finite floating-point value</li>
+</ul>
+<p>In most cases, only the exponent is changed and the mantissa (significand) remains unchanged. However, when the value being scaled in ST(0) is a denormal value, the mantissa is also changed and the result may turn out to be a normalized number. Similarly, if overflow or underflow results from a scale operation, the resulting mantissa will differ from the source's mantissa.</p>
+<p>The FSCALE instruction can also be used to reverse the action of the FXTRACT instruction, as shown in the following example:</p>
+<pre>FXTRACT;
+FSCALE;
+FSTP ST(1);</pre>
+<p>In this example, the FXTRACT instruction extracts the significand and exponent from the value in ST(0) and stores them in ST(0) and ST(1) respectively. The FSCALE then scales the significand in ST(0) by the exponent in ST(1), recreating the original value before the FXTRACT operation was performed. The FSTP ST(1) instruction overwrites the exponent (extracted by the FXTRACT instruction) with the recreated value, which returns the stack to its original state with only one register [ST(0)] occupied.</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>
