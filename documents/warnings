@@ -1,6 +1,3 @@
-Warning for instruction "FISTTP": References a table at index 345
-Warning for instruction "FMUL/FMULP/FIMUL": References a table at index 1944
-Warning for instruction "FMUL/FMULP/FIMUL": Detected a figure
 Warning for instruction "FPATAN": References a table at index 994
 Warning for instruction "FPATAN": Detected a figure
 Warning for instruction "FPREM": References a table at index 899

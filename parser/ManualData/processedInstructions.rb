@@ -21,6 +21,8 @@ class ManualData
        'FCOMI/FCOMIP/FUCOMI/FUCOMIP',
        'FDIV/FDIVP/FIDIV',
        'FDIVR/FDIVRP/FIDIVR',
+       'FISTTP',
+       'FMUL/FMULP/FIMUL',
       ]
     return processedInstructions.include?(instruction)
   end

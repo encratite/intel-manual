@@ -1,0 +1,96 @@
+<p>Computes the arctangent of the source operand in register ST(1) divided by the source operand in register ST(0), stores the result in ST(1), and pops the FPU register stack. The result in register ST(0) has the same sign as the source operand ST(1) and a magnitude less than +π.</p>
+<p>The FPATAN instruction returns the angle between the X axis and the line from the origin to the point (X,Y), where Y (the ordinate) is ST(1) and X (the abscissa) is ST(0). The angle depends on the sign of X and Y independently, not just on the sign of the ratio Y/X. This is because a point (-X,Y) is in the second quadrant, resulting in an angle between π/2 and π, while a point (X,-Y) is in the fourth quadrant, resulting in an angle between 0 and -π/2. A point (-X,-Y) is in the third quadrant, giving an angle between -π/2 and -π.</p>
+<p>The following table shows the results obtained when computing the arctangent of various classes of numbers, assuming that underflow does not occur.</p>
+<table>
+  <caption>FPATAN Results</caption>
+  <tr>
+    <th colspan="2">DEST</th>
+  </tr>
+  <tr>
+    <th>SRC</th>
+    <td>
+      <table>
+        <tr>
+          <td />
+          <td>-&infin;</td>
+          <td>-F</td>
+          <td>-0</td>
+          <td>+0</td>
+          <td>+F</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-&infin;</td>
+          <td>-3&pi;/4*</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/4*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-F</td>
+          <td>-p</td>
+          <td>-&pi; to -&pi;/2</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/2</td>
+          <td>-&pi;/2 to -0</td>
+          <td>-0</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-0</td>
+          <td>-p</td>
+          <td>-p</td>
+          <td>-p*</td>
+          <td>-0*</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+0</td>
+          <td>+p+</td>
+          <td>p</td>
+          <td>+&pi;*</td>
+          <td>+0*</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+F</td>
+          <td>+p</td>
+          <td>+&pi; to +&pi;/2</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/2 to +0</td>
+          <td>+0</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+&infin;</td>
+          <td>+3&pi;/4*</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/2</td>
+          <td>+&pi;/4*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
