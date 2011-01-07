@@ -10,6 +10,10 @@ class ManualData
        'CMPPD',
        'CMPPS',
        'CMPSS',
+       #phew.
+       'CPUID',
+       'DIV',
+       'F2XM1',
       ]
     return processedInstructions.include?(instruction)
   end

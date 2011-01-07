@@ -34,7 +34,7 @@ class ManualData
     @tableCount = 0
     @imageCount = 0
 
-    @focusInstruction = 'CPUID'
+    @focusInstruction = 'F2XM1'
     @active = true
   end
 

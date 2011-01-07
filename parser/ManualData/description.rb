@@ -304,6 +304,18 @@ class ManualData
        ["</table>\n<table>\n<tr>\n<th>Predicate</th>\n<th>imm8 Encoding</th>\n<th>Description</th>\n<th>Relation where: A Is 1st Operand B Is 2nd Operand</th>\n<th>Emulation</th>\n<th>Result if NaN Operand</th>\n<th>QNaN Oper-and Signals Invalid</th>\n</tr>\n", ''],
        ["</table>\n<table>\n<tr>\n<td>Pseudo-Op</td>\n<td>CMPPD Implementation</td>\n</tr>\n", ''],
        ['Table 3-11', '"Pseudo-Ops and CMPSS"'],
+
+       [/<p>Table \d+-\d+\. +([^<]+?)<\/p>\n(<table>)/, lambda { |x| "#{x[2]}\n<caption>#{x[1]}</caption>" }],
+       [/<tr>\n<th>quadword<\/th>.+?<\/tr>\n/m, '', 'DIV'],
+       ['<th>Doublequadword/</th>', '<th>Doublequadword/quadword</th>', 'DIV'],
+       ['See Table 3-20', 'See the following table', 'DIV'],
+       ['232', '2<sup>32</sup>', 'DIV'],
+       ['264', '2<sup>64</sup>', 'DIV'],
+
+       ['xy = 2(y * log2x)', 'x <sup>y</sup> = 2 <sup>(y * log <inf>2</inf> x)</sup>', 'F2XM1'],
+
+       ['&apos;', "'"],
+       ['&quot;', '"'],
       ]
 
     debugString = nil

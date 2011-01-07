@@ -1,0 +1,110 @@
+Warning for instruction "DIV": References a table at index 1114
+Warning for instruction "F2XM1": References a table at index 495
+Warning for instruction "FABS": References a table at index 199
+Warning for instruction "FADD/FADDP/FIADD": References a table at index 1948
+Warning for instruction "FADD/FADDP/FIADD": Detected a figure
+Warning for instruction "FBSTP": References a table at index 749
+Warning for instruction "FCHS": References a table at index 246
+Warning for instruction "FCOMI/FCOMIP/FUCOMI/FUCOMIP": References a table at index 280
+Warning for instruction "FDIV/FDIVP/FIDIV": References a table at index 1779
+Warning for instruction "FDIV/FDIVP/FIDIV": Detected a figure
+Warning for instruction "FDIVR/FDIVRP/FIDIVR": References a table at index 1874
+Warning for instruction "FDIVR/FDIVRP/FIDIVR": Detected a figure
+Warning for instruction "FICOM/FICOMP": References a table at index 302
+Warning for instruction "FIST/FISTP": References a table at index 736
+Warning for instruction "FISTTP": References a table at index 345
+Warning for instruction "FMUL/FMULP/FIMUL": References a table at index 1944
+Warning for instruction "FMUL/FMULP/FIMUL": Detected a figure
+Warning for instruction "FPATAN": References a table at index 994
+Warning for instruction "FPATAN": Detected a figure
+Warning for instruction "FPREM": References a table at index 899
+Warning for instruction "FPREM": Detected a figure
+Warning for instruction "FPREM1": References a table at index 887
+Warning for instruction "FPREM1": Detected a figure
+Warning for instruction "FPTAN": References a table at index 384
+Warning for instruction "FSCALE": References a table at index 491
+Warning for instruction "FSCALE": Detected a figure
+Warning for instruction "FSIN": References a table at index 331
+Warning for instruction "FSINCOS": References a table at index 517
+Warning for instruction "FSQRT": References a table at index 281
+Warning for instruction "FSUB/FSUBP/FISUB": References a table at index 1429
+Warning for instruction "FSUB/FSUBP/FISUB": Detected a figure
+Warning for instruction "FSUBR/FSUBRP/FISUBR": References a table at index 2285
+Warning for instruction "FSUBR/FSUBRP/FISUBR": Detected a figure
+Warning for instruction "FTST": References a table at index 180
+Warning for instruction "FUCOM/FUCOMP/FUCOMPP": References a table at index 351
+Warning for instruction "FXRSTOR": References a table at index 574
+Warning for instruction "FXSAVE": References a table at index 552
+Warning for instruction "FYL2X": References a table at index 341
+Warning for instruction "FYL2X": Detected a figure
+Warning for instruction "FYL2XP1": References a table at index 874
+Warning for instruction "FYL2XP1": Detected a figure
+Warning for instruction "HADDPD": Detected a figure
+Warning for instruction "HADDPD": Detected leaked image data
+Warning for instruction "HADDPS": Detected a figure
+Warning for instruction "HADDPS": Detected leaked image data
+Warning for instruction "HSUBPD": Detected a figure
+Warning for instruction "HSUBPD": Detected leaked image data
+Warning for instruction "HSUBPS": Detected a figure
+Warning for instruction "HSUBPS": Detected leaked image data
+Warning for instruction "IDIV": References a table at index 1032
+Warning for instruction "INT n/INTO/INT 3": References a table at index 3741
+Warning for instruction "LAR": References a table at index 1885
+Warning for instruction "LGDT/LIDT": References a table at index 1472
+Warning for instruction "LSL": References a table at index 2722
+Warning for instruction "MOVDDUP": Detected a figure
+Warning for instruction "MOVDDUP": Detected leaked image data
+Warning for instruction "MOVSHDUP": Detected a figure
+Warning for instruction "MOVSHDUP": Detected leaked image data
+Warning for instruction "MOVSLDUP": Detected a figure
+Warning for instruction "MOVSLDUP": Detected leaked image data
+Warning for instruction "MUL": References a table at index 500
+Warning for instruction "MWAIT": References a table at index 4163
+
+Warning for instruction "PCLMULQDQ": References a table at index 256
+Warning for instruction "PCMPESTRI": References a table at index 1733
+Warning for instruction "PCMPESTRM": References a table at index 1712
+Warning for instruction "PCMPISTRI": References a table at index 1441
+Warning for instruction "PCMPISTRM": References a table at index 1457
+Warning for instruction "PMADDWD": Detected a figure
+Warning for instruction "PMULHUW": References a table at index 710
+Warning for instruction "PMULLW": References a table at index 704
+Warning for instruction "PSADBW": Detected a figure
+Warning for instruction "PSHUFD": Detected a figure
+Warning for instruction "PSLLW/PSLLD/PSLLQ": Detected a figure
+Warning for instruction "PSRAW/PSRAD": Detected a figure
+Warning for instruction "PSRLW/PSRLD/PSRLQ": Detected a figure
+Warning for instruction "PUNPCKHBW/PUNPCKHWD/PUNPCKHDQ/PUNPCKHQDQ": Detected a figure
+Warning for instruction "PUNPCKLBW/PUNPCKLWD/PUNPCKLDQ/PUNPCKLQDQ": Detected a figure
+Warning for instruction "RDPMC": References a table at index 2076
+Warning for instruction "REP/REPE/REPZ/REPNE/REPNZ": References a table at index 1022
+Warning for instruction "ROUNDPD": References a table at index 737
+Warning for instruction "ROUNDPS": References a table at index 737
+Warning for instruction "ROUNDSD": References a table at index 837
+Warning for instruction "ROUNDSS": References a table at index 864
+Warning for instruction "SGDT": References a table at index 929
+Warning for instruction "SHUFPD": References a table at index 465
+Warning for instruction "SHUFPD": Detected a figure
+Warning for instruction "SHUFPS": References a table at index 509
+Warning for instruction "SHUFPS": Detected a figure
+Warning for instruction "SIDT": References a table at index 919
+Warning for instruction "STI": References a table at index 1059
+Warning for instruction "SWAPGS": References a table at index 1416
+Warning for instruction "SYSENTER": References a table at index 1326
+Warning for instruction "SYSEXIT": References a table at index 1421
+Warning for instruction "UNPCKHPD": Detected a figure
+Warning for instruction "UNPCKHPS": Detected a figure
+Warning for instruction "UNPCKLPD": References a table at index 341
+Warning for instruction "UNPCKLPD": Detected a figure
+Warning for instruction "UNPCKLPS": References a table at index 374
+Warning for instruction "UNPCKLPS": Detected a figure
+Warning for instruction "XRSTOR": References a table at index 294
+Warning for instruction "XSAVE": References a table at index 615
+Warning for instruction "INVEPT": Detected a figure
+Warning for instruction "INVVPID": Detected a figure
+Warning for instruction "GETSEC[CAPABILITIES]": References a table at index 655
+Warning for instruction "GETSEC[ENTERACCS]": References a table at index 10082
+Warning for instruction "GETSEC[SENTER]": References a table at index 13550
+Warning for instruction "GETSEC[PARAMETERS]": References a table at index 636
+Warning for instruction "GETSEC[SMCTRL]": References a table at index 715
+Warning for instruction "GETSEC[WAKEUP]": References a table at index 1717
