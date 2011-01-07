@@ -16,6 +16,7 @@ class ManualData
        'F2XM1',
        'FABS',
        'FADD/FADDP/FIADD',
+       'FBSTP',
       ]
     return processedInstructions.include?(instruction)
   end
