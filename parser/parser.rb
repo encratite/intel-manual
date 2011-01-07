@@ -11,7 +11,7 @@ end
 outputPath = ARGV[0]
 debugOutputPath = ARGV[1]
 inputPaths = ARGV[2..-1]
-debugInstruction = 'FDIV/FDIVP/FIDIV'
+debugInstruction = 'FDIVR/FDIVRP/FIDIVR'
 
 begin
   totalSize = 0

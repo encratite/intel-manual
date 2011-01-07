@@ -20,6 +20,7 @@ class ManualData
        'FCHS',
        'FCOMI/FCOMIP/FUCOMI/FUCOMIP',
        'FDIV/FDIVP/FIDIV',
+       'FDIVR/FDIVRP/FIDIVR',
       ]
     return processedInstructions.include?(instruction)
   end
