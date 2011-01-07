@@ -49,7 +49,7 @@
   <li>F means finite floating-point value.</li>
   <li>I means integer.</li>
   <li>* Indicates floating-point invalid-operation (#IA) exception.</li>
-  <li>** 0 or &#177;1, depending on the rounding mode.</li>
+  <li>** 0 or &plusmn;1, depending on the rounding mode.</li>
 </ul>
 <p>If the source value is a non-integral value, it is rounded to an integer value, according to the rounding mode specified by the RC field of the FPU control word.</p>
 <p>If the converted value is too large for the destination format, or if the source operand is an ∞, SNaN, QNAN, or is in an unsupported format, an invalid-arithmetic-operand condition is signaled. If the invalid-operation exception is not masked, an invalidarithmetic-operand exception (#IA) is generated and no value is stored in the destination operand. If the invalid-operation exception is masked, the integer indefinite value is stored in memory.</p>
