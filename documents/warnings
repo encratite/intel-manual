@@ -1,11 +1,3 @@
-Warning for instruction "HADDPD": Detected a figure
-Warning for instruction "HADDPD": Detected leaked image data
-Warning for instruction "HADDPS": Detected a figure
-Warning for instruction "HADDPS": Detected leaked image data
-Warning for instruction "HSUBPD": Detected a figure
-Warning for instruction "HSUBPD": Detected leaked image data
-Warning for instruction "HSUBPS": Detected a figure
-Warning for instruction "HSUBPS": Detected leaked image data
 Warning for instruction "IDIV": References a table at index 1032
 Warning for instruction "INT n/INTO/INT 3": References a table at index 3741
 Warning for instruction "LAR": References a table at index 1885

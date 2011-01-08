@@ -38,6 +38,10 @@ class ManualData
        'FXSAVE',
        'FYL2X',
        'FYL2XP1',
+       'HADDPD',
+       'HADDPS',
+       'HSUBPD',
+       'HSUBPS',
       ]
     return processedInstructions.include?(instruction)
   end
