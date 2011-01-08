@@ -1,16 +1,14 @@
 <p>Performs a full or partial restore of the enabled processor states using the state information stored in the memory address specified by the source operand. The implicit EDX:EAX register pair specifies a 64-bit restore mask.</p>
 <p>The format of the XSAVE/XRSTOR area is shown in Table 4-18. The memory layout ofthe XSAVE/XRSTOR area may have holes between save areas written by the processor as a result of the processor not supporting certain processor extended states or system software not supporting certain processor extended states.</p>
 <table>
-<caption>
-<p>Table 4-18.  General Layout of XSAVE/XRSTOR Save Area</p>
-</caption>
+<caption>General Layout of the XSAVE/XRSTOR Save Area</caption>
 <tr>
 <th>Save Areas</th>
 <th>Offset (Byte)</th>
 <th>Size (Bytes)</th>
 </tr>
 <tr>
-<td>FPU/SSE SaveArea1</td>
+<td>FPU/SSE SaveArea<sup>1</sup></td>
 <td>0</td>
 <td>512</td>
 </tr>
@@ -40,59 +38,48 @@
 <td>...</td>
 </tr>
 </table>
-<p>NOTES:</p>
-<p>1. Bytes 464:511 are available for software use. XRSTOR ignores the value contained in bytes</p>
-<p>464:511 of an XSAVE SAVE image.</p>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>1. Bytes 464:511 are available for software use. XRSTOR ignores the value contained in bytes 464:511 of an XSAVE SAVE image.</li>
+</ul>
 <p>XRSTOR operates on each subset of the processor state or a processor extended state in one of three ways (depending on the corresponding bit in the XFEATURE_ENABLED_MASK register (XCR0), the restore mask EDX:EAX, and the save mask XSAVE.HEADER.XSTATE_BV in memory):</p>
 <ul>
 <li>Updates the processor state component using the state information stored in the respective save area (see Table 4-18) of the source operand, if the correspondingbit in XCR0, EDX:EAX, and XSAVE.HEADER.XSTATE_BV are all 1.</li>
-<li>Writes certain registers in the processor state component using processor-supplied values (see Table 4-20) without using state information stored inrespective save area of the memory region, if the corresponding bit in XCR0 and EDX:EAX are both 1, but the corresponding bit in XSAVE.HEADER.XSTATE_BV is </li>
+<li>Writes certain registers in the processor state component using processor-supplied values (see Table 4-20) without using state information stored inrespective save area of the memory region, if the corresponding bit in XCR0 and EDX:EAX are both 1, but the corresponding bit in XSAVE.HEADER.XSTATE_BV is 0.</li>
+<li>The processor state component is unchanged, if the corresponding bit in XCR0 or EDX:EAX is 0.</li>
 </ul>
-<p>0.</p>
-<p>= The processor state component is unchanged, if the corresponding bit in XCR0 or EDX:EAX is 0.</p>
-<p>The format of the header section (XSAVE.HEADER) of the XSAVE/XRSTOR area is shown in Table 4-19.</p>
+<p>The format of the header section (XSAVE.HEADER) of the XSAVE/XRSTOR area is shown in the following table.</p>
 <table>
-<caption>
-<p>Table 4-19. XSAVE.HEADER Layout</p>
-</caption>
+<caption>XSAVE.HEADER Layout</caption>
 <tr>
-<td>15 8</td>
-<td>7 0</td>
-<td>Byte Offset from Header</td>
-<td>Byte Offset from XSAVE/XRSTOR Area</td>
-</tr>
-<tr>
-<td>Rsrvd (Must be 0)</td>
-<td>XSTATE_BV</td>
-<td>0</td>
-<td>512</td>
-</tr>
-<tr>
-<td>Reserved</td>
-<td>Rsrvd (Must be 0)</td>
-<td>16</td>
-<td>528</td>
-</tr>
-</table>
-<table>
-<caption>
-<p>Table 4-19. XSAVE.HEADER Layout (Contd.)</p>
-</caption>
-<tr>
-<th>15 8</th>
-<th>7 0</th>
+<th>15</th>
+<th>8</th>
+<th>7</th>
+<th>0</th>
 <th>Byte Offset from Header</th>
 <th>Byte Offset from XSAVE/XRSTOR Area</th>
 </tr>
 <tr>
-<td>Reserved</td>
-<td>Reserved</td>
+<td colspan="2">Rsrvd (Must be 0)</td>
+<td colspan="2">XSTATE_BV</td>
+<td>0</td>
+<td>512</td>
+</tr>
+<tr>
+<td colspan="2">Reserved</td>
+<td colspan="2">Rsrvd (Must be 0)</td>
+<td>16</td>
+<td>528</td>
+</tr>
+<tr>
+<td colspan="2">Reserved</td>
+<td colspan="2">Reserved</td>
 <td>32</td>
 <td>544</td>
 </tr>
 <tr>
-<td>Reserved</td>
-<td>Reserved</td>
+<td colspan="2">Reserved</td>
+<td colspan="2">Reserved</td>
 <td>48</td>
 <td>560</td>
 </tr>
@@ -101,9 +88,7 @@
 <p>An attempt to restore processor states with writing 1s to reserved bits in certain registers (see Table 4-21) will cause a #GP(0) exception.</p>
 <p>Because bit 63 of the XFEATURE_ENABLED_MASK register is reserved for future bit vector expansion, it will not be used for any future processor state feature, and XRSTOR will ignore bit 63 of EDX:EAX (EDX[31].</p>
 <table>
-<caption>
-<p>Table 4-20.  Processor Supplied Init Values XRSTOR May Use</p>
-</caption>
+<caption>Processor Supplied Init Values XRSTOR May Use</caption>
 <tr>
 <th>Processor State Component</th>
 <th>Processor Supplied Register Values</th>
@@ -117,12 +102,12 @@
 <td>If 64-bit Mode: XMM0-XMM15 = 0H; Else XMM0-XMM7 = 0H</td>
 </tr>
 </table>
-<p>NOTES:</p>
-<p>1. MXCSR state is not updated by processor supplied values. MXCSR state can only be updated by XRSTOR from state information stored in XSAVE/XRSTOR area.</p>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>1. MXCSR state is not updated by processor supplied values. MXCSR state can only be updated by XRSTOR from state information stored in XSAVE/XRSTOR area.</li>
+</ul>
 <table>
-<caption>
-<p>Table 4-21. Reserved Bit Checking and XRSTOR</p>
-</caption>
+<caption>Reserved Bit Checking and XRSTOR</caption>
 <tr>
 <th>Processor State Component</th>
 <th>Reserved Bit Checking</th>
@@ -137,4 +122,3 @@
 </tr>
 </table>
 <p>A source operand not aligned to 64-byte boundary (for 64-bit and 32-bit modes) will result in a general-protection (#GP) exception. In 64-bit mode, the upper 32 bits of RDX and RAX are ignored.</p>
-<p>XRSTOR—Restore Processor Extended States Vol. 2B 4-555</p>

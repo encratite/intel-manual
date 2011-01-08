@@ -2,50 +2,44 @@
 <p>When using SYSCALL to implement system calls, there is no kernel stack at the OS entry point. Neither is there a straightforward method to obtain a pointer to kernel structures from which the kernel stack pointer could be read. Thus, the kernel can't save general purpose registers or reference memory.</p>
 <p>By design, SWAPGS does not require any general purpose registers or memory operands. No registers need to be saved before using the instruction. SWAPGS exchanges the CPL 0 data pointer from the KernelGSbase MSR with the GS base register. The kernel can then use the GS prefix on normal memory references to access kernel data structures. Similarly, when the OS kernel is entered using an interrupt or exception (where the kernel stack is already set up), SWAPGS can be used to quickly get a pointer to the kernel data structures.</p>
 <p>The KernelGSbase MSR itself is only accessible using RDMSR/WRMSR instructions. Those instructions are only accessible at privilege level 0. WRMSR will cause a #GP(0) if the value to be written to KernelGSbase MSR is non-canonical.</p>
-<p>See Table 4-16.</p>
+<p>See the following table.</p>
 <table>
-<caption>
-<p>Table 4-16. SWAPGS Operation Parameters</p>
-</caption>
-<tr>
-<th>Opcode</th>
-<th />
-<th>ModR/M Byte</th>
-<th />
-<th>Instruction</th>
-</tr>
-<tr>
-<th />
-<td>MOD</td>
-<td>REG</td>
-<td />
-<td>R/M</td>
-<td>Not 64-bit Mode</td>
-<td>64-bit Mode</td>
-</tr>
-<tr>
-<th>OF 01</th>
-<td>MOD != 11</td>
-<td>111</td>
-<td />
-<td>xxx</td>
-<td>INVLPG</td>
-<td>INVLPG</td>
-</tr>
-<tr>
-<td>11</td>
-<td>111</td>
-<td />
-<td>000</td>
-<td>#UD</td>
-<td>SWAPGS</td>
-</tr>
-<tr>
-<td>11</td>
-<td>111</td>
-<td />
-<td>!= 000</td>
-<td>#UD</td>
-<td>#UD</td>
-</tr>
+  <caption>SWAPGS Operation Parameters</caption>
+  <tr>
+    <th>Opcode</th>
+    <th colspan="3">ModR/M Byte</th>
+    <th colspan="2">Instruction</th>
+  </tr>
+  <tr>
+    <th />
+    <td>MOD</td>
+    <td>REG</td>
+    <td>R/M</td>
+    <td>Not 64-bit Mode</td>
+    <td>64-bit Mode</td>
+  </tr>
+  <tr>
+    <td>OF 01</td>
+    <td>MOD &ne; 11</td>
+    <td>111</td>
+    <td>xxx</td>
+    <td>INVLPG</td>
+    <td>INVLPG</td>
+  </tr>
+  <tr>
+    <td />
+    <td>11</td>
+    <td>111</td>
+    <td>000</td>
+    <td>#UD</td>
+    <td>SWAPGS</td>
+  </tr>
+  <tr>
+    <td />
+    <td>11</td>
+    <td>111</td>
+    <td>&ne; 000</td>
+    <td>#UD</td>
+    <td>#UD</td>
+  </tr>
 </table>

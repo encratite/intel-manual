@@ -5,14 +5,12 @@
 <li>IA32_SYSENTER_EIP — Contains the 32-bit offset into the privilege level 0 code segment to the first instruction of the selected operating procedure or routine.</li>
 <li>IA32_SYSENTER_ESP — Contains the 32-bit stack pointer for the privilege level 0 stack.</li>
 </ul>
-<p>These MSRs can be read from and written to using RDMSR/WRMSR. Register addresses are listed in Table 4-17. The addresses are defined to remain fixed forfuture Intel 64 and IA-32 processors.</p>
+<p>These MSRs can be read from and written to using RDMSR/WRMSR. Register addresses are listed in the following table. The addresses are defined to remain fixed for future Intel 64 and IA-32 processors.</p>
 <table>
-<caption>
-<p>Table 4-17. MSRs Used By the SYSENTER and SYSEXIT Instructions</p>
-</caption>
+<caption>MSRs Used By the SYSENTER and SYSEXIT Instructions</caption>
 <tr>
-<td>MSR</td>
-<td>Address</td>
+<th>MSR</th>
+<th>Address</th>
 </tr>
 <tr>
 <td>IA32_SYSENTER_CS</td>
@@ -51,6 +49,14 @@
 <li>The fast system call "stub" routines executed by user code (typically in shared libraries or DLLs) must save the required return IP and processor state information if a return to the calling procedure is required. Likewise, the operating system or executive procedures called with SYSENTER instructions must have access to and use this saved return and state information when returning to the user code.</li>
 </ul>
 <p>The SYSENTER and SYSEXIT instructions were introduced into the IA-32 architecture in the Pentium II processor. The availability of these instructions on a processor is indicated with the SYSENTER/SYSEXIT present (SEP) feature flag returned to the EDX register by the CPUID instruction. An operating system that qualifies the SEP flag must also qualify the processor family and model to ensure that the SYSENTER/SYSEXIT instructions are actually present. For example:</p>
-<p>IF CPUID SEP bit is set</p>
-<p>THEN IF (Family = 6) and (Model &lt; 3) and (Stepping &lt; 3) THEN SYSENTER/SYSEXIT_Not_Supported; FI; ELSE SYSENTER/SYSEXIT_Supported; FI; FI;</p>
+<pre>IF CPUID SEP bit is set
+	THEN
+		IF (Family = 6) and (Model &lt; 3) and (Stepping &lt; 3)
+			THEN
+				SYSENTER/SYSEXIT_Not_Supported;
+			FI;
+		ELSE
+			SYSENTER/SYSEXIT_Supported;
+		FI;
+FI;</pre>
 <p>When the CPUID instruction is executed on the Pentium Pro processor (model 1), the processor returns a the SEP flag as set, but does not support the SYSENTER/SYSEXIT instructions.</p>

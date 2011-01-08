@@ -1,15 +1,3 @@
-<p>Moves two of the four packed single-precision floating-point values from the destination operand (first operand) into the low quadword of the destination operand; moves two of the four packed single-precision floating-point values from the source operand (second operand) into to the high quadword of the destination operand (see Figure 4-16). The select operand (third operand) determines which values aremoved to the destination operand.</p>
-<p>DEST</p>
-<p>SRC</p>
-<p>DEST</p>
-<table>
-<tr>
-<th>X3</th>
-<th>X2</th>
-<th>X1</th>
-<th>X0</th>
-</tr>
-</table>
-<p>Figure 4-16. SHUFPS Shuffle Operation</p>
+<p>Moves two of the four packed single-precision floating-point values from the destination operand (first operand) into the low quadword of the destination operand; moves two of the four packed single-precision floating-point values from the source operand (second operand) into to the high quadword of the destination operand. The select operand (third operand) determines which values aremoved to the destination operand.</p>
 <p>The source operand can be an XMM register or a 128-bit memory location. The destination operand is an XMM register. The select operand is an 8-bit immediate: bits 0 and 1 select the value to be moved from the destination operand to the low double-word of the result, bits 2 and 3 select the value to be moved from the destination operand to the second doubleword of the result, bits 4 and 5 select the value to be moved from the source operand to the third doubleword of the result, and bits 6 and 7 select the value to be moved from the source operand to the high doubleword of the result.</p>
 <p>In 64-bit mode, using a REX prefix in the form of REX.R permits this instruction to access additional registers (XMM8-XMM15).</p>
