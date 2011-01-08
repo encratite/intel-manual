@@ -43,6 +43,14 @@ class ManualData
        'HSUBPD',
        'HSUBPS',
        'IDIV',
+       'INT n/INTO/INT 3',
+       'LAR',
+       'LGDT/LIDT',
+       'LSL',
+       'MOVDDUP',
+       'MOVSHDUP',
+       'MOVSLDUP',
+       'MUL',
       ]
     return processedInstructions.include?(instruction)
   end

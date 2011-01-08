@@ -1,14 +1,3 @@
-Warning for instruction "INT n/INTO/INT 3": References a table at index 3741
-Warning for instruction "LAR": References a table at index 1885
-Warning for instruction "LGDT/LIDT": References a table at index 1472
-Warning for instruction "LSL": References a table at index 2722
-Warning for instruction "MOVDDUP": Detected a figure
-Warning for instruction "MOVDDUP": Detected leaked image data
-Warning for instruction "MOVSHDUP": Detected a figure
-Warning for instruction "MOVSHDUP": Detected leaked image data
-Warning for instruction "MOVSLDUP": Detected a figure
-Warning for instruction "MOVSLDUP": Detected leaked image data
-Warning for instruction "MUL": References a table at index 500
 Warning for instruction "MWAIT": References a table at index 4163
 
 Warning for instruction "PCLMULQDQ": References a table at index 256

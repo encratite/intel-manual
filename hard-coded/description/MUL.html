@@ -1,0 +1,37 @@
+<p>Performs an unsigned multiplication of the first operand (destination operand) and the second operand (source operand) and stores the result in the destination operand. The destination operand is an implied operand located in register AL, AX or EAX (depending on the size of the operand); the source operand is located in a general-purpose register or a memory location. The action of this instruction and the location of the result depends on the opcode and the operand size as shown in the following table.</p>
+<p>The result is stored in register AX, register pair DX:AX, or register pair EDX:EAX (depending on the operand size), with the high-order bits of the product contained in register AH, DX, or EDX, respectively. If the high-order bits of the product are 0, the CF and OF flags are cleared; otherwise, the flags are set.</p>
+<p>In 64-bit mode, the instruction's default operation size is 32 bits. Use of the REX.R prefix permits access to additional registers (R8 - R15). Use of the REX.W prefix promotes operation to 64 bits.</p>
+<p>See the summary chart at the beginning of this section for encoding data and limits.</p>
+<table>
+<caption>MUL Results</caption>
+<tr>
+<th>Operand Size</th>
+<th>Source 1</th>
+<th>Source 2</th>
+<th>Destination</th>
+</tr>
+<tr>
+<td>Byte</td>
+<td>AL</td>
+<td>r/m8</td>
+<td>AX</td>
+</tr>
+<tr>
+<td>Word</td>
+<td>AX</td>
+<td>r/m16</td>
+<td>DX:AX</td>
+</tr>
+<tr>
+<td>Doubleword</td>
+<td>EAX</td>
+<td>r/m32</td>
+<td>EDX:EAX</td>
+</tr>
+<tr>
+<td>Quadword</td>
+<td>RAX</td>
+<td>r/m64</td>
+<td>RDX:RAX</td>
+</tr>
+</table>

@@ -1,0 +1,141 @@
+<p>Loads the access rights from the segment descriptor specified by the second operand (source operand) into the first operand (destination operand) and sets the ZF flag in the flag register. The source operand (which can be a register or a memory location) contains the segment selector for the segment descriptor being accessed. If the source operand is a memory address, only 16 bits of data are accessed. The destination operand is a general-purpose register.</p>
+<p>The processor performs access checks as part of the loading process. Once loaded in the destination register, software can perform additional checks on the access rights information.</p>
+<p>When the operand size is 32 bits, the access rights for a segment descriptor include the type and DPL fields and the S, P, AVL, D/B, and G flags, all of which are located in the second doubleword (bytes 4 through 7) of the segment descriptor. The double-word is masked by 00FXFF00H before it is loaded into the destination operand. When the operand size is 16 bits, the access rights include the type and DPL fields. Here, the two lower-order bytes of the doubleword are masked by FF00H before being loaded into the destination operand.</p>
+<p>This instruction performs the following checks before it loads the access rights in the destination register:</p>
+<ul>
+<li>Checks that the segment selector is not NULL.</li>
+<li>Checks that the segment selector points to a descriptor that is within the limits of the GDT or LDT being accessed </li>
+<li>Checks that the descriptor type is valid for this instruction. All code and data segment descriptors are valid for (can be accessed with) the LAR instruction. The valid system segment and gate descriptor types are given in Table 3-57.</li>
+<li>If the segment is not a conforming code segment, it checks that the specified segment descriptor is visible at the CPL (that is, if the CPL and the RPL of the segment selector are less than or equal to the DPL of the segment selector).</li>
+</ul>
+<p>If the segment descriptor cannot be accessed or is an invalid type for the instruction, the ZF flag is cleared and no access rights are loaded in the destination operand.</p>
+<p>The LAR instruction can only be executed in protected mode and IA-32e mode.</p>
+<p>In 64-bit mode, the instruction's default operation size is 32 bits. Use of the REX.W prefix permits access to 64-bit registers as destination.</p>
+<p>When the destination operand size is 64 bits, the access rights are loaded from the second doubleword (bytes 4 through 7) of the segment descriptor. The doubleword is masked by 00FXFF00H and zero extended to 64 bits before it is loaded into the destination operand.</p>
+<table>
+<caption>Segment and Gate Types</caption>
+<tr>
+<th>Type</th>
+<th colspan="2">Protected Mode</th>
+<th colspan="2">IA-32e Mode</th>
+</tr>
+<tr>
+<td />
+<td>Name</td>
+<td>Valid</td>
+<td>Name</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>0</td>
+<td>Reserved</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Available 16-bit TSS</td>
+<td>Yes</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LDT</td>
+<td>Yes</td>
+<td>LDT</td>
+<td>No</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Busy 16-bit TSS</td>
+<td>Yes</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>4</td>
+<td>16-bit call gate</td>
+<td>Yes</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>5</td>
+<td>16-bit/32-bit task gate</td>
+<td>Yes</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>6</td>
+<td>16-bit interrupt gate</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>7</td>
+<td>16-bit trap gate</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Reserved</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Available 32-bit TSS</td>
+<td>Yes</td>
+<td>Available 64-bit TSS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Reserved</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Busy 32-bit TSS</td>
+<td>Yes</td>
+<td>Busy 64-bit TSS</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>C</td>
+<td>32-bit call gate</td>
+<td>Yes</td>
+<td>64-bit call gate</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Reserved</td>
+<td>No</td>
+<td>Reserved</td>
+<td>No</td>
+</tr>
+<tr>
+<td>E</td>
+<td>32-bit interrupt gate</td>
+<td>No</td>
+<td>64-bit interrupt gate</td>
+<td>No</td>
+</tr>
+<tr>
+<td>F</td>
+<td>32-bit trap gate</td>
+<td>No</td>
+<td>64-bit trap gate</td>
+<td>No</td>
+</tr>
+</table>
