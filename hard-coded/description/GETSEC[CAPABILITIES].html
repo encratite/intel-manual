@@ -3,9 +3,7 @@
 <p>If bit 0 is set to 1, then an Intel® TXT-capable chipset has been sampled present by the processor. If bits in the range of 1-30 are set, then the corresponding GETSEC leaf function is available. If the bit value at a given bit index is 0, then the GETSEC leaf function corresponding to that index is unsupported and attempted execution results in a #UD.</p>
 <p>Bit 31 of EAX indicates if further leaf indexes are supported. If the Extended Leafs bit 31 is set, then additional leaf functions are accessed by repeating GETSEC[CAPABILITIES] with EBX incremented by one. When the most significant bit of EAX is not set, then additional GETSEC leaf functions are not supported; indexing EBX to a higher value results in EAX returning zero.</p>
 <table>
-<caption>
-<p>Table 6-3. Getsec Capability Result Encoding (EBX = 0)</p>
-</caption>
+<caption>Getsec Capability Result Encoding (EBX = 0)</caption>
 <tr>
 <th>Field</th>
 <th>Bit position</th>
@@ -40,16 +38,6 @@
 <td>SEXIT</td>
 <td>5</td>
 <td>GETSEC[SEXIT] is available</td>
-</tr>
-</table>
-<table>
-<caption>
-<p>Table 6-3. Getsec Capability Result Encoding (EBX = 0) (Contd.)</p>
-</caption>
-<tr>
-<th>Field</th>
-<th>Bit position</th>
-<th>Description</th>
 </tr>
 <tr>
 <td>PARAMETERS</td>

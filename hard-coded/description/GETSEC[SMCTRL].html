@@ -8,12 +8,10 @@
 </ul>
 <p>Table 6-11 defines the processor context in which GETSEC[SMCTRL(0)] can be usedand which events will be unmasked. Note that the events that are unmasked are dependent upon the currently operating processor context.</p>
 <table>
-<caption>
-<p>Table 6-11. Supported Actions for GETSEC[SMCTRL(0)]</p>
-</caption>
+<caption>Supported Actions for GETSEC[SMCTRL(0)]</caption>
 <tr>
-<td>ILP Mode of Operation</td>
-<td>SMCTRL execution action</td>
+<th>ILP Mode of Operation</th>
+<th>SMCTRL execution action</th>
 </tr>
 <tr>
 <td>In VMX non-root operation</td>
@@ -24,35 +22,19 @@
 <td>#GP(0), illegal context</td>
 </tr>
 <tr>
-<td>In authenticated code execution</td>
+<td>In authenticated code execution mode (ACMODEFLAG = 1)</td>
 <td>#GP(0), illegal context</td>
 </tr>
 <tr>
-<td>mode (ACMODEFLAG = 1)</td>
-<td />
-</tr>
-<tr>
-<td>SENTERFLAG = 1, not in VMX</td>
+<td>SENTERFLAG = 1, not in VMX operation, not in SMM</td>
 <td>Unmask SMI</td>
 </tr>
 <tr>
-<td>operation, not in SMM</td>
-<td />
+<td>SENTERFLAG = 1, in VMX root operation, not in SMM</td>
+<td>Unmask SMI if SMM monitor is not configured, otherwise #GP(0)</td>
 </tr>
 <tr>
-<td>SENTERFLAG = 1, in VMX root</td>
-<td>Unmask SMI if SMM monitor is not configured,</td>
-</tr>
-<tr>
-<td>operation, not in SMM</td>
-<td>otherwise #GP(0)</td>
-</tr>
-<tr>
-<td>SENTERFLAG = 1, In VMX root</td>
+<td>SENTERFLAG = 1, In VMX root operation, in SMM</td>
 <td>#GP(0), illegal context</td>
-</tr>
-<tr>
-<td>operation, in SMM</td>
-<td />
 </tr>
 </table>

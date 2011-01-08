@@ -38,11 +38,9 @@
 <p>While physical addresses within the load module must be mapped as WB, the memory type for locations outside of the module boundaries must be mapped to one of the supported memory types as returned by GETSEC[PARAMETERS] (or UC as default).</p>
 <p>To conform to the minimum granularity of MTRR MSRs for specifying the memory type, authenticated code RAM (ACRAM) is allocated to the processor in 4096 byte granular blocks. If an AC module size as specified in ECX is not a multiple of 4096 then the processor will allocate up to the next 4096 byte boundary for mapping as ACRAM with indeterminate data. This pad area will not be visible to the authenticated code module as external memory nor can it depend on the value of the data used to fill the pad area.</p>
 <p>At the successful completion of GETSEC[ENTERACCS], the architectural state of the processor is partially initialized from contents held in the header of the authenticated code module. The processor GDTR, CS, and DS selectors are initialized from fields within the authenticated code module. Since the authenticated code module must be relocatable, all address references must be relative to the authenticated code module base address in EBX. The processor GDTR base value is initialized to the AC module header field GDTBasePtr + module base address held in EBX and the GDTR limit is set to the value in the GDTLimit field. The CS selector is initialized to the AC module header SegSel field, while the DS selector is initialized to CS + 8. The segment descriptor fields are implicitly initialized to BASE=0, LIMIT=FFFFFh, G=1, D=1, P=1, S=1, read/write access for DS, and execute/read access for CS. The processor begins the authenticated code module execution with the EIP set to the AC module header EntryPoint field + module base address (EBX). The AC module based fields used for initializing the processor state are checked for consistency and any failure results in a shutdown condition.</p>
-<p>A summary of the register state initialization after successful completion of GETSEC[ENTERACCS] is given for the processor in Table 6-4. The paging is disabledupon entry into authenticated code execution mode. The authenticated code module is loaded and initially executed using physical addresses. It is up to the system software after execution of GETSEC[ENTERACCS] to establish a new (or restore its previous) paging environment with an appropriate mapping to meet new protection requirements. EBP is initialized to the authenticated code module base physical address for initial execution in the authenticated environment. As a result, the authenticated code can reference EBP for relative address based references, given that the authenticated code module must be position independent.</p>
+<p>A summary of the register state initialization after successful completion of GETSEC[ENTERACCS] is given for the processor in the following table. The paging is disabledupon entry into authenticated code execution mode. The authenticated code module is loaded and initially executed using physical addresses. It is up to the system software after execution of GETSEC[ENTERACCS] to establish a new (or restore its previous) paging environment with an appropriate mapping to meet new protection requirements. EBP is initialized to the authenticated code module base physical address for initial execution in the authenticated environment. As a result, the authenticated code can reference EBP for relative address based references, given that the authenticated code module must be position independent.</p>
 <table>
-<caption>
-<p>Table 6-4. Register State Initialization after GETSEC[ENTERACCS]</p>
-</caption>
+<caption>Register State Initialization after GETSEC[ENTERACCS]</caption>
 <tr>
 <th>Register State</th>
 <th>Initialization Status</th>
@@ -50,12 +48,12 @@
 </tr>
 <tr>
 <td>CR0</td>
-<td>PG=, AM=, WP=: Others unchanged</td>
+<td>PG=0, AM=0, WP=0: Others unchanged</td>
 <td>Paging, Alignment Check, Write-protection are disabled</td>
 </tr>
 <tr>
 <td>CR4</td>
-<td>MCE=: Others unchanged</td>
+<td>MCE=0: Others unchanged</td>
 <td>Machine Check Exceptions Disabled</td>
 </tr>
 <tr>
@@ -103,20 +101,25 @@
 <td>Sel=[SegSel] +8, base=0, limit=FFFFFh, G=1, D=1, AR=93H</td>
 <td />
 </tr>
-</table>
-<table>
-<caption>
-<p>Table 6-4. Register State Initialization after GETSEC[ENTERACCS] (Contd.)</p>
-</caption>
 <tr>
-<th>Register State</th>
-<th>Initialization Status</th>
-<th>Comment</th>
+<td>GDTR</td>
+<td>Base = AC.base (EBX) + [GDTBasePtr], Limit=[GDTLimit]</td>
+<td />
 </tr>
 <tr>
-<td>GDTR DR7 IA32_DEBUGCTL IA32_MISC_ENA BLES</td>
-<td>Base= AC.base (EBX) + [GDTBasePtr], Limit=[GDTLimit] 00000400H 0H see Table 6-5 for example</td>
-<td>The number of initialized fields may change due.to processor implementation</td>
+<td>DR7</td>
+<td>00000400H</td>
+<td />
+</tr>
+<tr>
+<td>IA32_DEBUGCTL</td>
+<td>0H</td>
+<td />
+</tr>
+<tr>
+<td>IA32_MISC_ENABLES</td>
+<td>See the next table for an example</td>
+<td>The number of initialized fields may change due to processor implementation</td>
 </tr>
 </table>
 <p>The segmentation related processor state that has not been initialized by GETSEC[ENTERACCS] requires appropriate initialization before use. Since a new GDT context has been established, the previous state of the segment selector values held in ES, SS, FS, GS, TR, and LDTR might not be valid.</p>
@@ -125,9 +128,7 @@
 <p>The IA32_MISC_ENABLES MSR is initialized upon entry into authenticated execution mode. Certain bits of this MSR are preserved because preserving these bits may be important to maintain previously established platform settings (See the footnote for Table 6-5.). The remaining bits are cleared for the purpose of establishing a moreconsistent environment for the execution of authenticated code modules. One of the impacts of initializing this MSR is any previous condition established by the MONITOR instruction will be cleared.</p>
 <p>To support the possible return to the processor architectural state prior to execution of GETSEC[ENTERACCS], certain critical processor state is captured and stored in the general- purpose registers at instruction completion. [E|R]BX holds effective address ([E|R]IP) of the instruction that would execute next after GETSEC[ENTERACCS], ECX[15:0] holds the CS selector value, ECX[31:16] holds the GDTR limit field, and [E|R]DX holds the GDTR base field. The subsequent authenticated code can preserve the contents of these registers so that this state can be manually restored if needed, prior to exiting authenticated code execution mode with GETSEC[EXITAC]. For the processor state after exiting authenticated code execution mode, see the description of GETSEC[SEXIT].</p>
 <table>
-<caption>
-<p>Table 6-5. IA32_MISC_ENALBES MSR Initialization1 by ENTERACCS and SENTER</p>
-</caption>
+<caption>IA32_MISC_ENALBES MSR Initialization1 by ENTERACCS and SENTER</caption>
 <tr>
 <th>Field</th>
 <th>Bit position</th>
@@ -141,15 +142,17 @@
 <tr>
 <td>FOPCODE compatibility mode enable</td>
 <td>2</td>
-<td>Clear to 0 Set to 1 if other thermal monitor capability is not enabled.2 Clear to 0</td>
+<td>Clear to 0</td>
 </tr>
 <tr>
 <td>Thermal monitor enable</td>
 <td>3</td>
+<td>Set to 1 if other thermal monitor capability is not enabled.<sup>2</sup></td>
 </tr>
 <tr>
 <td>Split-lock disable</td>
 <td>4</td>
+<td>Clear to 0</td>
 </tr>
 <tr>
 <td>Bus lock on cache line splits disable</td>
@@ -177,10 +180,10 @@
 <td>Clear to 0</td>
 </tr>
 </table>
-<p>NOTES:</p>
 <ul>
-<li>The number of IA32_MISC_ENABLES fields that are initialized may vary due to processor implementations.</li>
-<li>ENTERACCS (and SENTER) initialize the state of processor thermal throttling such that at least a minimum level is enabled. If thermal throttling is already enabled when executing one of these GETSEC leaves, then no change in the thermal throttling control settings will occur. If thermal throttling is disabled, then it will be enabled via setting of the thermal throttle control bit 3 as a result of executing these GETSEC leaves.</li>
+  <li class="notes">Notes:</li>
+  <li>1. The number of IA32_MISC_ENABLES fields that are initialized may vary due to processor implementations.</li>
+  <li>2. ENTERACCS (and SENTER) initialize the state of processor thermal throttling such that at least a minimum level is enabled. If thermal throttling is already enabled when executing one of these GETSEC leaves, then no change in the thermal throttling control settings will occur. If thermal throttling is disabled, then it will be enabled via setting of the thermal throttle control bit 3 as a result of executing these GETSEC leaves.</li>
 </ul>
 <p>The IDTR will also require reloading with a new IDT context after entering authenticated code execution mode, before any exceptions or the external interrupts INTR and NMI can be handled. Since external interrupts are re-enabled at the completion of authenticated code execution mode (as terminated with EXITAC), it is recommended that a new IDT context be established before this point. Until such a new IDT context is established, the programmer must take care in not executing an INT n instruction or any other operation that would result in an exception or trap signaling.</p>
 <p>Prior to completion of the GETSEC[ENTERACCS] instruction and after successful authentication of the AC module, the private configuration space of the Intel TXT chipset is unlocked. The authenticated code module alone can gain access to this normally restricted chipset state for the purpose of securing the platform.</p>
