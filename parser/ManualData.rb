@@ -221,6 +221,7 @@ class ManualData
     data = Nil.readFile("../hard-coded/#{category}/#{getInstructionFileName(instruction, extension)}")
     return data if data == nil
     data.force_encoding('utf-8')
+    data.gsub!("\r", '')
     return data
   end
 
