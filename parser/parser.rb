@@ -11,7 +11,7 @@ end
 outputPath = ARGV[0]
 debugOutputPath = ARGV[1]
 inputPaths = ARGV[2..-1]
-debugInstruction = 'HSUBPS'
+debugInstruction = 'INT n/INTO/INT 3'
 
 begin
   totalSize = 0

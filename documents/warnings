@@ -1,4 +1,3 @@
-Warning for instruction "IDIV": References a table at index 1032
 Warning for instruction "INT n/INTO/INT 3": References a table at index 3741
 Warning for instruction "LAR": References a table at index 1885
 Warning for instruction "LGDT/LIDT": References a table at index 1472

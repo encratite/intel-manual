@@ -42,6 +42,7 @@ class ManualData
        'HADDPS',
        'HSUBPD',
        'HSUBPS',
+       'IDIV',
       ]
     return processedInstructions.include?(instruction)
   end
