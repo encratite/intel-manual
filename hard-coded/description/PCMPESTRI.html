@@ -1,0 +1,56 @@
+<p>The instruction compares and processes data from two string fragments based on the encoded value in the Imm8 Control Byte (see Section 4.1, "Imm8 Control Byte Operation for PCMPESTRI / PCMPESTRM / PCMPISTRI / PCMPISTRM"), and generates anindex stored to ECX.</p>
+<p>Each string fragment is represented by two values. The first value is an xmm (or possibly m128 for the second operand) which contains the data elements of the string (byte or word data). The second value is stored in EAX (for xmm1) or EDX (for xmm2/m128) and represents the number of bytes/words which are valid for the respective xmm/m128 data.</p>
+<p>The length of each input is interpreted as being the absolute-value of the value in EAX (EDX). The absolute-value computation saturates to 16 (for bytes) and 8 (for words), based on the value of imm8[bit0] when the value in EAX (EDX) is greater than 16 (8) or less than -16 (-8).</p>
+<p>The comparison and aggregation operations are performed according to the encoded value of Imm8 bit fields (see Section 4.1). The index of the first (or last, according toimm8[6]) set bit of IntRes2 (see Section 4.1.4) is returned in ECX. If no bits are setin IntRes2, ECX is set to 16 (8).</p>
+<p>Note that the Arithmetic Flags are written in a non-standard manner in order to supply the most relevant information:</p>
+<ul>
+<li>CFlag - Reset if IntRes2 is equal to zero, set otherwise</li>
+<li>ZFlag - Set if absolute-value of EDX is &lt; 16 (8), reset otherwise</li>
+<li>SFlag - Set if absolute-value of EAX is &lt; 16 (8), reset otherwise</li>
+<li>OFlag - IntRes2[0]</li>
+<li>AFlag - Reset</li>
+<li>PFlag - Reset</li>
+</ul>
+<table>
+<caption>Effective Operand Size</caption>
+<tr>
+<th>Operating mode/size</th>
+<th>Operand 1</th>
+<th>Operand 2</th>
+<th>Length 1</th>
+<th>Length 2</th>
+<th>Result</th>
+</tr>
+<tr>
+<td>16 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>EAX</td>
+<td>EDX</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>32 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>EAX</td>
+<td>EDX</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>64 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>EAX</td>
+<td>EDX</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>64 bit + REX.W</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>RAX</td>
+<td>RDX</td>
+<td>RCX</td>
+</tr>
+</table>

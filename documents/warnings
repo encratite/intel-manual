@@ -1,20 +1,3 @@
-Warning for instruction "MWAIT": References a table at index 4163
-
-Warning for instruction "PCLMULQDQ": References a table at index 256
-Warning for instruction "PCMPESTRI": References a table at index 1733
-Warning for instruction "PCMPESTRM": References a table at index 1712
-Warning for instruction "PCMPISTRI": References a table at index 1441
-Warning for instruction "PCMPISTRM": References a table at index 1457
-Warning for instruction "PMADDWD": Detected a figure
-Warning for instruction "PMULHUW": References a table at index 710
-Warning for instruction "PMULLW": References a table at index 704
-Warning for instruction "PSADBW": Detected a figure
-Warning for instruction "PSHUFD": Detected a figure
-Warning for instruction "PSLLW/PSLLD/PSLLQ": Detected a figure
-Warning for instruction "PSRAW/PSRAD": Detected a figure
-Warning for instruction "PSRLW/PSRLD/PSRLQ": Detected a figure
-Warning for instruction "PUNPCKHBW/PUNPCKHWD/PUNPCKHDQ/PUNPCKHQDQ": Detected a figure
-Warning for instruction "PUNPCKLBW/PUNPCKLWD/PUNPCKLDQ/PUNPCKLQDQ": Detected a figure
 Warning for instruction "RDPMC": References a table at index 2076
 Warning for instruction "REP/REPE/REPZ/REPNE/REPNZ": References a table at index 1022
 Warning for instruction "ROUNDPD": References a table at index 737

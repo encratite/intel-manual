@@ -1,0 +1,63 @@
+<p>Performs a carry-less multiplication of two quadwords, selected from the first source and second source operand according to the value of the immediate byte. Bits 4 and 0 are used to select which 64-bit half of each operand to use according tothe following table, other bits of the immediate byte are ignored.</p>
+<table>
+  <caption>
+    <p>PCLMULQDQ Quadword Selection of Immediate Byte</p>
+  </caption>
+  <tr>
+    <th>Imm[4]</th>
+    <th>Imm[0]</th>
+    <th>PCLMULQDQ Operation</th>
+  </tr>
+  <tr>
+    <td>0</td>
+    <td>0</td>
+    <td>CL_MUL( SRC2<sup>1</sup>[63:0], SRC1[63:0] )</td>
+  </tr>
+  <tr>
+    <td>0</td>
+    <td>1</td>
+    <td>CL_MUL( SRC2[63:0], SRC1[127:64] )</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>0</td>
+    <td>CL_MUL( SRC2[127:64], SRC1[63:0] )</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>1</td>
+    <td>CL_MUL( SRC2[127:64], SRC1[127:64] )</td>
+  </tr>
+</table>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>1. SRC2 denotes the second source operand, which can be a register or memory; SRC1 denotes the first source and destination operand.</li>
+</ul>
+
+<p> The first source operand and the destination operand are the same and must be an XMM register. The second source operand can be an XMM register or a 128-bit memory location.</p>
+<p>Compilers and assemblers may implement the following pseudo-op syntax to simply programming and emit the required encoding for Imm8.</p>
+<table>
+  <caption>
+    <p>Pseudo-Op and PCLMULQDQ Implementation</p>
+  </caption>
+  <tr>
+    <th>Pseudo-Op</th>
+    <th>Imm8 Encoding</th>
+  </tr>
+  <tr>
+    <td>PCLMULLQLQDQ xmm1, xmm2</td>
+    <td>0000_0000B</td>
+  </tr>
+  <tr>
+    <td>PCLMULHQLQDQ xmm1, xmm2</td>
+    <td>0000_0001B</td>
+  </tr>
+  <tr>
+    <td>PCLMULLQHDQ xmm1, xmm2</td>
+    <td>0001_0000B</td>
+  </tr>
+  <tr>
+    <td>PCLMULHQHDQ xmm1, xmm2</td>
+    <td>0001_0001B</td>
+  </tr>
+</table>

@@ -51,6 +51,21 @@ class ManualData
        'MOVSHDUP',
        'MOVSLDUP',
        'MUL',
+       'MWAIT',
+       'PCLMULQDQ',
+       'PCMPESTRI',
+       'PCMPESTRM',
+       'PCMPISTRI',
+       'PCMPISTRM',
+       'PMADDWD',
+       'PMULHUW',
+       'PMULLW',
+       'PSADBW',
+       'PSHUFD',
+       'PSLLW/PSLLD/PSLLQ',
+       'PSRAW/PSRAD',
+       'PSRLW/PSRLD/PSRLQ',
+       'PUNPCKHBW/PUNPCKHWD/PUNPCKHDQ/PUNPCKHQDQ',
       ]
     return processedInstructions.include?(instruction)
   end

@@ -1,0 +1,45 @@
+<p>The instruction compares data from two strings based on the encoded value in the Imm8 Control Byte (see Section 4.1, "Imm8 Control Byte Operation for PCMPESTRI /PCMPESTRM / PCMPISTRI / PCMPISTRM"), and generates an index stored to ECX.</p>
+<p>Each string is represented by a single value. The value is an xmm (or possibly m128 for the second operand) which contains the data elements of the string (byte or word data). Each input byte/word is augmented with a valid/invalid tag. A byte/word is considered valid only if it has a lower index than the least significant null byte/word. (The least significant null byte/word is also considered invalid.)</p>
+<p>The comparison and aggregation operations are performed according to the encoded value of Imm8 bit fields (see Section 4.1). The index of the first (or last, according toimm8[6] ) set bit of IntRes2 is returned in ECX. If no bits are set in IntRes2, ECX is set to 16 (8).</p>
+<p>Note that the Arithmetic Flags are written in a non-standard manner in order to supply the most relevant information:</p>
+<ul>
+<li>CFlag - Reset if IntRes2 is equal to zero, set otherwise</li>
+<li>ZFlag - Set if any byte/word of xmm2/mem128 is null, reset otherwise</li>
+<li>SFlag - Set if any byte/word of xmm1 is null, reset otherwise</li>
+<li>OFlag -IntRes2[0]</li>
+<li>AFlag - Reset</li>
+<li>PFlag - Reset</li>
+<li>Effective Operand Size</li>
+</ul>
+<table>
+<tr>
+<th>Operating mode/size</th>
+<th>Operand1</th>
+<th>Operand 2</th>
+<th>Result</th>
+</tr>
+<tr>
+<td>16 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>32 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>64 bit</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>ECX</td>
+</tr>
+<tr>
+<td>64 bit + REX.W</td>
+<td>xmm</td>
+<td>xmm/m128</td>
+<td>RCX</td>
+</tr>
+</table>
