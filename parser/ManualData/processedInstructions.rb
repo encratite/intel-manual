@@ -36,6 +36,8 @@ class ManualData
        'FUCOM/FUCOMP/FUCOMPP',
        'FXRSTOR',
        'FXSAVE',
+       'FYL2X',
+       'FYL2XP1',
       ]
     return processedInstructions.include?(instruction)
   end

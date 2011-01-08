@@ -1,0 +1,112 @@
+<p>Computes (ST(1) * log<inf>2</inf> (ST(0))), stores the result in resister ST(1), and pops the FPU register stack. The source operand in ST(0) must be a non-zero positive number.</p>
+<p>The following table shows the results obtained when taking the log of various classes of numbers, assuming that neither overflow nor underflow occurs.</p>
+<table>
+  <caption>FYL2X Results</caption>
+  <tr>
+    <th colspan="2">DEST</th>
+  </tr>
+  <tr>
+    <th>SRC</th>
+    <td>
+      <table>
+        <tr>
+          <td />
+          <td>-&infin;</td>
+          <td>-F</td>
+          <td>&plusmn;0</td>
+          <td>+0&lt;+F&lt;+1</td>
+          <td>+1</td>
+          <td>+F&gt;+1</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-&infin;</td>
+          <td>*</td>
+          <td>*</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>*</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-F</td>
+          <td>*</td>
+          <td>*</td>
+          <td>**</td>
+          <td>+F</td>
+          <td>-0</td>
+          <td>-F</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-0</td>
+          <td>*</td>
+          <td>*</td>
+          <td>*</td>
+          <td>+0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+0</td>
+          <td>*</td>
+          <td>*</td>
+          <td>*</td>
+          <td>-0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+F</td>
+          <td>*</td>
+          <td>*</td>
+          <td>**</td>
+          <td>-F</td>
+          <td>+0</td>
+          <td>+F</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+&infin;</td>
+          <td>*</td>
+          <td>*</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>*</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<ul>
+  <li class="notes">Notes:</li>
+  <li>F means finite floating-point value.</li>
+  <li>* Indicates floating-point invalid-operation (#IA) exception. ** Indicates floating-point zero-divide (#Z) exception.</li>
+</ul>
+<p>If the divide-by-zero exception is masked and register ST(0) contains 0, the instruction returns ∞ with a sign that is the opposite of the sign of the source operand in register ST(1).</p>
+<p>The FYL2X instruction is designed with a built-in multiplication to optimize the calculation of logarithms with an arbitrary positive base (b):</p>
+<p>log<sub>b</sub>x = (log<sub>2</sub>b)<sup>-1</sup> * log<sub>2</sub>x</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>

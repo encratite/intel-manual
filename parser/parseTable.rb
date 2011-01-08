@@ -25,6 +25,8 @@ def performReplacements(string)
      ['***', '** *'],
      ['***', '** *'],
      ['0*', '0 *'],
+     ['<', '&lt;'],
+     ['>', '&gt;'],
     ]
 
   replacements.each do |target, replacement|

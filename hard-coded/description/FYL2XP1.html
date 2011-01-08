@@ -1,0 +1,113 @@
+<p>Computes (ST(1) * log2(ST(0) + 1.0)), stores the result in register ST(1), and pops the FPU register stack. The source operand in ST(0) must be in the range:</p>
+<p>- (1 - 2<sup>-1/2</sup>) to (1 - 2<sup>-1/2</sup>)</p>
+<p>The source operand in ST(1) can range from -∞ to +∞. If the ST(0) operand is outside of its acceptable range, the result is undefined and software should not rely on an exception being generated. Under some circumstances exceptions may be generated when ST(0) is out of range, but this behavior is implementation specific and not guaranteed.</p>
+<p>The following table shows the results obtained when taking the log epsilon of various classes of numbers, assuming that underflow does not occur.</p>
+<table>
+  <caption>FYL2XP1 Results</caption>
+  <tr>
+    <th colspan="2">DEST</th>
+  </tr>
+  <tr>
+    <th>SRC</th>
+    <td>
+      <table>
+        <tr>
+          <td />
+          <td>-&infin;</td>
+          <td>-F</td>
+          <td>&plusmn;0</td>
+          <td>+0&lt;+F&lt;+1</td>
+          <td>+1</td>
+          <td>+F&gt;+1</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-&infin;</td>
+          <td>*</td>
+          <td>*</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>*</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-F</td>
+          <td>*</td>
+          <td>*</td>
+          <td>**</td>
+          <td>+F</td>
+          <td>-0</td>
+          <td>-F</td>
+          <td>-&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>-0</td>
+          <td>*</td>
+          <td>*</td>
+          <td>*</td>
+          <td>+0</td>
+          <td>-0</td>
+          <td>-0</td>
+          <td>*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+0</td>
+          <td>*</td>
+          <td>*</td>
+          <td>*</td>
+          <td>-0</td>
+          <td>+0</td>
+          <td>+0</td>
+          <td>*</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+F</td>
+          <td>*</td>
+          <td>*</td>
+          <td>**</td>
+          <td>-F</td>
+          <td>+0</td>
+          <td>+F</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>+&infin;</td>
+          <td>*</td>
+          <td>*</td>
+          <td>-&infin;</td>
+          <td>-&infin;</td>
+          <td>*</td>
+          <td>+&infin;</td>
+          <td>+&infin;</td>
+          <td>NaN</td>
+        </tr>
+        <tr>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+          <td>NaN</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<ul>
+<li class="notes">Notes:</li>
+<li>F Means finite floating-point value.</li>
+<li>* Indicates floating-point invalid-operation (#IA) exception.</li>
+</ul>
+<p>This instruction provides optimal accuracy for values of epsilon [the value in register ST(0)] that are close to 0. For small epsilon () values, more significant digits can be retained by using the FYL2XP1 instruction than by using (+1) as an argument to the FYL2X instruction. The (+1) expression is commonly found in compound interest and annuity calculations. The result can be simply converted into a value in another logarithm base by including a scale factor in the ST(1) source operand. The following equation is used to calculate the scale factor for a particular logarithm base, where n is the logarithm base desired for the result of the FYL2XP1 instruction:</p>
+<p>scale factor = log<sub>n</sub> 2</p>
+<p>This instruction's operation is the same in non-64-bit modes and 64-bit mode.</p>
