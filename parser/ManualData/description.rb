@@ -356,7 +356,7 @@ class ManualData
   end
 
   def extractDescription(instruction, content)
-    hardCodedData = loadHardCodedInstructionFile("#{instruction.gsub('/', '-').gsub(' ', '')}.html", 'description')
+    hardCodedData = loadHardCodedInstructionFile(instruction, 'description', 'html')
     if hardCodedData != nil
       #get rid of emacs formatting
       hardCodedData.gsub!(/^ +/, '')

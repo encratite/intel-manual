@@ -4,19 +4,17 @@ require 'nil/string'
 require_relative 'ManualData'
 
 if ARGV.size < 3
-  puts '<main output path> <debug output path> <input paths>'
+  puts '<main output path> <description warning output directory> <input paths>'
   exit
 end
 
 outputPath = ARGV[0]
-debugOutputPath = ARGV[1]
+descriptionWarningOutputDirectory = ARGV[1]
 inputPaths = ARGV[2..-1]
-debugInstruction = 'RDPMC'
 
 begin
   totalSize = 0
-  manualData = ManualData.new(debugInstruction)
-  manualData.debugOutputPath = debugOutputPath
+  manualData = ManualData.new(descriptionWarningOutputDirectory)
   inputPaths.each do |path|
     puts "Processing #{path}"
     size = manualData.processPath(path)

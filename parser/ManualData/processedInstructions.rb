@@ -66,6 +66,12 @@ class ManualData
        'PSRAW/PSRAD',
        'PSRLW/PSRLD/PSRLQ',
        'PUNPCKHBW/PUNPCKHWD/PUNPCKHDQ/PUNPCKHQDQ',
+       'REP/REPE/REPZ/REPNE/REPNZ',
+       'ROUNDPD',
+       'ROUNDPS',
+       'ROUNDSD',
+       'ROUNDSS',
+       'SGDT',
       ]
     return processedInstructions.include?(instruction)
   end

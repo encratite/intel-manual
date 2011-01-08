@@ -1,10 +1,3 @@
-Warning for instruction "RDPMC": References a table at index 2076
-Warning for instruction "REP/REPE/REPZ/REPNE/REPNZ": References a table at index 1022
-Warning for instruction "ROUNDPD": References a table at index 737
-Warning for instruction "ROUNDPS": References a table at index 737
-Warning for instruction "ROUNDSD": References a table at index 837
-Warning for instruction "ROUNDSS": References a table at index 864
-Warning for instruction "SGDT": References a table at index 929
 Warning for instruction "SHUFPD": References a table at index 465
 Warning for instruction "SHUFPD": Detected a figure
 Warning for instruction "SHUFPS": References a table at index 509

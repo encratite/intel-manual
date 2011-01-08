@@ -1,6 +1,7 @@
 #coding: utf-8
 
 require 'htmlentities'
+require 'fileutils'
 
 require 'nil/file'
 require 'nil/string'
@@ -25,16 +26,15 @@ class ManualData
 
   attr_reader :instructions, :tableCount, :imageCount
 
-  attr_accessor :debugOutputPath
-
-  def initialize(debugInstruction = nil)
+  def initialize(descriptionWarningOutputDirectory)
     @instructions = []
     @html = HTMLEntities.new
     @output = ''
     @tableCount = 0
     @imageCount = 0
-
-    @focusInstruction = debugInstruction
+    @descriptionWarningOutputDirectory = descriptionWarningOutputDirectory
+    FileUtils.mkdir_p(descriptionWarningOutputDirectory)
+    @debugInstructions = []
     @active = true
   end
 
@@ -53,10 +53,7 @@ class ManualData
         match = match[2..-1]
       end
       title, content = match
-      stopParsing = parseInstruction(title, content)
-      if stopParsing
-        @active = false
-      end
+      parseInstruction(title, content)
     end
     return data.size
   end
@@ -78,12 +75,9 @@ class ManualData
     return rows
   end
 
-  def warning(instruction, message)
-    puts "Warning for instruction #{instruction.inspect}: #{message}"
-  end
-
-  #returns if the parsing should be stopped for single instruction debugging
   def parseInstruction(title, content)
+    warningOccurred = false
+
     titlePattern = /(.+?)(—|-)(.+?)/
     titleMatch = titlePattern.match(title)
     return if titleMatch == nil
@@ -105,12 +99,11 @@ class ManualData
     #just for debugging purposes
     @currentInstruction = instruction
 
-    if @focusInstruction != nil && @focusInstruction != instruction
+    if !@debugInstructions.empty? && !@debugInstructions.include?(instruction)
       return false
     end
 
     begin
-
       tablePattern = /<Table>(.*?)<\/Table>/m
       instructionPattern = /<T[HD]>Instruction.?<\/T[HD]>|<P>Opcode\*? Instruction/
       descriptionPattern = /<P>Description <\/P>/
@@ -166,7 +159,9 @@ class ManualData
 
       exceptions = extractExceptions(instruction, content)
 
-      writeTag('Instruction', instruction)
+      instructionName = instruction
+
+      writeTag('Instruction', instructionName)
       writeTag('OpcodeTable', opcodeTable)
       writeTag('EncodingTable', encodingTable)
       writeTag('Description', description)
@@ -176,20 +171,21 @@ class ManualData
       writeTag('Exceptions', exceptions.inspect)
       writeLine('')
 
-      if @focusInstruction != nil
-        Nil.writeFile(@debugOutputPath, description)
+      newInstruction = Instruction.new(instructionName, opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
+
+      @instructions << newInstruction
+
+      if warningOccurred
+        path = Nil.joinPaths(descriptionWarningOutputDirectory, getInstructionFileName(instructionName))
+        Nil.writeFile(path, description)
       end
-
-      instruction = Instruction.new(opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
-
-      @instructions << instruction
 
     rescue Error => error
       error = Error.new("In instruction #{instruction}: #{error.message}")
       raise error
     end
 
-    return @focusInstruction != nil
+    return true
   end
 
   def writeTag(tag, data)
@@ -212,14 +208,27 @@ class ManualData
     Nil.writeFile(path, @output)
   end
 
+  def warning(instruction, message)
+    puts "Warning for instruction #{instruction.inspect}: #{message}"
+    warningOccurred = true
+  end
+
   def error(message)
     raise Error.new(message)
   end
 
-  def loadHardCodedInstructionFile(instruction, category)
-    data = Nil.readFile("../hard-coded/#{category}/#{instruction}")
+  def loadHardCodedInstructionFile(instruction, category, extension = nil)
+    data = Nil.readFile("../hard-coded/#{category}/#{getInstructionFileName(instruction, extension)}")
     return data if data == nil
     data.force_encoding('utf-8')
     return data
+  end
+
+  def getInstructionFileName(instruction, extension = nil)
+    output = instruction.gsub('/', '-').gsub(' ', '')
+    if extension != nil
+      output = "#{output}.html"
+    end
+    return output
   end
 end
