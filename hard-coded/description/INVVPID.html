@@ -1,0 +1,13 @@
+<p>Invalidates mappings in the translation lookaside buffers (TLBs) and paging-structure caches based on virtual-processor identifier (VPID). (See Chapter 25,"Support for Address Translation" inIA-32 Intel Architecture Software Developer's Manual, Volume 3B.) Invalidation is based on the INVVPID type specified in the register operand and the INVVPID descriptor specified in the memory operand.</p>
+<p>Outside IA-32e mode, the register operand is always 32 bits, regardless of the value of CS.D. In 64-bit mode, the register operand has 64 bits; however, if bits 63:32 of the register operand are not zero, INVVPID fails due to an attempt to use an unsupported INVVPID type (see below).</p>
+<p>The INVVPID types supported by a logical processors are reported in the IA32_VMX_EPT_VPID_CAP MSR (see Appendix "VMX Capability Reporting Facility" in IA-32 Intel Architecture Software Developer's Manual, Volume 3B). There are four INVVPID types currently defined:</p>
+<ul>
+<li>Individual-address invalidation: If the INVVPID type is 0, the logical processor invalidates mappings for a single linear address and tagged with the VPID specified in the INVVPID descriptor. In some cases, it may invalidate mappings for other linear addresses (or with other VPIDs) as well.</li>
+<li>Single-context invalidation: If the INVVPID type is 1, the logical processor invalidates all mappings tagged with the VPID specified in the INVVPID descriptor. In some cases, it may invalidate mappings for other VPIDs as well.</li>
+<li>All-contexts invalidation: If the INVVPID type is 2, the logical processor invalidates all mappings tagged with all VPIDs except VPID 0000H. In some cases, it may invalidate translations with VPID 0000H as well.</li>
+<li>Single-context invalidation, retaining global translations: If the INVVPID type is 3, the logical processor invalidates all mappings tagged with the VPID specified in the INVVPID descriptor except global translations. In some cases, it may invalidate global translations (and mappings with other VPIDs) as well. See the "Caching Translation Information" section in Chapter 4 of theIA-32 Intel Architecture Software Developer's Manual, Volumes 3A for information about global translations.</li>
+</ul>
+<p>If an unsupported INVVPID type is specified, the instruction fails.</p>
+<p>INVVPID invalidates all the specified mappings for the indicated VPID(s) regardless of the EPTP and PCID values with which those mappings may be associated.</p>
+<p>The INVVPID descriptor comprises 128 bits and consists of a VPID and a linear address as shown in Figure 5-2.</p>
+<p>Figure 5-2. INVVPID Descriptor</p>

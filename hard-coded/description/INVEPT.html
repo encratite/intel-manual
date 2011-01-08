@@ -1,0 +1,11 @@
+<p>Invalidates mappings in the translation lookaside buffers (TLBs) and paging-structure caches that were derived from extended page tables (EPT). (See Chapter 25,"Support for Address Translation" in IA-32 Intel Architecture Software Developer's Manual, Volume 3B.) Invalidation is based on the INVEPT type specified in the register operand and the INVEPT descriptor specified in the memory operand.</p>
+<p>Outside IA-32e mode, the register operand is always 32 bits, regardless of the value of CS.D. In 64-bit mode, the register operand has 64 bits; however, if bits 63:32 of the register operand are not zero, INVEPT fails due to an attempt to use an unsupported INVEPT type (see below).</p>
+<p>The INVEPT types supported by a logical processors are reported in the IA32_VMX_EPT_VPID_CAP MSR (see Appendix "VMX Capability Reporting Facility" in IA-32 Intel Architecture Software Developer's Manual, Volume 3B). There are two INVEPT types currently defined:</p>
+<ul>
+<li>Single-context invalidation. If the INVEPT type is 1, the logical processor invalidates all mappings associated with bits 51:12 of the EPT pointer (EPTP) specified in the INVEPT descriptor. It may invalidate other mappings as well.</li>
+<li>Global invalidation: If the INVEPT type is 2, the logical processor invalidates mappings associated with all EPTPs.</li>
+</ul>
+<p>If an unsupported INVEPT type is specified, the instruction fails.</p>
+<p>INVEPT invalidates all the specified mappings for the indicated EPTP(s) regardless of the VPID and PCID values with which those mappings may be associated.</p>
+<p>The INVEPT descriptor comprises 128 bits and contains a 64-bit EPTP value in bits 63:0 (see Figure 5-1).</p>
+<p>Figure 5-1. INVEPT Descriptor</p>

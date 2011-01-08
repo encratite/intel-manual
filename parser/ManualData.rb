@@ -76,7 +76,7 @@ class ManualData
   end
 
   def parseInstruction(title, content)
-    warningOccurred = false
+    @warningOccurred = false
 
     titlePattern = /(.+?)(—|-)(.+?)/
     titleMatch = titlePattern.match(title)
@@ -175,8 +175,8 @@ class ManualData
 
       @instructions << newInstruction
 
-      if warningOccurred
-        path = Nil.joinPaths(descriptionWarningOutputDirectory, getInstructionFileName(instructionName))
+      if @warningOccurred
+        path = Nil.joinPaths(@descriptionWarningOutputDirectory, getInstructionFileName(instructionName, 'html'))
         Nil.writeFile(path, description)
       end
 
@@ -210,7 +210,7 @@ class ManualData
 
   def warning(instruction, message)
     puts "Warning for instruction #{instruction.inspect}: #{message}"
-    warningOccurred = true
+    @warningOccurred = true
   end
 
   def error(message)

@@ -1,0 +1,79 @@
+<p>The GETSEC[CAPABILITIES] function returns a bit vector of supported GETSEC leaf functions. The CAPABILITIES leaf of GETSEC is selected with EAX set to 0 at entry. EBX is used as the selector for returning the bit vector field in EAX. GETSEC[CAPABILITIES] may be executed at all privilege levels, but the CR4.SMXE bit must be set or an undefined opcode exception (#UD) is returned.</p>
+<p>With EBX = 0 upon execution of GETSEC[CAPABILITIES], EAX returns the a bit vector representing status on the presence of a Intel® TXT-capable chipset and the first 30 available GETSEC leaf functions. The format of the returned bit vector is provided in Table 6-3.</p>
+<p>If bit 0 is set to 1, then an Intel® TXT-capable chipset has been sampled present by the processor. If bits in the range of 1-30 are set, then the corresponding GETSEC leaf function is available. If the bit value at a given bit index is 0, then the GETSEC leaf function corresponding to that index is unsupported and attempted execution results in a #UD.</p>
+<p>Bit 31 of EAX indicates if further leaf indexes are supported. If the Extended Leafs bit 31 is set, then additional leaf functions are accessed by repeating GETSEC[CAPABILITIES] with EBX incremented by one. When the most significant bit of EAX is not set, then additional GETSEC leaf functions are not supported; indexing EBX to a higher value results in EAX returning zero.</p>
+<table>
+<caption>
+<p>Table 6-3. Getsec Capability Result Encoding (EBX = 0)</p>
+</caption>
+<tr>
+<th>Field</th>
+<th>Bit position</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>Chipset Present</td>
+<td>0</td>
+<td>Intel® TXT-capable chipset is present</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>1</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>ENTERACCS</td>
+<td>2</td>
+<td>GETSEC[ENTERACCS] is available</td>
+</tr>
+<tr>
+<td>EXITAC</td>
+<td>3</td>
+<td>GETSEC[EXITAC] is available</td>
+</tr>
+<tr>
+<td>SENTER</td>
+<td>4</td>
+<td>GETSEC[SENTER] is available</td>
+</tr>
+<tr>
+<td>SEXIT</td>
+<td>5</td>
+<td>GETSEC[SEXIT] is available</td>
+</tr>
+</table>
+<table>
+<caption>
+<p>Table 6-3. Getsec Capability Result Encoding (EBX = 0) (Contd.)</p>
+</caption>
+<tr>
+<th>Field</th>
+<th>Bit position</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>PARAMETERS</td>
+<td>6</td>
+<td>GETSEC[PARAMETERS] is available</td>
+</tr>
+<tr>
+<td>SMCTRL</td>
+<td>7</td>
+<td>GETSEC[SMCTRL] is available</td>
+</tr>
+<tr>
+<td>WAKEUP</td>
+<td>8</td>
+<td>GETSEC[WAKEUP] is available</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>30:9</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>Extended Leafs</td>
+<td>31</td>
+<td>Reserved for extended information reporting of GETSEC capabilities</td>
+</tr>
+</table>
