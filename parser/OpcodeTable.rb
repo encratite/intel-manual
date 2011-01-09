@@ -1,13 +1,15 @@
-require_relative 'OpcodeTableEntry'
-require_relative 'InstructionOperantEncoding'
+require 'nil/xml'
 
-class OpcodeTable
+require_relative 'OpcodeTableEntry'
+require_relative 'EncodingTable'
+
+class OpcodeTable < Nil::XMLObject
   attr_reader :opcodes, :encoding
 
-  def initialize(rows)
-    @encoding = nil
-    @instructions = []
+  def initialize(rows, encodingTable)
+    super()
     parseRows(rows)
+    setEncoding(encodingTable)
   end
 
   def interpretColumn(columns, symbol, interpretation)
@@ -39,14 +41,14 @@ class OpcodeTable
         value = interpretColumn(columns, symbol, interpretation)
         entry.setMember(symbol, value)
       end
-      @instructions << entry
+      add(entry)
     end
   end
 
   def setEncoding(encodingTable)
     if encodingTable != nil
-      @encoding = encodingTable.map do |row|
-        InstructionOperandEncoding.new(row[0], row[1..-1])
+      encodingTable.each do |row|
+        add(InstructionOperandEncoding.new(row[0], row[1..-1]))
       end
     end
   end

@@ -20,7 +20,7 @@ begin
     size = manualData.processPath(path)
     totalSize += size
   end
-  puts "Loaded #{manualData.instructions.size} instruction(s) from #{inputPaths.size} file(s) totalling #{Nil.getSizeString(totalSize)} of XML"
+  puts "Loaded #{manualData.instructionCount} instruction(s) from #{inputPaths.size} file(s) totalling #{Nil.getSizeString(totalSize)} of XML"
   puts "Number of tables: #{manualData.tableCount}"
   puts "Number of images: #{manualData.imageCount}"
   manualData.writeOutput(outputPath)

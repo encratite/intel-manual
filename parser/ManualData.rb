@@ -8,6 +8,7 @@ require 'nil/string'
 
 require_relative 'Instruction'
 require_relative 'XMLParser'
+require_relative 'InstructionSetReference'
 
 require_relative 'ManualData/description'
 require_relative 'ManualData/encoding'
@@ -24,10 +25,11 @@ class ManualData
     end
   end
 
-  attr_reader :instructions, :tableCount, :imageCount
+  attr_reader :instructionCount, :tableCount, :imageCount
 
   def initialize(descriptionWarningOutputDirectory)
-    @instructions = []
+    @instructionCount = 0
+    @instructionSetReference = InstructionSetReference.new
     @html = HTMLEntities.new
     @output = ''
     @tableCount = 0
@@ -161,19 +163,10 @@ class ManualData
 
       instructionName = instruction
 
-      writeTag('Instruction', instructionName)
-      writeTag('OpcodeTable', opcodeTable)
-      writeTag('EncodingTable', encodingTable)
-      writeTag('Description', description)
-      writeTag('Operation', operation)
-      writeTag('FlagsAffected', flagsAffected.inspect)
-      writeTag('FPUFlagsAffected', fpuFlagsAffected)
-      writeTag('Exceptions', exceptions.inspect)
-      writeLine('')
+      newInstruction = Instruction.new(instructionName, opcodeTable, encodingTable, description, operation, flagsAffected, fpuFlagsAffected, exceptions)
 
-      newInstruction = Instruction.new(instructionName, opcodeTable, encodingTable, operation, flagsAffected, fpuFlagsAffected)
-
-      @instructions << newInstruction
+      @instructionSetReference.add(newInstruction)
+      @instructionCount += 1
 
       if @warningOccurred
         path = Nil.joinPaths(@descriptionWarningOutputDirectory, getInstructionFileName(instructionName, 'html'))
@@ -188,24 +181,8 @@ class ManualData
     return true
   end
 
-  def writeTag(tag, data)
-    data = data.inspect if data.class != String
-    writeLine("<#{tag}>")
-    writeLine(data)
-    writeLine("</#{tag}>")
-  end
-
-  def writeLine(line)
-    begin
-      @output += "#{line}\n"
-    rescue Encoding::CompatibilityError => exception
-      puts "Error in the following line: #{line.inspect}"
-      raise exception
-    end
-  end
-
   def writeOutput(path)
-    Nil.writeFile(path, @output)
+    Nil.writeFile(path, @instructionSetReference.serialise)
   end
 
   def warning(instruction, message)

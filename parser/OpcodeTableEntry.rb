@@ -1,6 +1,7 @@
+require 'nil/xml'
 require 'nil/symbol'
 
-class OpcodeTableEntry
+class OpcodeTableEntry < Nil::XMLObject
   include SymbolicAssignment
   attr_reader(
               :opcode,
