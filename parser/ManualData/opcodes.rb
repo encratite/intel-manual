@@ -268,7 +268,10 @@ class ManualData
 
   def extractParagraphOpcodes(instruction, content)
     return nil if instruction == 'PSLLW/PSLLD/PSLLQ'
-
+    hardCodedData = loadHardCodedInstructionFile(instruction, 'opcodes')
+    if hardCodedData != nil
+      return eval(hardCodedData)
+    end
     paragraphPattern = /<P>Opcode\*? Instruction.*?<\/P>(.*?)<P>(NOTES|Description)/m
     linePattern = /<P>(.*?)<\/P>/
 

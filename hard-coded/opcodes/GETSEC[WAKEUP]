@@ -1,0 +1,1 @@
+[['Opcode', 'Instruction', 'Description'], ['0F 37 (EAX=8)', 'GETSEC[WAKEUP]', 'Wake up the responding logical processors from the SENTER sleep state.']]
