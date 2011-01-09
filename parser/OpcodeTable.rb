@@ -25,17 +25,17 @@ class OpcodeTable < Nil::XMLObject
     header = rows.first
     case header.size
     when 6
-      interpretation = [:opcode, :instruction, :encodingIdentifier, :longMode, :legacyMode, :description]
+      interpretation = [:opcode, :mnemonicDescription, :encodingIdentifier, :longMode, :legacyMode, :description]
     when 5
       #this is used by the FPU instructions which have no encoding identifiers specified
-      interpretation = [:opcode, :instruction, :longMode, :legacyMode, :description]
+      interpretation = [:opcode, :mnemonicDescription, :longMode, :legacyMode, :description]
     when 3
       #this is the format used by the VM instructions in the second manual
-      interpretation = [:opcode, :instruction, :description]
+      interpretation = [:opcode, :mnemonicDescription, :description]
     else
       raise "Invalid header size detected in a table: #{header.size} (#{header.inspect})"
     end
-    rows.each do |columns|
+    rows[1..-1].each do |columns|
       entry = OpcodeTableEntry.new
       interpretation.each do |symbol|
         value = interpretColumn(columns, symbol, interpretation)

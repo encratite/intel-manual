@@ -4,7 +4,7 @@ require 'nil/string'
 require_relative 'ManualData'
 
 if ARGV.size < 3
-  puts '<main output path> <description warning output directory> <input paths>'
+  puts '<XML output path> <description warning output directory> <input paths>'
   exit
 end
 
@@ -24,6 +24,7 @@ begin
   puts "Number of tables: #{manualData.tableCount}"
   puts "Number of images: #{manualData.imageCount}"
   manualData.writeOutput(outputPath)
+  puts "Size of XML output: #{Nil.getSizeString(File.size(outputPath))}"
 rescue => exception
   puts exception.inspect
   puts exception.backtrace.map { |x| "\t#{x}\n" }

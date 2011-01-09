@@ -10,12 +10,17 @@ class Instruction < Nil::XMLObject
     add(Description.new(description))
     add(Operation.new(operation))
     add(FlagsAffected.new(flagsAffected)) if flagsAffected != nil
-    add(FPUFlagsAffected.new(fpuFlagsAffected)) if fpuFlagsAffected == nil
+    add(FPUFlagsAffected.new(fpuFlagsAffected)) if fpuFlagsAffected != nil
     add(InstructionExceptionContainer.new(exceptions)) if exceptions != []
   end
 end
 
 class Description < Nil::XMLObject
+  def initialize(description)
+    super()
+    setContent(description)
+    setName('Description')
+  end
 end
 
 class Operation < Nil::XMLObject
@@ -31,10 +36,8 @@ class InstructionExceptionEntry < Nil::XMLObject
   def initialize(exception, description)
     super()
     setName('Exception')
-    if exception == nil
-      @descriptionOnly = 'true'
-    else
-      @exception = exception
+    if exception != nil
+      @name = exception
     end
     @description = description
   end
