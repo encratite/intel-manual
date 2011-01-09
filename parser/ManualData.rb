@@ -183,7 +183,11 @@ class ManualData
   end
 
   def writeOutput(path)
-    Nil.writeFile(path, @instructionSetReference.serialise)
+    comments = %q{
+Intel 64 Instruction Set Reference
+}
+    header = "<!--#{comments}Time of generation: #{Time.now.utc.to_s}\n-->\n"
+    Nil.writeFile(path, @instructionSetReference.serialiseDocument(header))
   end
 
   def warning(instruction, message)
