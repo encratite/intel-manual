@@ -6,7 +6,7 @@ class InstructionExceptionCategory < Nil::XMLObject
   def initialize(category, exceptionData)
     super()
     setName('Category')
-    @category = category
+    @name = category
     if exceptionData.class == String
       setContent(exceptionData)
     else
