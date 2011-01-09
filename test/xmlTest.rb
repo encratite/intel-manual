@@ -1,4 +1,4 @@
-require_relative 'XMLParser'
+require_relative '../parser/XMLParser'
 
 data = '<a>left <b><Ctag property="test"/>inner</b> right</a>'
 

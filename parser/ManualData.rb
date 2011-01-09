@@ -6,9 +6,10 @@ require 'fileutils'
 require 'nil/file'
 require 'nil/string'
 
-require_relative 'Instruction'
 require_relative 'XMLParser'
-require_relative 'InstructionSetReference'
+
+require_relative 'XMLObject/Instruction'
+require_relative 'XMLObject/InstructionSetReference'
 
 require_relative 'ManualData/description'
 require_relative 'ManualData/encoding'
