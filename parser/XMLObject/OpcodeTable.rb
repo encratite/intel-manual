@@ -1,3 +1,4 @@
+require 'nil/string'
 require 'nil/xml'
 
 require_relative 'OpcodeTableEntry'
@@ -35,7 +36,8 @@ class OpcodeTable < Nil::XMLObject
     else
       raise "Invalid header size detected in a table: #{header.size} (#{header.inspect})"
     end
-    rows[1..-1].each do |columns|
+    rows.each do |columns|
+      next if columns[0].matchLeft 'Opcode'
       entry = OpcodeTableEntry.new
       interpretation.each do |symbol|
         value = interpretColumn(columns, symbol, interpretation)
