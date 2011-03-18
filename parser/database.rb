@@ -60,6 +60,20 @@ def processInstruction(connection, instruction)
     }
     connection[:instruction_opcode].insert(opcodeFields)
   end
+  encodings.each do |encoding|
+    encodingFields = {
+      instruction_id: instructionId,
+      identifier: encoding.identifier,
+    }
+    encodingId = connection[:instruction_opcode_encoding].insert(encodingFields)
+    encoding.content.each do |entry|
+      entryFields = {
+        instruction_opcode_encoding_id: encodingId,
+        description: entry.description,
+      }
+      connection[:instruction_opcode_encoding_description].insert(entryFields)
+    end
+  end
 end
 
 def insertManualData(user, database, manualData)

@@ -1,6 +1,8 @@
 require 'nil/xml'
 
 class InstructionOperandEncodingEntry < Nil::XMLObject
+  attr_reader :description
+
   def initialize(description)
     super()
     setName('Operand')
@@ -9,7 +11,7 @@ class InstructionOperandEncodingEntry < Nil::XMLObject
 end
 
 class InstructionOperandEncoding < Nil::XMLObject
-  attr_reader :identifier, :operands
+  attr_reader :identifier
 
   def initialize(identifier, operands)
     super()

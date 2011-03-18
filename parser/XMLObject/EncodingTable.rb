@@ -1,6 +1,6 @@
 require 'nil/xml'
 
-require_relative 'InstructionOperantEncoding'
+require_relative 'InstructionOperandEncoding'
 
 class EncodingTable < Nil::XMLObject
   def initialize(encodingTable)
