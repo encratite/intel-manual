@@ -26,7 +26,7 @@ class ManualData
     end
   end
 
-  attr_reader :instructionCount, :tableCount, :imageCount
+  attr_reader :instructionCount, :tableCount, :imageCount, :instructionSetReference
 
   def initialize(descriptionWarningOutputDirectory)
     @instructionCount = 0
