@@ -3,6 +3,8 @@ require 'nil/xml'
 require_relative 'InstructionExceptionEntry'
 
 class InstructionExceptionCategory < Nil::XMLObject
+  attr_reader :name
+
   def initialize(category, exceptionData)
     super()
     setName('Category')

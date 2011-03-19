@@ -30,7 +30,7 @@ def getFirstContent(target)
   return target.content.first
 end
 
-def processInstruction(connection, instruction)
+def processInstruction(connection, instruction, exceptions)
   content = instruction.content
   opcodeTable = content[0]
   opcodes = retrieveContentObjects(opcodeTable, OpcodeTableEntry)
@@ -75,17 +75,43 @@ def processInstruction(connection, instruction)
       connection[:instruction_opcode_encoding_description].insert(entryFields)
     end
   end
+  instructionExceptionContainer.content.each do |category|
+    categoryName = category.name
+    categoryId = exceptions[categoryName]
+    if categoryId == nil
+      categoryId = connection[:instruction_exception_category].insert(category_name: categoryName)
+      puts categoryName
+      exceptions[categoryName] = categoryId
+    end
+    exceptionFields = {
+      instruction_id: instructionId,
+      category_id: categoryId,
+    }
+    if category.content.class == Array
+      category.content.each do |exception|
+        exceptionFields[:exception_name] = exception.name
+        exceptionFields[:description] = exception.description
+        connection[:instruction_exception].insert(exceptionFields)
+      end
+    else
+      exceptionFields[:exception_name] = nil #SIMD uses this format apparently... how annoying
+      exceptionFields[:description] = category.content
+      connection[:instruction_exception].insert(exceptionFields)
+    end
+  end
 end
 
 def truncateTables(connection)
   tables = [
             :instruction,
+            :instruction_exception,
+            :instruction_exception_category,
             :instruction_opcode,
             :instruction_opcode_encoding,
             :instruction_opcode_encoding_description,
            ]
   tables.each do |symbol|
-    connection["truncate #{symbol.to_s} cascade"]
+    connection.run("truncate #{symbol.to_s} cascade")
   end
 end
 
@@ -104,8 +130,9 @@ def insertManualData(user, database, manualData)
   reference = manualData.instructionSetReference
   truncateTables(connection)
   instructions = reference.content
+  exceptions = {}
   instructions.each do |instruction|
-    processInstruction(connection, instruction)
+    processInstruction(connection, instruction, exceptions)
   end
 end
 

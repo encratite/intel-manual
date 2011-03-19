@@ -1,3 +1,5 @@
+require_relative 'string'
+
 class ManualData
   def postProcessRows(rows)
     return if rows.empty?
@@ -280,13 +282,24 @@ class ManualData
 
     rows = []
 
-    paragraphContent = paragraphMatch[1]
+    paragraphContent = replaceCommonStrings(paragraphMatch[1])
+    #paragraphContent = paragraphMatch[1]
     paragraphContent.scan(linePattern) do |match|
       line = match.first
       processParagraphOpcodeLine(instruction, line, rows)
     end
 
     rows = mergeRows(rows) {}
+    rows = rows.map do |row|
+      row.map do |column|
+        output = replaceCommonStrings(column)
+        if column.index('sign-extend') != nil
+          #puts column.inspect
+          #puts output.inspect
+        end
+        output
+      end
+    end
 
     return rows
   end
