@@ -42,6 +42,7 @@ def processInstruction(connection, instruction, exceptions)
   instructionExceptionContainer = retrieveContentObject(instruction, InstructionExceptionContainer)
   instructionFields = {
     instruction_name: instruction.name,
+    summary: instruction.summary,
     description: description,
     pseudo_code: operation,
     flags_affected: flagsAffected,

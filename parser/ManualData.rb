@@ -81,7 +81,7 @@ class ManualData
   def parseInstruction(title, content)
     @warningOccurred = false
 
-    titlePattern = /(.+?)(—|-)(.+?)/
+    titlePattern = /(.+?)(?:—|-)(.+)/
     titleMatch = titlePattern.match(title)
     return if titleMatch == nil
     instruction = titleMatch[1].strip
@@ -164,7 +164,7 @@ class ManualData
 
       instructionName = instruction
 
-      newInstruction = Instruction.new(instructionName, opcodeTable, encodingTable, description, operation, flagsAffected, fpuFlagsAffected, exceptions)
+      newInstruction = Instruction.new(instructionName, summary, opcodeTable, encodingTable, description, operation, flagsAffected, fpuFlagsAffected, exceptions)
 
       @instructionSetReference.add(newInstruction)
       @instructionCount += 1

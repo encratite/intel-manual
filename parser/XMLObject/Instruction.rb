@@ -8,11 +8,12 @@ require_relative 'FPUFlagsAffected'
 require_relative 'InstructionExceptionContainer'
 
 class Instruction < Nil::XMLObject
-  attr_reader :name
+  attr_reader :name, :summary
 
-  def initialize(name, opcodeTable, encodingTable, description, operation, flagsAffected, fpuFlagsAffected, exceptions)
+  def initialize(name, summary, opcodeTable, encodingTable, description, operation, flagsAffected, fpuFlagsAffected, exceptions)
     super()
     @name = name
+    @summary = summary
     add(OpcodeTable.new(opcodeTable, encodingTable))
     add(Description.new(description))
     add(Operation.new(operation))
