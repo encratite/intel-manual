@@ -25,8 +25,8 @@ def retrieveContentObjects(container, targetClass)
 end
 
 def getFirstContent(target)
-  return nil if target == nil
-  raise "Invalid target" if target.content.class == String
+  return nil if target == nil || target.content == nil
+  return target.content if target.content.class == String
   return target.content.first
 end
 
@@ -37,9 +37,9 @@ def processInstruction(connection, instruction)
   encodings = retrieveContentObjects(opcodeTable, InstructionOperandEncoding)
   description = getFirstContent(content[1])
   operation = getFirstContent(content[2])
-  flagsAffected = getFirstContent(retrieveContentObject(content, FlagsAffected))
-  fpuFlagsAffected = getFirstContent(retrieveContentObject(content, FPUFlagsAffected))
-  instructionExceptionContainer = retrieveContentObject(content, InstructionExceptionContainer)
+  flagsAffected = getFirstContent(retrieveContentObject(instruction, FlagsAffected))
+  fpuFlagsAffected = getFirstContent(retrieveContentObject(instruction, FPUFlagsAffected))
+  instructionExceptionContainer = retrieveContentObject(instruction, InstructionExceptionContainer)
   instructionFields = {
     instruction_name: instruction.name,
     description: description,
@@ -77,6 +77,18 @@ def processInstruction(connection, instruction)
   end
 end
 
+def truncateTables(connection)
+  tables = [
+            :instruction,
+            :instruction_opcode,
+            :instruction_opcode_encoding,
+            :instruction_opcode_encoding_description,
+           ]
+  tables.each do |symbol|
+    connection["truncate #{symbol.to_s} cascade"]
+  end
+end
+
 def insertManualData(user, database, manualData)
   adapter = 'postgres'
   host = '127.0.0.1'
@@ -90,6 +102,7 @@ def insertManualData(user, database, manualData)
                    database: database
                    )
   reference = manualData.instructionSetReference
+  truncateTables(connection)
   instructions = reference.content
   instructions.each do |instruction|
     processInstruction(connection, instruction)
