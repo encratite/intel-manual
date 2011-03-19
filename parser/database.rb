@@ -26,6 +26,7 @@ end
 
 def getFirstContent(target)
   return nil if target == nil
+  raise "Invalid target" if target.content.class == String
   return target.content.first
 end
 
@@ -33,7 +34,7 @@ def processInstruction(connection, instruction)
   content = instruction.content
   opcodeTable = content[0]
   opcodes = retrieveContentObjects(opcodeTable, OpcodeTableEntry)
-  encodings = retrieveContentObjects(opcodeTable, OpcodeEncoding)
+  encodings = retrieveContentObjects(opcodeTable, InstructionOperandEncoding)
   description = getFirstContent(content[1])
   operation = getFirstContent(content[2])
   flagsAffected = getFirstContent(retrieveContentObject(content, FlagsAffected))
@@ -111,6 +112,8 @@ def parseReference(user, database, descriptionWarningOutputDirectory, inputPaths
     puts exception.inspect
     puts exception.backtrace.map { |x| "\t#{x}\n" }
   end
+  puts "Inserting data into the database"
+  insertManualData(user, database, manualData)
 end
 
 if ARGV.size < 3
