@@ -86,6 +86,8 @@ class ManualData
              'Calculate y × log<sub>2</sub>(x)'
            when 'FYL2XP1'
              'Calculate y × log<sub>2</sub>(x + 1)'
+           when 'RCL/RCR/ROL/ROR'
+             'Perform bit rotation'
            else
              summary
            end
