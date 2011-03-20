@@ -78,6 +78,19 @@ class ManualData
     return rows
   end
 
+  def translateSummary(instruction, summary)
+    return case instruction
+           when 'F2XM1'
+             'Calculate 2<sup>x</sup> - 1'
+           when 'FYL2X'
+             'Calculate y × log<sub>2</sub>(x)'
+           when 'FYL2XP1'
+             'Calculate y × log<sub>2</sub>(x + 1)'
+           else
+             summary
+           end
+  end
+
   def parseInstruction(title, content)
     @warningOccurred = false
 
@@ -86,6 +99,7 @@ class ManualData
     return if titleMatch == nil
     instruction = titleMatch[1].strip
     summary = titleMatch[2].strip
+    summary = translateSummary(instruction, summary)
     return if instruction[0].isNumber
 
     #at the end of the second PDF
